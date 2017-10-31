@@ -1,0 +1,9 @@
+#goal definition
+geometry_msgs/Vector3 goal
+std_msgs/string command
+---
+#result definition
+std_msgs/Bool successful
+---
+#feedback definition
+std_msgs/Bool finished
