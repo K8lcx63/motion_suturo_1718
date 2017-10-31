@@ -26,3 +26,7 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+#create executables
+add_executable(main src/main.cpp)
+target_link_libraries(main ${catkin_LIBRARIES})
