@@ -23,12 +23,28 @@ int main(int argc, char **argv)
 
     // Part of the robot to move
     moveit::planning_interface::MoveGroup group("right_arm");
+    moveit::planning_interface::MoveGroup leftgroup("left_arm");
+
+    geometry_msgs::Pose target_pose1;
+    target_pose1.orientation.w = 1.0;
+    target_pose1.position.x = 0.1;
+    target_pose1.position.y = -0.85;
+    target_pose1.position.z = 1;
+    group.setPoseTarget(target_pose1);
+
+    geometry_msgs::Pose target_pose2;
+    target_pose2.orientation.w = 1.0;
+    target_pose2.position.x = 0.1;
+    target_pose2.position.y = 0.85;
+    target_pose2.position.z = 0.4;
+    leftgroup.setPoseTarget(target_pose2);
 
     // specify that our target will be a random one
-    group.setRandomTarget();
+    //group.setRandomTarget();
 
     // plan the motion and then move the group to the sampled target
     group.move();
+    leftgroup.move();
 
     return 0;
 }
