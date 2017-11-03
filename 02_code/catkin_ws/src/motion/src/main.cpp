@@ -27,16 +27,16 @@ int main(int argc, char **argv)
 
     geometry_msgs::Pose target_pose1;
     target_pose1.orientation.w = 1.0;
-    target_pose1.position.x = 0.1;
-    target_pose1.position.y = -0.85;
+    target_pose1.position.x = 0.28;
+    target_pose1.position.y = -0.7;
     target_pose1.position.z = 1;
     group.setPoseTarget(target_pose1);
 
     geometry_msgs::Pose target_pose2;
     target_pose2.orientation.w = 1.0;
-    target_pose2.position.x = 0.1;
-    target_pose2.position.y = 0.85;
-    target_pose2.position.z = 0.4;
+    target_pose2.position.x = 0.28;
+    target_pose2.position.y = 0.7;
+    target_pose2.position.z = 1;
     leftgroup.setPoseTarget(target_pose2);
 
     // specify that our target will be a random one
