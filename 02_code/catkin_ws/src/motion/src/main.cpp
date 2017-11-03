@@ -2,23 +2,38 @@
 #include <ros/ros.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <iostream>
+#include <actionlib/server/simple_action_server.h>
+#include <motion/MovingCommandAction.h>
 
 class Main {
 private:
     ros::NodeHandle node_handle;
+    actionlib::SimpleActionServer<motion::MovingCommandAction> action_server;
 
 public:
     Main(const ros::NodeHandle &nh) :
-            node_handle(nh) {
+            node_handle(nh),
+            action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false)
+            {
+            	action_server.start();
+			}
 
-    }
+
+	void executeCommand(const motion::MovingCommandGoalConstPtr &goal){
+		ROS_INFO("action server command");
+	}
 };
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "movement_example1");
+    ros::init(argc, argv, "motion_main");
     ros::NodeHandle node_handle;
-    ros::AsyncSpinner spinner(1);
+
+    Main main(node_handle);
+
+    ros::spin();
+    
+    /*ros::AsyncSpinner spinner(1);
     spinner.start();
 
     // Part of the robot to move
@@ -44,7 +59,7 @@ int main(int argc, char **argv)
 
     // plan the motion and then move the group to the sampled target
     group.move();
-    leftgroup.move();
+    leftgroup.move();*/
 
     return 0;
 }

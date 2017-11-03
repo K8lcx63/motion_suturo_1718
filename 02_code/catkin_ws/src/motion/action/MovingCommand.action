@@ -6,4 +6,4 @@ std_msgs/String command
 std_msgs/Bool successful
 ---
 #feedback definition
-std_msgs/Bool finished
+#std_msgs/Bool finished

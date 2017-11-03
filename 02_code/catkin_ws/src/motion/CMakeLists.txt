@@ -7,8 +7,12 @@ find_package(catkin REQUIRED COMPONENTS
         geometry_msgs
         message_generation
         actionlib_msgs
+        actionlib
         moveit_ros_planning_interface
-        )
+)
+find_package(Boost REQUIRED COMPONENTS 
+        system
+)
 
 add_action_files(
         DIRECTORY action
