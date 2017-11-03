@@ -4,6 +4,8 @@
 #include <iostream>
 #include <actionlib/server/simple_action_server.h>
 #include <motion/MovingCommandAction.h>
+#include <string>
+#include <std_msgs/String.h>
 
 class Main {
 private:
@@ -20,7 +22,10 @@ public:
 
 
 	void executeCommand(const motion::MovingCommandGoalConstPtr &goal){
-		ROS_INFO("action server command");
+		std_msgs::String s;
+		s.data = goal->command.data;
+		ROS_INFO("%s", s.data.c_str());
+		//std::cout << s.data << std::endl;
 	}
 };
 

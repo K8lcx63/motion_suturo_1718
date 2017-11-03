@@ -3,7 +3,7 @@ geometry_msgs/Vector3 goal
 std_msgs/String command
 ---
 #result definition
-std_msgs/Bool successful
+bool successful
 ---
 #feedback definition
-#std_msgs/Bool finished
+#bool finished
