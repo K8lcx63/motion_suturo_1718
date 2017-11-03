@@ -4,6 +4,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <motion/MovingCommandAction.h>
 #include <std_msgs/String.h>
+#include <vector>
 
 
 class Main {
@@ -45,6 +46,7 @@ public:
 
                 group.move();
                 //leftgroup.move();
+
                 break;
             case 2:
                 ROS_INFO("Moving right arm");
