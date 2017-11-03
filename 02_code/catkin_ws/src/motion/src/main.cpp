@@ -22,11 +22,21 @@ public:
 
 
 	void executeCommand(const motion::MovingCommandGoalConstPtr &goal){
-		std_msgs::String s;
-		s.data = goal->command.data;
-		ROS_INFO("%s", s.data.c_str());
-		//std::cout << s.data << std::endl;
-	}
+	    switch(goal->command) {
+            case 1:
+                ROS_INFO("Moving to standard pose");
+                break;
+            case 2:
+                ROS_INFO("Moving right arm");
+                break;
+            case 3:
+                ROS_INFO("Moving left arm");
+                break;
+            default:
+                ROS_INFO("COMMAND UNKNOWN");
+                break;
+        }
+    }
 };
 
 int main(int argc, char **argv)
