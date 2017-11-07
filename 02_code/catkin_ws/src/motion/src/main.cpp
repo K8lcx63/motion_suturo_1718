@@ -3,8 +3,11 @@
 #include <moveit/move_group_interface/move_group.h>
 #include <actionlib/server/simple_action_server.h>
 #include <motion/MovingCommandAction.h>
+#include <motion/MovingCommandResult.h>
 #include <std_msgs/String.h>
+#include <string>
 #include <geometry_msgs/Vector3.h>
+#include <moveit_msgs/MoveItErrorCodes.h>
 
 
 class Main {
@@ -14,6 +17,8 @@ private:
     moveit::planning_interface::MoveGroup left_arm_group;
     geometry_msgs::Pose target_pose1;
     actionlib::SimpleActionServer<motion::MovingCommandAction> action_server;
+    moveit_msgs::MoveItErrorCodes error_code;
+    motion::MovingCommandResult result;
 
 public:
     Main(const ros::NodeHandle &nh) :
@@ -28,35 +33,83 @@ public:
 
 	void executeCommand(const motion::MovingCommandGoalConstPtr &goal){
         geometry_msgs::Vector3 vector(goal->vector);
+
         switch(goal->command) {
             case 1:
-                ROS_INFO("Moving to begin pose");
+                ROS_INFO("Moving to initial pose.");
+
                 right_arm_group.setNamedTarget("right_arm_initial");
-                right_arm_group.move();
+                error_code = right_arm_group.move();
+
+                if(error_code.val != error_code.SUCCESS){
+                    result.successful = false;
+
+                    std::string error_string;
+                    std::ostringstream convert;
+
+                    convert << error_code.val;
+
+                    error_string = convert.str();
+
+                    action_server.setAborted(result, error_string);
+                    ROS_WARN(error_string.c_str());
+
+                    return;
+                }
+
                 left_arm_group.setNamedTarget("left_arm_initial");
-                left_arm_group.move();
+                error_code = left_arm_group.move();
+
                 break;
             case 2:
-                ROS_INFO("Moving right arm");
+                ROS_INFO("Moving right arm to goal.");
+
                 target_pose1.orientation.w = 1.0;
                 target_pose1.position.x = vector.x;
                 target_pose1.position.y = vector.y;
                 target_pose1.position.z = vector.z;
-                //right_arm_group.setPoseTarget(target_pose1);
-                //right_arm_group.move();
+
+                right_arm_group.setPoseTarget(target_pose1);
+                error_code = right_arm_group.move();
+
                 break;
             case 3:
-                ROS_INFO("Moving left arm");
+                ROS_INFO("Moving left arm to goal.");
+
                 target_pose1.orientation.w = 1.0;
                 target_pose1.position.x = vector.x;
                 target_pose1.position.y = vector.y;
                 target_pose1.position.z = vector.z;
-               // left_arm_group.setPoseTarget(target_pose1);
-               // left_arm_group.move();
+
+                left_arm_group.setPoseTarget(target_pose1);
+                error_code = left_arm_group.move();
+
                 break;
             default:
-                ROS_INFO("COMMAND UNKNOWN");
-                break;
+                ROS_ERROR("COMMAND UNKNOWN");
+
+                result.successful = false;
+                action_server.setAborted(result, "UNKNOWN COMMAND. ABORTED.");
+
+                return;
+        }
+
+        if(error_code.val == error_code.SUCCESS){
+            result.successful = true;
+            action_server.setSucceeded(result);
+            ROS_INFO("MOVE SUCCESSFUL.");
+        } else{
+            result.successful = false;
+
+            std::string error_string;
+            std::ostringstream convert;
+
+            convert << error_code.val;
+
+            error_string = convert.str();
+
+            action_server.setAborted(result, error_string);
+            ROS_WARN(error_string.c_str());
         }
     }
 };
@@ -68,33 +121,6 @@ int main(int argc, char **argv)
 
     Main main(node_handle);
     ros::spin();
-    /*ros::AsyncSpinner spinner(1);
-    spinner.start();
-
-    // Part of the robot to move
-    moveit::planning_interface::MoveGroup group("right_arm");
-    moveit::planning_interface::MoveGroup leftgroup("left_arm");
-
-    geometry_msgs::Pose target_pose1;
-    target_pose1.orientation.w = 1.0;
-    target_pose1.position.x = 0.28;
-    target_pose1.position.y = -0.7;
-    target_pose1.position.z = 1;
-    group.setPoseTarget(target_pose1);
-
-    geometry_msgs::Pose target_pose2;
-    target_pose2.orientation.w = 1.0;
-    target_pose2.position.x = 0.28;
-    target_pose2.position.y = 0.7;
-    target_pose2.position.z = 1;
-    leftgroup.setPoseTarget(target_pose2);
-
-    // specify that our target will be a random one
-    //group.setRandomTarget();
-
-    // plan the motion and then move the group to the sampled target
-    group.move();
-    leftgroup.move();*/
 
     return 0;
 }
