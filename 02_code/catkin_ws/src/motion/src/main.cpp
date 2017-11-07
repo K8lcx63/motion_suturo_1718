@@ -91,7 +91,7 @@ public:
             error_string = convert.str();
 
             action_server.setAborted(result, error_string);
-            ROS_WARN(error_string.c_str());
+            ROS_WARN("%s", error_string.c_str());
         }
     }
 };
