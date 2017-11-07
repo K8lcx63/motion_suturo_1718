@@ -15,6 +15,7 @@ private:
     ros::NodeHandle node_handle;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
+    moveit::planning_interface::MoveGroup both_arms;
     geometry_msgs::Pose target_pose1;
     actionlib::SimpleActionServer<motion::MovingCommandAction> action_server;
     moveit_msgs::MoveItErrorCodes error_code;
@@ -25,6 +26,7 @@ public:
             node_handle(nh),
             right_arm_group("right_arm"),
             left_arm_group("left_arm"),
+            both_arms("arms"),
             action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false)
             {
             	action_server.start();
@@ -38,28 +40,8 @@ public:
             case 1:
                 ROS_INFO("Moving to initial pose.");
 
-                right_arm_group.setNamedTarget("right_arm_initial");
-                error_code = right_arm_group.move();
-
-                if(error_code.val != error_code.SUCCESS){
-                    result.successful = false;
-
-                    std::string error_string;
-                    std::ostringstream convert;
-
-                    convert << error_code.val;
-
-                    error_string = convert.str();
-
-                    action_server.setAborted(result, error_string);
-                    ROS_WARN(error_string.c_str());
-
-                    return;
-                }
-
-                left_arm_group.setNamedTarget("left_arm_initial");
-                error_code = left_arm_group.move();
-
+                both_arms.setNamedTarget("arms_initial");
+                error_code = both_arms.move();
                 break;
             case 2:
                 ROS_INFO("Moving right arm to goal.");
