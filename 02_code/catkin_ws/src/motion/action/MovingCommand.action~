@@ -1,9 +1,13 @@
 #goal definition
-geometry_msgs/Vector3 goal
-std_msgs/string command
+geometry_msgs/Vector3 vector
+uint8 command
+uint8 UNKNOWN=0
+uint8 MOVE_STANDARD_POSE=1
+uint8 MOVE_RIGHT_ARM=2
+uint8 MOVE_LEFT_ARM=3
 ---
 #result definition
-std_msgs/Bool successful
+bool successful
 ---
 #feedback definition
-std_msgs/Bool finished
+#bool finished
