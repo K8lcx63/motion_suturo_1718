@@ -12,7 +12,6 @@ private:
     ros::NodeHandle node_handle;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
-    moveit::planning_interface::MoveGroup arms_group;
     geometry_msgs::Pose target_pose1;
     actionlib::SimpleActionServer<motion::MovingCommandAction> action_server;
 
@@ -21,7 +20,6 @@ public:
             node_handle(nh),
             right_arm_group("right_arm"),
             left_arm_group("left_arm"),
-            arms_group("arms"),
             action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false)
             {
             	action_server.start();
@@ -33,8 +31,10 @@ public:
         switch(goal->command) {
             case 1:
                 ROS_INFO("Moving to begin pose");
-                arms_group.setNamedTarget("initial_pose");
-                arms_group.move();
+                right_arm_group.setNamedTarget("right_arm_initial");
+                right_arm_group.move();
+                left_arm_group.setNamedTarget("left_arm_initial");
+                left_arm_group.move();
                 break;
             case 2:
                 ROS_INFO("Moving right arm");
@@ -42,8 +42,8 @@ public:
                 target_pose1.position.x = vector.x;
                 target_pose1.position.y = vector.y;
                 target_pose1.position.z = vector.z;
-                right_arm_group.setPoseTarget(target_pose1);
-                right_arm_group.move();
+                //right_arm_group.setPoseTarget(target_pose1);
+                //right_arm_group.move();
                 break;
             case 3:
                 ROS_INFO("Moving left arm");
@@ -51,8 +51,8 @@ public:
                 target_pose1.position.x = vector.x;
                 target_pose1.position.y = vector.y;
                 target_pose1.position.z = vector.z;
-                left_arm_group.setPoseTarget(target_pose1);
-                left_arm_group.move();
+               // left_arm_group.setPoseTarget(target_pose1);
+               // left_arm_group.move();
                 break;
             default:
                 ROS_INFO("COMMAND UNKNOWN");
