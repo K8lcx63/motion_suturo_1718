@@ -12,6 +12,7 @@ private:
     ros::NodeHandle node_handle;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
+    moveit::planning_interface::MoveGroup arms_group;
     geometry_msgs::Pose target_pose1;
     actionlib::SimpleActionServer<motion::MovingCommandAction> action_server;
 
@@ -20,6 +21,7 @@ public:
             node_handle(nh),
             right_arm_group("right_arm"),
             left_arm_group("left_arm"),
+            arms_group("arms"),
             action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false)
             {
             	action_server.start();
@@ -31,25 +33,8 @@ public:
         switch(goal->command) {
             case 1:
                 ROS_INFO("Moving to begin pose");
-                //moveit::planning_interface::MoveGroup group("right_arm");
-                //moveit::planning_interface::MoveGroup leftgroup("left_arm");
-                //group.setNamedTarget("home");
-                //target_pose1.orientation.w = 1.0;
-                //target_pose1.position.x = 0.28;
-                //target_pose1.position.y = -0.7;
-                //target_pose1.position.z = 1;
-                //group.setPoseTarget(target_pose1);
-
-                /*geometry_msgs::Pose target_pose2;
-                target_pose2.orientation.w = 1.0;
-                target_pose2.position.x = 0.28;
-                target_pose2.position.y = 0.7;
-                target_pose2.position.z = 1;
-                leftgroup.setPoseTarget(target_pose2);*/
-
-                //group.move();
-                //leftgroup.move();
-
+                arms_group.setNamedTarget("initial_pose");
+                arms_group.move();
                 break;
             case 2:
                 ROS_INFO("Moving right arm");
