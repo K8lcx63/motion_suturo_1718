@@ -2,8 +2,8 @@
 #include <ros/ros.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <actionlib/server/simple_action_server.h>
-#include <motion/MovingCommandAction.h>
-#include <motion/MovingCommandResult.h>
+#include <motion_msgs/MovingCommandAction.h>
+#include <motion_msgs/MovingCommandResult.h>
 #include <std_msgs/String.h>
 #include <string>
 #include <geometry_msgs/Vector3.h>
@@ -17,9 +17,9 @@ private:
     moveit::planning_interface::MoveGroup left_arm_group;
     moveit::planning_interface::MoveGroup both_arms;
     geometry_msgs::Pose target_pose1;
-    actionlib::SimpleActionServer<motion::MovingCommandAction> action_server;
+    actionlib::SimpleActionServer<motion_msgs::MovingCommandAction> action_server;
     moveit_msgs::MoveItErrorCodes error_code;
-    motion::MovingCommandResult result;
+    motion_msgs::MovingCommandResult result;
 
 public:
     Main(const ros::NodeHandle &nh) :
@@ -32,7 +32,7 @@ public:
     }
 
 
-    void executeCommand(const motion::MovingCommandGoalConstPtr &goal) {
+    void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
         geometry_msgs::Vector3 vector(goal->vector);
         switch (goal->command) {
             case 1:
