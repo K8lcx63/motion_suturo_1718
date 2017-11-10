@@ -39,40 +39,21 @@ public:
         switch(goal->command) {
             case 1:
                 ROS_INFO("Moving to initial pose.");
-
                 both_arms.setNamedTarget("arms_initial");
                 error_code = both_arms.move();
                 break;
             case 2:
                 ROS_INFO("Moving right arm to goal.");
-
-                target_pose1.orientation.w = 1.0;
-                target_pose1.position.x = vector.x;
-                target_pose1.position.y = vector.y;
-                target_pose1.position.z = vector.z;
-
-                right_arm_group.setPoseTarget(target_pose1);
-                error_code = right_arm_group.move();
-
+                error_code = moveGroupToCoordinates(right_arm_group, vector);
                 break;
             case 3:
                 ROS_INFO("Moving left arm to goal.");
-
-                target_pose1.orientation.w = 1.0;
-                target_pose1.position.x = vector.x;
-                target_pose1.position.y = vector.y;
-                target_pose1.position.z = vector.z;
-
-                left_arm_group.setPoseTarget(target_pose1);
-                error_code = left_arm_group.move();
-
+                error_code = moveGroupToCoordinates(left_arm_group, vector);
                 break;
             default:
                 ROS_ERROR("COMMAND UNKNOWN");
-
                 result.successful = false;
                 action_server.setAborted(result, "UNKNOWN COMMAND. ABORTED.");
-
                 return;
         }
 
@@ -93,6 +74,15 @@ public:
             action_server.setAborted(result, error_string);
             ROS_WARN("%s", error_string.c_str());
         }
+    }
+
+    moveit_msgs::MoveItErrorCodes moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::Vector3 &vector) {
+        target_pose1.orientation.w = 1.0;
+        target_pose1.position.x = vector.x;
+        target_pose1.position.y = vector.y;
+        target_pose1.position.z = vector.z;
+        group.setPoseTarget(target_pose1);
+        return group.move();
     }
 };
 
