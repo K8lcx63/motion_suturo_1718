@@ -79,7 +79,7 @@ public:
         if(error_code.val == error_code.SUCCESS){
             result.successful = true;
             action_server.setSucceeded(result);
-            ROS_INFO("MOVE SUCCESSFUL.");
+            ROS_INFO("MOVE SUCCESSFUL");
         } else{
             result.successful = false;
 
