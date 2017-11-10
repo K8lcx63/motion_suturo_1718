@@ -27,16 +27,14 @@ public:
             right_arm_group("right_arm"),
             left_arm_group("left_arm"),
             both_arms("arms"),
-            action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false)
-            {
-            	action_server.start();
-			}
+            action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false) {
+        action_server.start();
+    }
 
 
-	void executeCommand(const motion::MovingCommandGoalConstPtr &goal){
+    void executeCommand(const motion::MovingCommandGoalConstPtr &goal) {
         geometry_msgs::Vector3 vector(goal->vector);
-
-        switch(goal->command) {
+        switch (goal->command) {
             case 1:
                 ROS_INFO("Moving to initial pose.");
                 both_arms.setNamedTarget("arms_initial");
@@ -57,11 +55,15 @@ public:
                 return;
         }
 
-        if(error_code.val == error_code.SUCCESS){
+        handleErrorAndReturnResult();
+    }
+
+    void handleErrorAndReturnResult() {
+        if (error_code.val == error_code.SUCCESS) {
             result.successful = true;
             action_server.setSucceeded(result);
             ROS_INFO("MOVE SUCCESSFUL");
-        } else{
+        } else {
             result.successful = false;
 
             std::string error_string;
@@ -76,7 +78,8 @@ public:
         }
     }
 
-    moveit_msgs::MoveItErrorCodes moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::Vector3 &vector) {
+    moveit_msgs::MoveItErrorCodes
+    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::Vector3 &vector) {
         target_pose1.orientation.w = 1.0;
         target_pose1.position.x = vector.x;
         target_pose1.position.y = vector.y;
@@ -86,8 +89,7 @@ public:
     }
 };
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     ros::init(argc, argv, "motion_main");
     ros::NodeHandle node_handle;
 
