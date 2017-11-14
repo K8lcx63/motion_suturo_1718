@@ -1,5 +1,5 @@
 #goal definition
-geometry_msgs/Vector3 vector
+geometry_msgs/Point point
 uint8 command
 uint8 UNKNOWN=0
 uint8 MOVE_STANDARD_POSE=1

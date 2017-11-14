@@ -6,7 +6,7 @@
 #include <motion_msgs/MovingCommandResult.h>
 #include <std_msgs/String.h>
 #include <string>
-#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Point.h>
 #include <moveit_msgs/MoveItErrorCodes.h>
 
 
@@ -33,7 +33,7 @@ public:
 
 
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
-        geometry_msgs::Vector3 vector(goal->vector);
+        geometry_msgs::Point goal_point(goal->point);
         switch (goal->command) {
             case 1:
                 ROS_INFO("Moving to initial pose.");
@@ -42,11 +42,11 @@ public:
                 break;
             case 2:
                 ROS_INFO("Moving right arm to goal.");
-                error_code = moveGroupToCoordinates(right_arm_group, vector);
+                error_code = moveGroupToCoordinates(right_arm_group, goal_point);
                 break;
             case 3:
                 ROS_INFO("Moving left arm to goal.");
-                error_code = moveGroupToCoordinates(left_arm_group, vector);
+                error_code = moveGroupToCoordinates(left_arm_group, goal_point);
                 break;
             default:
                 ROS_ERROR("COMMAND UNKNOWN");
@@ -79,11 +79,11 @@ public:
     }
 
     moveit_msgs::MoveItErrorCodes
-    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::Vector3 &vector) {
+    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::Point &goal_point) {
         target_pose1.orientation.w = 1.0;
-        target_pose1.position.x = vector.x;
-        target_pose1.position.y = vector.y;
-        target_pose1.position.z = vector.z;
+        target_pose1.position.x = goal_point.x;
+        target_pose1.position.y = goal_point.y;
+        target_pose1.position.z = goal_point.z;
         group.setPoseTarget(target_pose1);
         return group.move();
     }
