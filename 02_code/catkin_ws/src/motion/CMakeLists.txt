@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
         actionlib_msgs
         actionlib
         moveit_ros_planning_interface
+        tf
 )
 find_package(Boost REQUIRED COMPONENTS 
         system
@@ -24,7 +25,7 @@ find_package(Boost REQUIRED COMPONENTS
 #)
 
 catkin_package(
-        CATKIN_DEPENDS message_runtime std_msgs geometry_msgs
+        CATKIN_DEPENDS message_runtime std_msgs geometry_msgs tf
 )
 
 

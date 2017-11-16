@@ -8,6 +8,7 @@
 #include <string>
 #include <geometry_msgs/Point.h>
 #include <moveit_msgs/MoveItErrorCodes.h>
+#include <tf/transform_listener.h>
 
 
 class Main {
@@ -20,6 +21,8 @@ private:
     actionlib::SimpleActionServer<motion_msgs::MovingCommandAction> action_server;
     moveit_msgs::MoveItErrorCodes error_code;
     motion_msgs::MovingCommandResult result;
+    tf::TransformListener listener;
+    tf::StampedTransform transform;
 
 public:
     Main(const ros::NodeHandle &nh) :
@@ -38,6 +41,7 @@ public:
             case 1:
                 ROS_INFO("Moving to initial pose.");
                 both_arms.setNamedTarget("arms_initial");
+                ROS_INFO("%s", both_arms.getPlanningFrame().c_str());
                 error_code = both_arms.move();
                 break;
             case 2:
@@ -80,11 +84,19 @@ public:
 
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::Point &goal_point) {
+        listener.lookupTransform("/odom_combined", "/head_mount_kinect_ir_optical_frame",
+                                 ros::Time(0), transform);
+
+        tf::Vector3 point_in_kinect_frame(goal_point.x, goal_point.y, goal_point.z);
+        tf::Vector3 point_in_planning_frame = transform * point_in_kinect_frame;
+
         target_pose1.orientation.w = 1.0;
-        target_pose1.position.x = goal_point.x;
-        target_pose1.position.y = goal_point.y;
-        target_pose1.position.z = goal_point.z;
+        target_pose1.position.x = point_in_planning_frame.getX();
+        target_pose1.position.y = point_in_planning_frame.getY();
+        target_pose1.position.z = point_in_planning_frame.getZ();
+
         group.setPoseTarget(target_pose1);
+
         return group.move();
     }
 };
