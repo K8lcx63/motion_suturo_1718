@@ -3,11 +3,7 @@
 #include <moveit/move_group_interface/move_group.h>
 #include <actionlib/server/simple_action_server.h>
 #include <motion_msgs/MovingCommandAction.h>
-#include <motion_msgs/MovingCommandResult.h>
 #include <std_msgs/String.h>
-#include <string>
-#include <geometry_msgs/Point.h>
-#include <moveit_msgs/MoveItErrorCodes.h>
 #include <tf/transform_listener.h>
 
 
