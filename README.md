@@ -26,16 +26,39 @@ Folgende Konstanten sind für command vorgesehen
     <th>int-value</th>
     <th>Bedeutung</th>
   </tr>
+  <tr>
+    <td>UNKNOWN</td>
+    <td>0</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>MOVE_STANDARD_POSE</td>
+    <td>1</td>
+    <td>Roboter Arme in die Initiale Pose bewegen, kein PointStamped benötigt</td>
+  </tr>
+  <tr>
+    <td>MOVE_RIGHT_ARM</td>
+    <td>2</td>
+    <td>Rechten Arm zu gegebenem PointStamped bewegen</td>
+  </tr>
+  <tr>
+    <td>MOVE_LEFT_ARM</td>
+    <td>3</td>
+    <td>Linken Arm zu gegebenem PointStamped bewegen</td>
+  </tr>
 </table>
-
-- UNKNOWN=0
-- MOVE_STANDARD_POSE=1 (Roboter Arme in die Initale Pose bewegen, kein PointStamped benötigt)
-- MOVE_RIGHT_ARM=2 (Rechten Arm zu gegebenem PointStamped bewegen)
-- MOVE_LEFT_ARM=3 (Linken Arm zu gegebenem PointStamped bewegen)
 
 Folgends wird zurückgegeben:
 
-- bool successfull (true/false, je nachdem ob die Bewegung durchgeführt wurde oder nicht)
-
-
-
+<table>
+  <tr>
+    <th>type</th>
+    <th>name</th>
+    <th>definition</th>
+  </tr>
+  <tr>
+    <td>bool</td>
+    <td>successfull</td>
+    <td>true/false, je nachdem ob die Bewegung erfolgreich durchgeführt werden konnte oder nicht</td>
+  </tr>
+</table>
