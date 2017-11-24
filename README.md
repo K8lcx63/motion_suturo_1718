@@ -2,9 +2,13 @@
 
 ### Installation
 
+MoveIt installieren:
+> sudo apt-get install ros-indigo-moveit
+> source /opt/ros/indigo/setup.bash
+
 Das Repo in den src Ordner eines catkin workspaces clonen.
 Das msgs_suturo_1718 package muss sich auch im src Ordner des workspaces befinden.
-Dann den catkin workspace mit catkin build bauen.
+Dann den catkin workspace mit catkin build bauen (ggf. vorher catkin clean).
 
 ### Actions
 
