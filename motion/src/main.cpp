@@ -34,17 +34,17 @@ public:
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
         geometry_msgs::Point goal_point(goal->point);
         switch (goal->command) {
-            case 1:
+            case motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE :
                 ROS_INFO("Moving to initial pose.");
                 both_arms.setNamedTarget("arms_initial");
                 ROS_INFO("%s", both_arms.getPlanningFrame().c_str());
                 error_code = both_arms.move();
                 break;
-            case 2:
+            case motion_msgs::MovingCommandGoal::MOVE_RIGHT_ARM:
                 ROS_INFO("Moving right arm to goal.");
                 error_code = moveGroupToCoordinates(right_arm_group, goal_point);
                 break;
-            case 3:
+            case motion_msgs::MovingCommandGoal::MOVE_LEFT_ARM:
                 ROS_INFO("Moving left arm to goal.");
                 error_code = moveGroupToCoordinates(left_arm_group, goal_point);
                 break;
