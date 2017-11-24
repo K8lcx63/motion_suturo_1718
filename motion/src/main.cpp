@@ -27,12 +27,12 @@ public:
             left_arm_group("left_arm"),
             both_arms("arms"),
             action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false) {
-        action_server.start();
+            action_server.start();
     }
 
 
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
-        geometry_msgs::Point goal_point(goal->point);
+        geometry_msgs::PointStamped goal_point(goal->point_stamped);
         switch (goal->command) {
             case motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE :
                 ROS_INFO("Moving to initial pose.");
@@ -79,11 +79,11 @@ public:
     }
 
     moveit_msgs::MoveItErrorCodes
-    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::Point &goal_point) {
+    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
         listener.lookupTransform("/odom_combined", "/head_mount_kinect_ir_optical_frame",
                                  ros::Time(0), transform);
 
-        tf::Vector3 point_in_kinect_frame(goal_point.x, goal_point.y, goal_point.z);
+        tf::Vector3 point_in_kinect_frame(goal_point.point.x, goal_point.point.y, goal_point.point.z);
         tf::Vector3 point_in_planning_frame = transform * point_in_kinect_frame;
 
         target_pose1.orientation.w = 1.0;
