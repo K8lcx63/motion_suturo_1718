@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
         message_generation
         actionlib_msgs
         actionlib
+	motion_msgs
         moveit_ros_planning_interface
         tf
 )
