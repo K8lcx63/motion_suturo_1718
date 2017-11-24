@@ -37,7 +37,6 @@ public:
             case motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE :
                 ROS_INFO("Moving to initial pose.");
                 both_arms.setNamedTarget("arms_initial");
-                ROS_INFO("%s", both_arms.getPlanningFrame().c_str());
                 error_code = both_arms.move();
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_RIGHT_ARM:
@@ -80,14 +79,15 @@ public:
 
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
-        geometry_msgs::PoseStamped poseStamped;
-        poseStamped.pose.position.x = goal_point.point.x;
-        poseStamped.pose.position.y = goal_point.point.y;
-        poseStamped.pose.position.z = goal_point.point.z;
-        poseStamped.pose.orientation.w = 1.0;
-
-        group.setPoseTarget(poseStamped);
-
+        geometry_msgs::PointStamped point;
+        listener.transformPoint(group.getPlanningFrame(), goal_point, point);
+        //geometry_msgs::PoseStamped poseStamped;
+        //poseStamped.pose.position.x = goal_point.point.x;
+        //poseStamped.pose.position.y = goal_point.point.y;
+        //poseStamped.pose.position.z = goal_point.point.z;
+        //poseStamped.pose.orientation.w = 1.0;
+        //group.setPoseTarget(poseStamped);
+        group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         return group.move();
     }
 };
