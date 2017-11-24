@@ -15,15 +15,30 @@ Folgende Actions gibt es:
 Über die MovingCommandAction wird unser Actionserver angesprochen.
 Bestandteile der Action:
 
-- geometry_msgs/PointStamped
-- uint8 command
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Bedeutung</th>
+  </tr>
+  <tr>
+    <td>goal_point</td>
+    <td>geometry_msgs/PointStamped</td>
+    <td>Der Endpunkt der Bewegung als PointStamped</td>
+  </tr>
+  <tr>
+    <td>command</td>
+    <td>uint8</td>
+    <td>Konstante, die die Art des Befehles definiert (siehe unten)</td>
+  </tr>
+</table>
 
 Folgende Konstanten sind für command vorgesehen
 
 <table>
   <tr>
     <th>Constant</th>
-    <th>int-value</th>
+    <th>Int-value</th>
     <th>Bedeutung</th>
   </tr>
   <tr>
@@ -52,9 +67,9 @@ Folgends wird zurückgegeben:
 
 <table>
   <tr>
-    <th>type</th>
-    <th>name</th>
-    <th>definition</th>
+    <th>Type</th>
+    <th>Name</th>
+    <th>Bedeutung</th>
   </tr>
   <tr>
     <td>bool</td>
