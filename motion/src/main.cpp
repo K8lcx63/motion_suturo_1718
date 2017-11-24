@@ -80,18 +80,13 @@ public:
 
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
-        listener.lookupTransform("/odom_combined", "/head_mount_kinect_ir_optical_frame",
-                                 ros::Time(0), transform);
+        geometry_msgs::PoseStamped poseStamped;
+        poseStamped.pose.position.x = goal_point.point.x;
+        poseStamped.pose.position.y = goal_point.point.y;
+        poseStamped.pose.position.z = goal_point.point.z;
+        poseStamped.pose.orientation.w = 1.0;
 
-        tf::Vector3 point_in_kinect_frame(goal_point.point.x, goal_point.point.y, goal_point.point.z);
-        tf::Vector3 point_in_planning_frame = transform * point_in_kinect_frame;
-
-        target_pose1.orientation.w = 1.0;
-        target_pose1.position.x = point_in_planning_frame.getX();
-        target_pose1.position.y = point_in_planning_frame.getY();
-        target_pose1.position.z = point_in_planning_frame.getZ();
-
-        group.setPoseTarget(target_pose1);
+        group.setPoseTarget(poseStamped);
 
         return group.move();
     }
