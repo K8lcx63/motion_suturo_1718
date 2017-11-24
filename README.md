@@ -10,7 +10,7 @@ Dann den catkin workspace mit catkin build bauen.
 
 Folgende Actions gibt es:
 
-#### MovingCommandAction
+#### motion_msgs/MovingCommandAction
 
 Über die MovingCommandAction wird unser Actionserver angesprochen.
 Bestandteile der Action:
@@ -33,7 +33,7 @@ Bestandteile der Action:
   </tr>
 </table>
 
-Folgende Konstanten sind für command vorgesehen
+Folgende Konstanten sind für command vorgesehen:
 
 <table>
   <tr>
