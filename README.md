@@ -4,6 +4,7 @@
 
 MoveIt installieren:
 > sudo apt-get install ros-indigo-moveit
+
 > source /opt/ros/indigo/setup.bash
 
 Das Repo in den src Ordner eines catkin workspaces clonen.
