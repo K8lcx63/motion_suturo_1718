@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
     ros::ServiceClient kitchenObjectsClient = node_handle.serviceClient<knowledge_msgs::GetFixedKitchenObjects>("/kitchen_model_service/get_fixed_kitchen_objects");
     knowledge_msgs::GetFixedKitchenObjects srv;
 
-    if(kitchenObjectsClient.call(srv) && srv.response.success){
+    if(kitchenObjectsClient.call(srv)){
         ROS_INFO("Received kitchen objects from knowledge service, start to add objects to collision matrix.");
         if(main.addKitchenCollisionObjects(srv.response)){
             ROS_INFO("Successfully added kitchen objects to collision matrix.");
