@@ -84,9 +84,9 @@ public:
                 shape_msgs::SolidPrimitive primitive;
                 primitive.type = primitive.BOX;
                 primitive.dimensions.resize(3);
-                primitive.dimensions[0] = boundingBox.x;
-                primitive.dimensions[1] = boundingBox.y;
-                primitive.dimensions[2] = boundingBox.z;
+                primitive.dimensions[0] = boundingBox.z;
+                primitive.dimensions[1] = boundingBox.x;
+                primitive.dimensions[2] = boundingBox.y;
 
                 kitchenObject.primitives.push_back(primitive);
                 kitchenObject.primitive_poses.push_back(pose);
