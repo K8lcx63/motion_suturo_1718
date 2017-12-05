@@ -8,22 +8,14 @@ find_package(catkin REQUIRED COMPONENTS
         message_generation
         actionlib_msgs
         actionlib
-		motion_msgs
+	motion_msgs
         moveit_ros_planning_interface
         tf
+        knowledge_msgs
 )
 find_package(Boost REQUIRED COMPONENTS 
         system
 )
-
-#add_action_files(
-#        DIRECTORY action
-#        FILES MovingCommand.action
-#)
-
-#generate_messages(
-#        DEPENDENCIES std_msgs geometry_msgs actionlib_msgs
-#)
 
 catkin_package(
         CATKIN_DEPENDS message_runtime std_msgs geometry_msgs tf

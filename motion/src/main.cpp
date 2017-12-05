@@ -1,15 +1,21 @@
 #include <ros/node_handle.h>
 #include <ros/ros.h>
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <actionlib/server/simple_action_server.h>
 #include <motion_msgs/MovingCommandAction.h>
 #include <std_msgs/String.h>
+#include <string>
+#include <vector>
 #include <tf/transform_listener.h>
+#include <ros/package.h>
+#include <knowledge_msgs/GetFixedKitchenObjects.h>
 
 
 class Main {
 private:
     ros::NodeHandle node_handle;
+    moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
     moveit::planning_interface::MoveGroup both_arms;
@@ -30,6 +36,70 @@ public:
             action_server.start();
     }
 
+    bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res){
+        int namesSize = res.names.size();
+        int posesSize = res.poses.size();
+        int boundingBoxesSize = res.bounding_boxes.size();
+
+        if((namesSize != posesSize) || (posesSize != boundingBoxesSize) || (namesSize != boundingBoxesSize)){
+            ROS_ERROR("Data about kitchen objects received from knowledge are inconsistent.");
+            return false;
+        }else{
+
+            std::vector<moveit_msgs::CollisionObject> kitchenObjects;
+
+            //add objects to collision matrix
+            for(int i = 0; i < namesSize; i++){
+                std::string name(res.names[i]);
+                geometry_msgs::Pose pose = res.poses[i];
+                geometry_msgs::Vector3 boundingBox = res.bounding_boxes[i];
+
+                //TODO: compare to which group's planning frame?
+                if(res.frame_id != both_arms.getPlanningFrame()){
+                    geometry_msgs::PoseStamped poseIn;
+                    poseIn.header.frame_id = res.frame_id;
+                    poseIn.pose = pose;
+
+                    geometry_msgs::PoseStamped poseOut;
+/*
+                    std::vector<std::string> frames;
+                    listener.getFrameStrings(frames);
+
+                    for(int i = 0; i < frames.size(); i++){
+                        ROS_INFO("%s", frames[i].c_str());
+
+                    }*/
+
+
+                    listener.transformPose(both_arms.getPlanningFrame(), poseIn, poseOut);
+
+                    pose.orientation = poseOut.pose.orientation;
+                    pose.position = poseOut.pose.position;
+                }
+
+                moveit_msgs::CollisionObject kitchenObject;
+                kitchenObject.header.frame_id = both_arms.getPlanningFrame();
+                kitchenObject.id = name;
+
+                shape_msgs::SolidPrimitive primitive;
+                primitive.type = primitive.BOX;
+                primitive.dimensions.resize(3);
+                primitive.dimensions[0] = boundingBox.z;
+                primitive.dimensions[1] = boundingBox.x;
+                primitive.dimensions[2] = boundingBox.y;
+
+                kitchenObject.primitives.push_back(primitive);
+                kitchenObject.primitive_poses.push_back(pose);
+                kitchenObject.operation = kitchenObject.ADD;
+
+                kitchenObjects.push_back(kitchenObject);
+            }
+
+            planning_scene_interface.addCollisionObjects(kitchenObjects);
+
+            return true;
+        }
+    }
 
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
         geometry_msgs::PointStamped goal_point(goal->point_stamped);
@@ -97,6 +167,24 @@ int main(int argc, char **argv) {
     ros::NodeHandle node_handle;
 
     Main main(node_handle);
+
+    //add kitchen models to collision detection matrix
+    ros::ServiceClient kitchenObjectsClient = node_handle.serviceClient<knowledge_msgs::GetFixedKitchenObjects>("/kitchen_model_service/get_fixed_kitchen_objects");
+    knowledge_msgs::GetFixedKitchenObjects srv;
+
+    if(kitchenObjectsClient.call(srv)){
+        ROS_INFO("Received kitchen objects from knowledge service, start to add objects to collision matrix.");
+        if(main.addKitchenCollisionObjects(srv.response)){
+            ROS_INFO("Successfully added kitchen objects to collision matrix.");
+        }else{
+            ROS_ERROR("Could not add kitchen to collision matrix, because the data received from knowledge service were not correct.");
+            return 1;
+        }
+    }else{
+        ROS_ERROR("Could not add kitchen to collision matrix, because knowledge service is not available.");
+        return 1;
+    }
+
     ros::spin();
 
     return 0;
