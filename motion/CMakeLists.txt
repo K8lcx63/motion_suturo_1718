@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
         moveit_ros_planning_interface
         tf
         knowledge_msgs
+        iai_pr2
 )
 find_package(Boost REQUIRED COMPONENTS 
         system

@@ -64,7 +64,7 @@
         <joint name="r_wrist_flex_joint" value="-0.4522" />
         <joint name="r_wrist_roll_joint" value="-3.1415" />
     </group_state>
-    <group_state name="arms_initial">
+    <group_state name="arms_initial" group="arms">
         <joint name="l_elbow_flex_joint" value="-1.1356" />
         <joint name="l_forearm_roll_joint" value="1.5884" />
         <joint name="l_shoulder_lift_joint" value="-0.3536" />
