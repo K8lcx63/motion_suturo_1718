@@ -8,10 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
         message_generation
         actionlib_msgs
         actionlib
-	motion_msgs
+		motion_msgs
         moveit_ros_planning_interface
         tf
         knowledge_msgs
+        iai_pr2
 )
 find_package(Boost REQUIRED COMPONENTS 
         system

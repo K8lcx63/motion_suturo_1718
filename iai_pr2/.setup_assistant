@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: iai_pr2_description
+    relative_path: robots/pr2_calibrated_with_ft.xml
+  SRDF:
+    relative_path: config/pr2.srdf
+  CONFIG:
+    author_name: Roman Haak
+    author_email: rhaak@uni-bremen.de
+    generated_timestamp: 1512477011
