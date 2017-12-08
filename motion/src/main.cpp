@@ -42,7 +42,7 @@ public:
         int boundingBoxesSize = res.bounding_boxes.size();
 
         if((namesSize != posesSize) || (posesSize != boundingBoxesSize) || (namesSize != boundingBoxesSize)){
-            ROS_ERROR("Data about kitchen objects received from knowledge are inconsistent.");
+            ROS_ERROR("Kitchen objects received from knowledge are inconsistent. - Aborted.");
             return false;
         }else{
 
@@ -105,22 +105,23 @@ public:
         geometry_msgs::PointStamped goal_point(goal->point_stamped);
         switch (goal->command) {
             case motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE :
-                ROS_INFO("Moving to initial pose.");
+                ROS_INFO("Starting to move to initial pose.");
                 both_arms.setNamedTarget("arms_initial");
                 error_code = both_arms.move();
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_RIGHT_ARM:
-                ROS_INFO("Moving right arm to goal.");
+                ROS_INFO("Planning to move right arm to: ");
                 error_code = moveGroupToCoordinates(right_arm_group, goal_point);
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_LEFT_ARM:
-                ROS_INFO("Moving left arm to goal.");
+                ROS_INFO("Planning to move left arm to: ");
                 error_code = moveGroupToCoordinates(left_arm_group, goal_point);
                 break;
             default:
-                ROS_ERROR("COMMAND UNKNOWN");
+                ROS_ERROR("Got an unknown command constant. Can't do something. Make sure to call"
+                                  " the Service with the right constants from the msg file.");
                 result.successful = false;
-                action_server.setAborted(result, "UNKNOWN COMMAND. ABORTED.");
+                action_server.setAborted(result, "UNKNOWN COMMAND - ABORTED");
                 return;
         }
 
@@ -131,7 +132,7 @@ public:
         if (error_code.val == error_code.SUCCESS) {
             result.successful = true;
             action_server.setSucceeded(result);
-            ROS_INFO("MOVE SUCCESSFUL");
+            ROS_INFO("\x1B[32mX: Moved successfully to goal.");
         } else {
             result.successful = false;
 
@@ -143,12 +144,14 @@ public:
             error_string = convert.str();
 
             action_server.setAborted(result, error_string);
-            ROS_WARN("%s", error_string.c_str());
+            ROS_ERROR("Movement aborted. Errorcode: ");
+            ROS_ERROR("%s", error_string.c_str());
         }
     }
 
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
+        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id, group.getPlanningFrame());
         geometry_msgs::PointStamped point;
         listener.transformPoint(group.getPlanningFrame(), goal_point, point);
         //geometry_msgs::PoseStamped poseStamped;
@@ -177,7 +180,7 @@ int main(int argc, char **argv) {
         if(main.addKitchenCollisionObjects(srv.response)){
             ROS_INFO("Successfully added kitchen objects to collision matrix.");
         }else{
-            ROS_ERROR("Could not add kitchen to collision matrix, because the data received from knowledge service were not correct.");
+            ROS_ERROR("Could not add kitchen to collision matrix, because the data received from knowledge service was not correct.");
             return 1;
         }
     }else{
