@@ -151,7 +151,7 @@ public:
 
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
-        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id, group.getPlanningFrame());
+        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
         geometry_msgs::PointStamped point;
         listener.transformPoint(group.getPlanningFrame(), goal_point, point);
         //geometry_msgs::PoseStamped poseStamped;
