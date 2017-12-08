@@ -5,8 +5,6 @@
 #include <actionlib/server/simple_action_server.h>
 #include <motion_msgs/MovingCommandAction.h>
 #include <std_msgs/String.h>
-#include <string>
-#include <vector>
 #include <tf/transform_listener.h>
 #include <ros/package.h>
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
@@ -61,15 +59,6 @@ public:
                     poseIn.pose = pose;
 
                     geometry_msgs::PoseStamped poseOut;
-/*
-                    std::vector<std::string> frames;
-                    listener.getFrameStrings(frames);
-
-                    for(int i = 0; i < frames.size(); i++){
-                        ROS_INFO("%s", frames[i].c_str());
-
-                    }*/
-
 
                     listener.transformPose(both_arms.getPlanningFrame(), poseIn, poseOut);
 
