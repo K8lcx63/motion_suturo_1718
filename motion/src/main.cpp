@@ -100,11 +100,17 @@ public:
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_RIGHT_ARM:
                 ROS_INFO("Planning to move right arm to: ");
-                error_code = moveGroupToCoordinates(right_arm_group, goal_point);
+                error_code = moveGroupToCoordinates(right_arm_group, goal_point, true);
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_LEFT_ARM:
                 ROS_INFO("Planning to move left arm to: ");
-                error_code = moveGroupToCoordinates(left_arm_group, goal_point);
+                error_code = moveGroupToCoordinates(left_arm_group, goal_point, true);
+                break;
+            case 4:
+                error_code = moveGroupToCoordinates(right_arm_group, goal_point, false);
+                break;
+            case 5:
+                error_code = moveGroupToCoordinates(left_arm_group, goal_point, false);
                 break;
             default:
                 ROS_ERROR("Got an unknown command constant. Can't do something. Make sure to call"
@@ -139,10 +145,18 @@ public:
     }
 
     moveit_msgs::MoveItErrorCodes
-    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
-        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
+    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point, bool transform) {
         geometry_msgs::PointStamped point;
-        listener.transformPoint(group.getPlanningFrame(), goal_point, point);
+        if (transform) {
+            ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
+            listener.transformPoint(group.getPlanningFrame(), goal_point, point);
+            ROS_INFO("----Transformed point----");
+            ROS_INFO("x %g", point.point.x);
+            ROS_INFO("y %g", point.point.y);
+            ROS_INFO("z %g", point.point.z);
+        } else {
+            point = goal_point;
+        }
         //geometry_msgs::PoseStamped poseStamped;
         //poseStamped.pose.position.x = goal_point.point.x;
         //poseStamped.pose.position.y = goal_point.point.y;
