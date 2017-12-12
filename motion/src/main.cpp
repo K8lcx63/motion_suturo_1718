@@ -168,6 +168,7 @@ public:
         //poseStamped.pose.position.z = goal_point.point.z;
         //poseStamped.pose.orientation.w = 1.0;
         //group.setPoseTarget(poseStamped);
+        group.setGoalPositionTolerance(0.05);
         group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         return group.move();
     }
