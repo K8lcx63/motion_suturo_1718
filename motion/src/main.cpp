@@ -23,14 +23,16 @@ private:
     motion_msgs::MovingCommandResult result;
     tf::TransformListener listener;
     tf::StampedTransform transform;
+    ros::Publisher vis_pub;
 
 public:
-    Main(const ros::NodeHandle &nh) :
+    Main(const ros::NodeHandle &nh, const ros::Publisher &vispub) :
             node_handle(nh),
             right_arm_group("right_arm"),
             left_arm_group("left_arm"),
             both_arms("arms"),
             action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false) {
+            vis_pub = vispub;
             action_server.start();
     }
 
@@ -144,6 +146,32 @@ public:
         }
     }
 
+    void publishVisualizationMarker(geometry_msgs::PointStamped point){
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = point.header.frame_id;
+        marker.header.stamp = ros::Time();
+        marker.ns = "motion";
+        marker.id = 0;
+        marker.type = visualization_msgs::Marker::SPHERE;
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.pose.position.x = point.point.x;
+        marker.pose.position.y = point.point.y;
+        marker.pose.position.z = point.point.z;
+        marker.pose.orientation.x = 0.0;
+        marker.pose.orientation.y = 0.0;
+        marker.pose.orientation.z = 0.0;
+        marker.pose.orientation.w = 1.0;
+        marker.scale.x = 0.1;
+        marker.scale.y = 0.1;
+        marker.scale.z = 0.1;
+        marker.color.a = 0.7;
+        marker.color.r = 1.0;
+        marker.color.g = 0.0;
+        marker.color.b = 0.0;
+
+        vis_pub.publish( marker );
+    }
+
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point, bool transform) {
         geometry_msgs::PointStamped point;
@@ -168,9 +196,14 @@ public:
         //poseStamped.pose.position.z = goal_point.point.z;
         //poseStamped.pose.orientation.w = 1.0;
         //group.setPoseTarget(poseStamped);
+        publishVisualizationMarker(point);
         group.setGoalPositionTolerance(0.05);
         group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         return group.move();
+    }
+
+    void setVizPub(ros::Publisher pub) {
+        this->vis_pub = pub;
     }
 };
 
@@ -178,10 +211,13 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "motion_main");
     ros::NodeHandle node_handle;
 
-    Main main(node_handle);
+    ros::Publisher pub = node_handle.advertise<visualization_msgs::Marker>( "visualization_marker", 0 );
+    Main main(node_handle, pub);
 
     //add kitchen models to collision detection matrix
     ros::ServiceClient kitchenObjectsClient = node_handle.serviceClient<knowledge_msgs::GetFixedKitchenObjects>("/kitchen_model_service/get_fixed_kitchen_objects");
+
+
     knowledge_msgs::GetFixedKitchenObjects srv;
 
     if(kitchenObjectsClient.call(srv)){
