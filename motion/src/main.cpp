@@ -148,8 +148,13 @@ public:
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point, bool transform) {
         geometry_msgs::PointStamped point;
         if (transform) {
+            geometry_msgs::PointStamped tempPoint;
+            tempPoint.header = goal_point.header;
+            tempPoint.point.x = goal_point.point.y;
+            tempPoint.point.y = goal_point.point.x;
+            tempPoint.point.z = goal_point.point.z;
             ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
-            listener.transformPoint(group.getPlanningFrame(), goal_point, point);
+            listener.transformPoint(group.getPlanningFrame(), tempPoint, point);
             ROS_INFO("----Transformed point----");
             ROS_INFO("x %g", point.point.x);
             ROS_INFO("y %g", point.point.y);
