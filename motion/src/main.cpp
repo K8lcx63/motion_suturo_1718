@@ -176,6 +176,7 @@ public:
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point, bool transform) {
         geometry_msgs::PointStamped point;
         if (transform) {
+            publishVisualizationMarker(goal_point);
             geometry_msgs::PointStamped tempPoint;
             tempPoint.header = goal_point.header;
             tempPoint.point.x = goal_point.point.y;
