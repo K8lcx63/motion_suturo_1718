@@ -204,15 +204,18 @@ public:
         } else {
             point = goal_point;
         }
-        //geometry_msgs::PoseStamped poseStamped;
-        //poseStamped.pose.position.x = goal_point.point.x;
-        //poseStamped.pose.position.y = goal_point.point.y;
-        //poseStamped.pose.position.z = goal_point.point.z;
-        //poseStamped.pose.orientation.w = 1.0;
-        //group.setPoseTarget(poseStamped);
+        geometry_msgs::PoseStamped poseStamped;
+        poseStamped.pose.position.x = point.point.x;
+        poseStamped.pose.position.y = point.point.y;
+        poseStamped.pose.position.z = point.point.z;
+        poseStamped.pose.orientation.x = 0.70717;
+        poseStamped.pose.orientation.y = 0;
+        poseStamped.pose.orientation.z = 0;
+        poseStamped.pose.orientation.w = 0.70717;
+        group.setPoseTarget(poseStamped);
         publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
         group.setGoalPositionTolerance(0.05);
-        group.setPositionTarget(point.point.x, point.point.y, point.point.z);
+        //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         return group.move();
     }
 };
