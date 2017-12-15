@@ -9,6 +9,8 @@
 #include <ros/package.h>
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
 
+const int COLOR_SCHEMA_MOTION = 0;
+const int COLOR_SCHEMA_KNOWLEDGE= 1;
 
 class Main {
 private:
@@ -146,7 +148,13 @@ public:
         }
     }
 
-    void publishVisualizationMarker(geometry_msgs::PointStamped point){
+    /**
+     * Publishes a visualization marker.
+     *
+     * @param point of the visualization marker as pointStamped.
+     * @param color_schema ColorSchema, 0 = Red Point, 1 = Yellow Point.
+     */
+    void publishVisualizationMarker(geometry_msgs::PointStamped point, int color_schema){
         visualization_msgs::Marker marker;
         marker.header.frame_id = point.header.frame_id;
         marker.header.stamp = ros::Time();
@@ -165,18 +173,23 @@ public:
         marker.scale.y = 0.1;
         marker.scale.z = 0.1;
         marker.color.a = 0.7;
-        marker.color.r = 1.0;
-        marker.color.g = 0.0;
-        marker.color.b = 0.0;
-
-        vis_pub.publish( marker );
+        if (color_schema == COLOR_SCHEMA_MOTION) {
+            marker.color.r = 1.0;
+            marker.color.g = 0.0;
+            marker.color.b = 0.0;
+        } else if (color_schema == COLOR_SCHEMA_KNOWLEDGE) {
+            marker.color.r = 0.0;
+            marker.color.g = 1.0;
+            marker.color.b = 0.0;
+        }
+        vis_pub.publish(marker);
     }
 
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point, bool transform) {
         geometry_msgs::PointStamped point;
         if (transform) {
-            publishVisualizationMarker(goal_point);
+            publishVisualizationMarker(goal_point, COLOR_SCHEMA_KNOWLEDGE);
             geometry_msgs::PointStamped tempPoint;
             tempPoint.header = goal_point.header;
             tempPoint.point.x = goal_point.point.y;
@@ -197,14 +210,10 @@ public:
         //poseStamped.pose.position.z = goal_point.point.z;
         //poseStamped.pose.orientation.w = 1.0;
         //group.setPoseTarget(poseStamped);
-        publishVisualizationMarker(point);
+        publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
         group.setGoalPositionTolerance(0.05);
         group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         return group.move();
-    }
-
-    void setVizPub(ros::Publisher pub) {
-        this->vis_pub = pub;
     }
 };
 
