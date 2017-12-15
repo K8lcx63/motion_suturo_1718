@@ -206,7 +206,7 @@ public:
             point = goal_point;
         }
         geometry_msgs::PoseStamped poseStamped;
-        poseStamped.header.frame_id = "/odom_combined";
+        poseStamped.header.frame_id = point.header.frame_id;
         poseStamped.pose.position.x = point.point.x;
         poseStamped.pose.position.y = point.point.y;
         poseStamped.pose.position.z = point.point.z;
