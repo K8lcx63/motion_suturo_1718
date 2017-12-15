@@ -158,7 +158,6 @@ public:
         visualization_msgs::Marker marker;
         marker.header.frame_id = point.header.frame_id;
         marker.header.stamp = ros::Time();
-        marker.ns = "motion";
         marker.id = 0;
         marker.type = visualization_msgs::Marker::SPHERE;
         marker.action = visualization_msgs::Marker::ADD;
@@ -174,10 +173,12 @@ public:
         marker.scale.z = 0.1;
         marker.color.a = 0.7;
         if (color_schema == COLOR_SCHEMA_MOTION) {
+            marker.ns = "motion";
             marker.color.r = 1.0;
             marker.color.g = 0.0;
             marker.color.b = 0.0;
         } else if (color_schema == COLOR_SCHEMA_KNOWLEDGE) {
+            marker.ns = "knowledge";
             marker.color.r = 0.0;
             marker.color.g = 1.0;
             marker.color.b = 0.0;
