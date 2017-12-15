@@ -215,7 +215,7 @@ public:
         poseStamped.pose.orientation.w = 0.70717;
         group.setPoseTarget(poseStamped);
         publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
-        group.setGoalPositionTolerance(0.05);
+        group.setGoalTolerance(0.05);
         //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         return group.move();
     }
