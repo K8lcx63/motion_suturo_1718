@@ -1,0 +1,10 @@
+#ifndef MOTION_FRAMETRANSFORMER_H
+#define MOTION_FRAMETRANSFORMER_H
+
+
+class FrameTransformer {
+
+};
+
+
+#endif //MOTION_FRAMETRANSFORMER_H

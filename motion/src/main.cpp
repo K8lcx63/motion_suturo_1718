@@ -8,9 +8,9 @@
 #include <tf/transform_listener.h>
 #include <ros/package.h>
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
+#include "factory/MarkerFactory.h"
+#include "publisher/MarkerPublisher.h"
 
-const int COLOR_SCHEMA_MOTION = 0;
-const int COLOR_SCHEMA_KNOWLEDGE= 1;
 
 class Main {
 private:
@@ -148,49 +148,12 @@ public:
         }
     }
 
-    /**
-     * Publishes a visualization marker.
-     *
-     * @param point of the visualization marker as pointStamped.
-     * @param color_schema ColorSchema, 0 = Red Point, 1 = Yellow Point.
-     */
-    void publishVisualizationMarker(geometry_msgs::PointStamped point, int color_schema){
-        visualization_msgs::Marker marker;
-        marker.header.frame_id = point.header.frame_id;
-        marker.header.stamp = ros::Time();
-        marker.id = 0;
-        marker.type = visualization_msgs::Marker::SPHERE;
-        marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position.x = point.point.x;
-        marker.pose.position.y = point.point.y;
-        marker.pose.position.z = point.point.z;
-        marker.pose.orientation.x = 0.0;
-        marker.pose.orientation.y = 0.0;
-        marker.pose.orientation.z = 0.0;
-        marker.pose.orientation.w = 1.0;
-        marker.scale.x = 0.1;
-        marker.scale.y = 0.1;
-        marker.scale.z = 0.1;
-        marker.color.a = 0.7;
-        if (color_schema == COLOR_SCHEMA_MOTION) {
-            marker.ns = "motion";
-            marker.color.r = 1.0;
-            marker.color.g = 0.0;
-            marker.color.b = 0.0;
-        } else if (color_schema == COLOR_SCHEMA_KNOWLEDGE) {
-            marker.ns = "knowledge";
-            marker.color.r = 0.0;
-            marker.color.g = 1.0;
-            marker.color.b = 0.0;
-        }
-        vis_pub.publish(marker);
-    }
 
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point, bool transform) {
         geometry_msgs::PointStamped point;
         if (transform) {
-            publishVisualizationMarker(goal_point, COLOR_SCHEMA_KNOWLEDGE);
+            MarkerPublisher::publishVisualizationMarker(vis_pub, goal_point, MarkerFactory::COLOR_SCHEMA_KNOWLEDGE);
             geometry_msgs::PointStamped tempPoint;
             tempPoint.header = goal_point.header;
             tempPoint.point.x = goal_point.point.y;
@@ -215,7 +178,7 @@ public:
         poseStamped.pose.orientation.z = 0;
         poseStamped.pose.orientation.w = 0.70717;
         group.setPoseTarget(poseStamped);
-        publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
+        MarkerPublisher::publishVisualizationMarker(vis_pub, point, MarkerFactory::COLOR_SCHEMA_MOTION);
         group.setGoalTolerance(0.05);
         //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         return group.move();
