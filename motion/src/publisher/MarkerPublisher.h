@@ -11,6 +11,8 @@
 
 class MarkerPublisher {
 public:
+    static const int COLOR_SCHEMA_MOTION = 0;
+    static const int COLOR_SCHEMA_KNOWLEDGE= 1;
     /**
     * Publishes a visualization marker.
     *

@@ -29,5 +29,9 @@ include_directories(
 )
 
 #create executables
-add_executable(main src/main.cpp src/factory/MarkerFactory.cpp src/factory/MarkerFactory.h src/transform/FrameTransformer.cpp src/transform/FrameTransformer.h src/publisher/MarkerPublisher.cpp src/publisher/MarkerPublisher.h)
+add_executable(main src/main.cpp
+		src/factory/MarkerFactory.cpp src/factory/MarkerFactory.h
+		src/transform/FrameTransformer.cpp src/transform/FrameTransformer.h
+		src/publisher/MarkerPublisher.cpp src/publisher/MarkerPublisher.h
+		src/moveit/KitchenCollisionObjectService.cpp src/moveit/KitchenCollisionObjectService.h)
 target_link_libraries(main ${catkin_LIBRARIES})

@@ -10,6 +10,7 @@
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
 #include "factory/MarkerFactory.h"
 #include "publisher/MarkerPublisher.h"
+#include "moveit/KitchenCollisionObjectService.h"
 
 
 class Main {
@@ -38,60 +39,9 @@ public:
             action_server.start();
     }
 
-    bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res){
-        int namesSize = res.names.size();
-        int posesSize = res.poses.size();
-        int boundingBoxesSize = res.bounding_boxes.size();
-
-        if((namesSize != posesSize) || (posesSize != boundingBoxesSize) || (namesSize != boundingBoxesSize)){
-            ROS_ERROR("Kitchen objects received from knowledge are inconsistent. - Aborted.");
-            return false;
-        }else{
-
-            std::vector<moveit_msgs::CollisionObject> kitchenObjects;
-
-            //add objects to collision matrix
-            for(int i = 0; i < namesSize; i++){
-                std::string name(res.names[i]);
-                geometry_msgs::Pose pose = res.poses[i];
-                geometry_msgs::Vector3 boundingBox = res.bounding_boxes[i];
-
-                //TODO: compare to which group's planning frame?
-                if(res.frame_id != both_arms.getPlanningFrame()){
-                    geometry_msgs::PoseStamped poseIn;
-                    poseIn.header.frame_id = res.frame_id;
-                    poseIn.pose = pose;
-
-                    geometry_msgs::PoseStamped poseOut;
-
-                    listener.transformPose(both_arms.getPlanningFrame(), poseIn, poseOut);
-
-                    pose.orientation = poseOut.pose.orientation;
-                    pose.position = poseOut.pose.position;
-                }
-
-                moveit_msgs::CollisionObject kitchenObject;
-                kitchenObject.header.frame_id = both_arms.getPlanningFrame();
-                kitchenObject.id = name;
-
-                shape_msgs::SolidPrimitive primitive;
-                primitive.type = primitive.BOX;
-                primitive.dimensions.resize(3);
-                primitive.dimensions[0] = boundingBox.z;
-                primitive.dimensions[1] = boundingBox.x;
-                primitive.dimensions[2] = boundingBox.y;
-
-                kitchenObject.primitives.push_back(primitive);
-                kitchenObject.primitive_poses.push_back(pose);
-                kitchenObject.operation = kitchenObject.ADD;
-
-                kitchenObjects.push_back(kitchenObject);
-            }
-
-            planning_scene_interface.addCollisionObjects(kitchenObjects);
-
-            return true;
-        }
+    bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
+        KitchenCollisionObjectService serv;
+        return serv.addKitchenCollisionObjects(res);
     }
 
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
@@ -153,7 +103,7 @@ public:
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point, bool transform) {
         geometry_msgs::PointStamped point;
         if (transform) {
-            MarkerPublisher::publishVisualizationMarker(vis_pub, goal_point, MarkerFactory::COLOR_SCHEMA_KNOWLEDGE);
+            MarkerPublisher::publishVisualizationMarker(vis_pub, goal_point, MarkerPublisher::COLOR_SCHEMA_KNOWLEDGE);
             geometry_msgs::PointStamped tempPoint;
             tempPoint.header = goal_point.header;
             tempPoint.point.x = goal_point.point.y;
@@ -178,7 +128,7 @@ public:
         poseStamped.pose.orientation.z = 0;
         poseStamped.pose.orientation.w = 0.70717;
         group.setPoseTarget(poseStamped);
-        MarkerPublisher::publishVisualizationMarker(vis_pub, point, MarkerFactory::COLOR_SCHEMA_MOTION);
+        MarkerPublisher::publishVisualizationMarker(vis_pub, point, MarkerPublisher::COLOR_SCHEMA_MOTION);
         group.setGoalTolerance(0.05);
         //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         return group.move();

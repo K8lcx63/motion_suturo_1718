@@ -2,8 +2,11 @@
 #define MOTION_FRAMETRANSFORMER_H
 
 
-class FrameTransformer {
+#include <geometry_msgs/PointStamped.h>
 
+class FrameTransformer {
+public:
+    void transformPoint(const std::string& target_frame, const geometry_msgs::PointStamped& stamped_in, geometry_msgs::PointStamped& stamped_out) const;
 };
 
 
