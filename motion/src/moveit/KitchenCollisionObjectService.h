@@ -6,10 +6,12 @@
 
 
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
+#include <tf/transform_listener.h>
 
 class KitchenCollisionObjectService {
 public:
-    bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res);
+    bool addKitchenCollisionObjects(moveit::planning_interface::PlanningSceneInterface &planning_scene_interface,tf::TransformListener &tf, knowledge_msgs::GetFixedKitchenObjects::Response &res);
 };
 
 

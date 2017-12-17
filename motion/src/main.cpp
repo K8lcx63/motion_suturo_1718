@@ -41,7 +41,7 @@ public:
 
     bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
         KitchenCollisionObjectService serv;
-        return serv.addKitchenCollisionObjects(res);
+        return serv.addKitchenCollisionObjects(planning_scene_interface, listener, res);
     }
 
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {

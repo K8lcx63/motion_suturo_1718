@@ -6,9 +6,7 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <tf/transform_listener.h>
 
-bool KitchenCollisionObjectService::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
-    moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-    tf::TransformListener listener;
+bool KitchenCollisionObjectService::addKitchenCollisionObjects(moveit::planning_interface::PlanningSceneInterface &planning_scene_interface,tf::TransformListener &tf, knowledge_msgs::GetFixedKitchenObjects::Response &res) {
     int namesSize = res.names.size();
     int posesSize = res.poses.size();
     int boundingBoxesSize = res.bounding_boxes.size();
@@ -34,7 +32,7 @@ bool KitchenCollisionObjectService::addKitchenCollisionObjects(knowledge_msgs::G
 
                 geometry_msgs::PoseStamped poseOut;
 
-                listener.transformPose("/odom_combined", poseIn, poseOut);
+                tf.transformPose("/odom_combined", poseIn, poseOut);
 
                 pose.orientation = poseOut.pose.orientation;
                 pose.position = poseOut.pose.position;
