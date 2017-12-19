@@ -4,7 +4,7 @@
 	
 	<include file="$(find pr2_moveit_generated)/launch/move_group.launch"/>
 
-	<node name="static_transform_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 map odom_combined 10"/>
+	<node pkg="tf" type="static_transform_publisher" name="map_to_tilt" args="0 0 0 0 0 0 1 map base_laser_link 100" />
 
 	<node name="motion_main" pkg="motion" type="main" output="screen"/>
 	
