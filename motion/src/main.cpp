@@ -193,8 +193,8 @@ public:
             publishVisualizationMarker(goal_point, COLOR_SCHEMA_KNOWLEDGE);
             geometry_msgs::PointStamped tempPoint;
             tempPoint.header = goal_point.header;
-            tempPoint.point.x = goal_point.point.y;
-            tempPoint.point.y = goal_point.point.x;
+            tempPoint.point.x = goal_point.point.x;
+            tempPoint.point.y = goal_point.point.y;
             tempPoint.point.z = goal_point.point.z;
             ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
             listener.transformPoint(group.getPlanningFrame(), tempPoint, point);
