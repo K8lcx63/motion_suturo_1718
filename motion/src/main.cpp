@@ -104,17 +104,11 @@ public:
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_RIGHT_ARM:
                 ROS_INFO("Planning to move right arm to: ");
-                error_code = moveGroupToCoordinates(right_arm_group, goal_point, true);
+                error_code = moveGroupToCoordinates(right_arm_group, goal_point);
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_LEFT_ARM:
                 ROS_INFO("Planning to move left arm to: ");
-                error_code = moveGroupToCoordinates(left_arm_group, goal_point, true);
-                break;
-            case 4:
-                error_code = moveGroupToCoordinates(right_arm_group, goal_point, false);
-                break;
-            case 5:
-                error_code = moveGroupToCoordinates(left_arm_group, goal_point, false);
+                error_code = moveGroupToCoordinates(left_arm_group, goal_point);
                 break;
             default:
                 ROS_ERROR("Got an unknown command constant. Can't do something. Make sure to call"
@@ -187,38 +181,37 @@ public:
     }
 
     moveit_msgs::MoveItErrorCodes
-    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point, bool transform) {
+    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
         geometry_msgs::PointStamped point;
-        if (transform) {
-            publishVisualizationMarker(goal_point, COLOR_SCHEMA_KNOWLEDGE);
-            geometry_msgs::PointStamped tempPoint;
-            tempPoint.header = goal_point.header;
-            tempPoint.point.x = goal_point.point.x;
-            tempPoint.point.y = goal_point.point.y;
-            tempPoint.point.z = goal_point.point.z;
-            ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
-            listener.transformPoint(group.getPlanningFrame(), tempPoint, point);
-            ROS_INFO("----Transformed point----");
-            ROS_INFO("x %g", point.point.x);
-            ROS_INFO("y %g", point.point.y);
-            ROS_INFO("z %g", point.point.z);
-        } else {
-            point = goal_point;
-        }
+
+        publishVisualizationMarker(goal_point, COLOR_SCHEMA_KNOWLEDGE);
+        geometry_msgs::PointStamped tempPoint;
+        tempPoint.header = goal_point.header;
+        tempPoint.point.x = goal_point.point.x;
+        tempPoint.point.y = goal_point.point.y;
+        tempPoint.point.z = goal_point.point.z;
+        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
+        listener.transformPoint(group.getPlanningFrame(), tempPoint, point);
+        ROS_INFO("----Transformed point----");
+        ROS_INFO("x %g", point.point.x);
+        ROS_INFO("y %g", point.point.y);
+        ROS_INFO("z %g", point.point.z);
+
         /*geometry_msgs::PoseStamped poseStamped;
-        poseStamped.header.frame_id = point.header.frame_id;
-        poseStamped.pose.position.x = point.point.x;
+        poseStamped.header.frame_id = "r bzw l wrist roll link;
+        poseStamped.pose.position.x = aktuelle posi.x;
         poseStamped.pose.position.y = point.point.y;
         poseStamped.pose.position.z = point.point.z;
-        poseStamped.pose.orientation.x = 0;
+        poseStamped.pose.orientation.x = 0.7;
         poseStamped.pose.orientation.y = 0;
         poseStamped.pose.orientation.z = 0;
         poseStamped.pose.orientation.w = 1.0;
         group.setPoseTarget(poseStamped);*/
+
         group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
         group.setGoalTolerance(0.05);
-        //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
+
         return group.move();
     }
 };
