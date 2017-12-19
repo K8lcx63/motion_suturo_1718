@@ -205,7 +205,7 @@ public:
         } else {
             point = goal_point;
         }
-        geometry_msgs::PoseStamped poseStamped;
+        /*geometry_msgs::PoseStamped poseStamped;
         poseStamped.header.frame_id = point.header.frame_id;
         poseStamped.pose.position.x = point.point.x;
         poseStamped.pose.position.y = point.point.y;
@@ -214,7 +214,8 @@ public:
         poseStamped.pose.orientation.y = 0;
         poseStamped.pose.orientation.z = 0;
         poseStamped.pose.orientation.w = 1.0;
-        group.setPoseTarget(poseStamped);
+        group.setPoseTarget(poseStamped);*/
+        group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
         group.setGoalTolerance(0.05);
         //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
