@@ -197,20 +197,17 @@ public:
         ROS_INFO("y %g", point.point.y);
         ROS_INFO("z %g", point.point.z);
 
-        /*geometry_msgs::PoseStamped poseStamped;
-        poseStamped.header.frame_id = "r bzw l wrist roll link;
-        poseStamped.pose.position.x = aktuelle posi.x;
+        geometry_msgs::PoseStamped poseStamped;
+        poseStamped.header.frame_id = point.header.frame_id;
+        poseStamped.pose.position.x = point.point.x;
         poseStamped.pose.position.y = point.point.y;
         poseStamped.pose.position.z = point.point.z;
-        poseStamped.pose.orientation.x = 0.7;
-        poseStamped.pose.orientation.y = 0;
-        poseStamped.pose.orientation.z = 0;
-        poseStamped.pose.orientation.w = 1.0;
-        group.setPoseTarget(poseStamped);*/
-
-        group.setPositionTarget(point.point.x, point.point.y, point.point.z);
-        publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
+        poseStamped.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2,0,0);
+        group.setPoseTarget(poseStamped);
         group.setGoalTolerance(0.05);
+
+        //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
+        publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
 
         return group.move();
     }
