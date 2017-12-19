@@ -210,10 +210,10 @@ public:
         poseStamped.pose.position.x = point.point.x;
         poseStamped.pose.position.y = point.point.y;
         poseStamped.pose.position.z = point.point.z;
-        poseStamped.pose.orientation.x = 0.70717;
+        poseStamped.pose.orientation.x = 0;
         poseStamped.pose.orientation.y = 0;
         poseStamped.pose.orientation.z = 0;
-        poseStamped.pose.orientation.w = 0.70717;
+        poseStamped.pose.orientation.w = 1.0;
         group.setPoseTarget(poseStamped);
         publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
         group.setGoalTolerance(0.05);
