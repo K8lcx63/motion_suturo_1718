@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
         actionlib
+        pr2_controllers_msgs
 )
 find_package(Boost REQUIRED COMPONENTS
        system

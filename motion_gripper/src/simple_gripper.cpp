@@ -10,6 +10,7 @@ private:
 public:
     Gripper() {
         gripper_client_ = new GripperClient("r_gripper_controller/gripper_action", true);
+        ROS_INFO("Connecting to Gripper Client");
         while (!gripper_client_->waitForServer(ros::Duration(5.0))) {
             ROS_INFO("Waiting for the r_gripper_controller/gripper_action action server to come up");
         }
@@ -21,8 +22,8 @@ public:
 
     void open() {
         pr2_controllers_msgs::Pr2GripperCommandGoal open;
-        open.command.position = 0.08;
-        open.command.max_effort = -1.0;  // Do not limit effort (negative)
+        open.command.position = 0.07;
+        open.command.max_effort = -1;  // Do not limit effort (negative)
         ROS_INFO("Sending open goal");
         gripper_client_->sendGoal(open);
         gripper_client_->waitForResult();
@@ -30,13 +31,19 @@ public:
             ROS_INFO("The gripper opened!");
         } else {
             ROS_INFO("The gripper failed to open.");
+            //ROS_INFO(gripper_client_->getState().toString().c_str());
+            if(gripper_client_->isServerConnected()) {
+                ROS_INFO("Client is connected");
+            } else {
+                ROS_INFO("Client NOT connected");
+            }
         }
     }
 
     void close() {
         pr2_controllers_msgs::Pr2GripperCommandGoal squeeze;
-        squeeze.command.position = 0.0;
-        squeeze.command.max_effort = 50.0;  // Close gently
+        squeeze.command.position = 0.01;
+        squeeze.command.max_effort = -1;
         ROS_INFO("Sending squeeze goal");
         gripper_client_->sendGoal(squeeze);
         gripper_client_->waitForResult();
@@ -44,6 +51,12 @@ public:
             ROS_INFO("The gripper closed!");
         } else {
             ROS_INFO("The gripper failed to close.");
+            //ROS_INFO(gripper_client_->getState().toString().c_str());
+            if(gripper_client_->isServerConnected()) {
+                ROS_INFO("Client is connected");
+            } else {
+                ROS_INFO("Client NOT connected");
+            }
         }
     }
 };
@@ -52,6 +65,7 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "simple_gripper");
     Gripper gripper;
     gripper.open();
+    ros::Duration(3.0).sleep();
     gripper.close();
     return 0;
 }
