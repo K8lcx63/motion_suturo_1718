@@ -1,6 +1,6 @@
 #include <ros/ros.h>
-#include<pr2_controllers_msgs/Pr2GripperCommandAction.h>
-#include<actionlib/client/simple_action_client.h>
+#include <pr2_controllers_msgs/Pr2GripperCommandAction.h>
+#include <actionlib/client/simple_action_client.h>
 
 typedef actionlib::SimpleActionClient <pr2_controllers_msgs::Pr2GripperCommandAction> GripperClient;
 
@@ -8,7 +8,7 @@ class Gripper {
 private:
     GripperClient *gripper_client_;
 public:
-    Gripper() {
+    Gripper(const std::string actionName) {
         gripper_client_ = new GripperClient("r_gripper_controller/gripper_action", true);
         ROS_INFO("Connecting to Gripper Client");
         while (!gripper_client_->waitForServer(ros::Duration(5.0))) {
@@ -18,6 +18,16 @@ public:
 
     ~Gripper() {
         delete gripper_client_;
+    }
+
+    actionlib::SimpleClientGoalState moveGripper(float position, float effort) {
+        pr2_controllers_msgs::Pr2GripperCommandGoal goal;
+        goal.command.position = position;
+        goal.command.max_effort = effort;
+        ROS_INFO("Sending gripper goal");
+        gripper_client_->sendGoal(goal);
+        gripper_client_->waitForResult();
+        return gripper_client_->getState();
     }
 
     void open() {
@@ -61,11 +71,3 @@ public:
     }
 };
 
-int main(int argc, char **argv) {
-    ros::init(argc, argv, "simple_gripper");
-    Gripper gripper;
-    gripper.open();
-    ros::Duration(3.0).sleep();
-    gripper.close();
-    return 0;
-}
