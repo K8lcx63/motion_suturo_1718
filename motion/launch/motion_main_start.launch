@@ -1,11 +1,5 @@
 <launch>
-
 	<include file="$(find kitchen_model_export)/launch/knowledge_export_service.launch"/>
-
-	<param name="/use_sim_time" value="true"/>
-
-	<include file="$(find pr2_gazebo)/launch/pr2_empty_world.launch"/>
-	
 	<include file="$(find pr2_moveit_generated)/launch/move_group.launch"/>
 
 	<node pkg="gmapping" type="slam_gmapping" name="localization_node">
