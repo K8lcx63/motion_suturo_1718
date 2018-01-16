@@ -1,4 +1,5 @@
 <launch>
+	<include file="$(find vision)/launch/vision_main_pr2_sim_only.launch"/>
 	<include file="$(find kitchen_model_export)/launch/knowledge_export_service.launch"/>
 	<include file="$(find pr2_moveit_generated)/launch/move_group.launch"/>
 
