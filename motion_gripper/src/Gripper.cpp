@@ -9,10 +9,10 @@ private:
     GripperClient *gripper_client_;
 public:
     Gripper(const std::string actionName) {
-        gripper_client_ = new GripperClient("r_gripper_controller/gripper_action", true);
-        ROS_INFO("Connecting to Gripper Client");
+        gripper_client_ = new GripperClient(actionName, true);
+        ROS_INFO("Connecting to Gripper Client - %s", actionName.c_str());
         while (!gripper_client_->waitForServer(ros::Duration(5.0))) {
-            ROS_INFO("Waiting for the r_gripper_controller/gripper_action action server to come up");
+            ROS_INFO("Waiting for the %s action server to come up", actionName.c_str());
         }
     }
 

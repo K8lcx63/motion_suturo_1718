@@ -12,6 +12,7 @@ private:
     actionlib::SimpleActionServer<motion_msgs::GripperAction> action_server;
     Gripper left_gripper;
     Gripper right_gripper;
+    motion_msgs::GripperResult result;
 
     boost::optional<Gripper&> determineGripper(int gripperNo) {
         if (gripperNo == motion_msgs::GripperGoal::LEFT) {
@@ -35,9 +36,19 @@ public:
     void executeCommand(const motion_msgs::GripperGoalConstPtr &goal) {
         boost::optional<Gripper &> gripper = determineGripper(goal->gripper);
         if (gripper.is_initialized()) {
-            gripper.get().moveGripper(goal->position, goal->effort);
+            actionlib::SimpleClientGoalState resultState = gripper.get().moveGripper(goal->position, goal->effort);
+            if (resultState == actionlib::SimpleClientGoalState::SUCCEEDED) {
+                ROS_INFO("OPENED/CLOSED Gripper to Goal!");
+                result.successful = true;
+                action_server.setSucceeded(result);
+            } else {
+                result.successful = false;
+                action_server.setAborted(result, "SOMETHING WENT WRONG");
+            }
         } else {
             ROS_ERROR("UNKNOWN GRIPPER");
+            result.successful = false;
+            action_server.setAborted(result, "UNKNOWN GRIPPER");
         }
     };
 };
