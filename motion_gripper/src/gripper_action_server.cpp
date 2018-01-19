@@ -10,20 +10,32 @@ class GripperActionServer {
 private:
     ros::NodeHandle node_handle;
     actionlib::SimpleActionServer<motion_msgs::GripperAction> action_server;
+    Gripper left_gripper;
+    Gripper right_gripper;
+
+    boost::optional<Gripper&> determineGripper(int gripperNo) {
+        if (gripperNo == motion_msgs::GripperGoal::LEFT) {
+            return left_gripper;
+        }
+        if (gripperNo == motion_msgs::GripperGoal::RIGHT) {
+            return right_gripper;
+        }
+        return boost::none;
+    }
+
 public:
     GripperActionServer(const ros::NodeHandle &nh) :
             node_handle(nh),
+            left_gripper(left_gripper_controller_name),
+            right_gripper(right_gripper_controller_name),
             action_server(node_handle, "gripper", boost::bind(&GripperActionServer::executeCommand, this, _1), false) {
-        action_server.start();
+            action_server.start();
     };
 
     void executeCommand(const motion_msgs::GripperGoalConstPtr &goal) {
-        if (goal->gripper == motion_msgs::GripperGoal::LEFT) {
-            Gripper gripper(left_gripper_controller_name);
-            gripper.moveGripper(goal->position, goal->effort);
-        } else if (goal->gripper == motion_msgs::GripperGoal::RIGHT) {
-            Gripper gripper(right_gripper_controller_name);
-            gripper.moveGripper(goal->position, goal->effort);
+        boost::optional<Gripper &> gripper = determineGripper(goal->gripper);
+        if (gripper.is_initialized()) {
+            gripper.get().moveGripper(goal->position, goal->effort);
         } else {
             ROS_ERROR("UNKNOWN GRIPPER");
         }
