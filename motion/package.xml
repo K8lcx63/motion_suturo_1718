@@ -65,6 +65,7 @@
   <depend>actionlib_msgs</depend>
   <depend>tf</depend>
   <depend>visualization_msgs</depend>
+  <depend>gmapping</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
