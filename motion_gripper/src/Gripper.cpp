@@ -25,8 +25,8 @@ public:
         goal.command.position = position;
         goal.command.max_effort = effort;
         ROS_INFO("Sending gripper goal");
-        gripper_client_->sendGoal(goal);
-        gripper_client_->waitForResult(ros::Duration(5,0));
+        gripper_client_->sendGoalAndWait(goal, ros::Duration(5.0));
+        //gripper_client_->waitForResult(ros::Duration(30.0));
         ROS_INFO("reached goal: %d", gripper_client_->getResult().get()->reached_goal);
         ROS_INFO("stalled: %d", gripper_client_->getResult().get()->stalled);
         return gripper_client_->getState();
