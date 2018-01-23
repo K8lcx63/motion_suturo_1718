@@ -4,8 +4,10 @@
 	
 	<include file="$(find pr2_moveit_generated)/launch/move_group.launch"/>
 
-	<node name="static_transform_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 map odom_combined 10"/>
+	<node name="static_transform_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 map odom_combined 10" />
 
-	<node name="motion_main" pkg="motion" type="main" output="screen"/>
+	<node name="motion_main" pkg="motion" type="main" output="screen" />
+
+	<node name="simple_gripper" pkg="motion_gripper" type="simple_gripper" output="screen" />
 	
 </launch>

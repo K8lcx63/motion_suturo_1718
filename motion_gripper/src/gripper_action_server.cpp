@@ -14,7 +14,7 @@ private:
     Gripper right_gripper;
     motion_msgs::GripperResult result;
 
-    boost::optional<Gripper&> determineGripper(int gripperNo) {
+    boost::optional<Gripper &> determineGripper(int gripperNo) {
         if (gripperNo == motion_msgs::GripperGoal::LEFT) {
             return left_gripper;
         }
@@ -30,7 +30,7 @@ public:
             left_gripper(left_gripper_controller_name),
             right_gripper(right_gripper_controller_name),
             action_server(node_handle, "gripper", boost::bind(&GripperActionServer::executeCommand, this, _1), false) {
-            action_server.start();
+        action_server.start();
     };
 
     void executeCommand(const motion_msgs::GripperGoalConstPtr &goal) {
@@ -42,6 +42,8 @@ public:
                 result.successful = true;
                 action_server.setSucceeded(result);
             } else {
+                ROS_INFO("Something went wrong!");
+                ROS_INFO("resultState: %s", resultState.toString().c_str());
                 result.successful = false;
                 action_server.setAborted(result, "SOMETHING WENT WRONG");
             }

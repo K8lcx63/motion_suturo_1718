@@ -26,7 +26,9 @@ public:
         goal.command.max_effort = effort;
         ROS_INFO("Sending gripper goal");
         gripper_client_->sendGoal(goal);
-        gripper_client_->waitForResult();
+        gripper_client_->waitForResult(ros::Duration(5,0));
+        ROS_INFO("reached goal: %d", gripper_client_->getResult().get()->reached_goal);
+        ROS_INFO("stalled: %d", gripper_client_->getResult().get()->stalled);
         return gripper_client_->getState();
     }
 
@@ -56,7 +58,8 @@ public:
         squeeze.command.max_effort = -1;
         ROS_INFO("Sending squeeze goal");
         gripper_client_->sendGoal(squeeze);
-        gripper_client_->waitForResult();
+        gripper_client_->waitForResult(ros::Duration(5.0));
+        ROS_INFO("Waited 5 seconds for goal");
         if (gripper_client_->getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
             ROS_INFO("The gripper closed!");
         } else {
