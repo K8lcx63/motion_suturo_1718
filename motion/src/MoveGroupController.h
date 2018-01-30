@@ -24,5 +24,14 @@ public:
     moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(VisualizationMarkerPublisher& vis, moveit::planning_interface::MoveGroup &group, geometry_msgs::PointStamped &goal_point);
 
+    /**
+     * Moves the Arms in the Initial/Home position.
+     *
+     * @param group Movegroup of both arms.
+     * @return MoveItErrorCode.
+     */
+    moveit_msgs::MoveItErrorCodes
+    moveGroupToInitial(moveit::planning_interface::MoveGroup &group);
+
 };
 #endif //MOTION_MOVEGROUPCONTROLLER_H

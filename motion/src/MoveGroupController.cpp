@@ -42,3 +42,9 @@ MoveGroupController::moveGroupToCoordinates(VisualizationMarkerPublisher& vis, m
 
     return group.move();
 }
+
+moveit_msgs::MoveItErrorCodes
+moveGroupToInitial(moveit::planning_interface::MoveGroup &group) {
+    group.setNamedTarget("arms_initial");
+    return group.move();
+}

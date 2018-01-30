@@ -105,8 +105,7 @@ public:
         switch (goal->command) {
             case motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE :
                 ROS_INFO("Starting to move to initial pose.");
-                both_arms.setNamedTarget("arms_initial");
-                error_code = both_arms.move();
+                error_code = moveGroupController.moveGroupToInitial(both_arms);
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_RIGHT_ARM:
                 ROS_INFO("Planning to move right arm to: ");
