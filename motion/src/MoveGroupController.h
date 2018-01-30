@@ -6,6 +6,7 @@
 #include <moveit/move_group_interface/move_group.h>
 #include <geometry_msgs/PointStamped.h>
 #include <tf/transform_listener.h>
+#include "VisualizationMarkerPublisher.h"
 
 class MoveGroupController {
 private:
@@ -21,7 +22,7 @@ public:
      * @return Success if successful or the {@link moveit_msgs::MoveItErrorCodes}
      */
     moveit_msgs::MoveItErrorCodes
-    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, geometry_msgs::PointStamped &goal_point);
+    moveGroupToCoordinates(VisualizationMarkerPublisher& vis, moveit::planning_interface::MoveGroup &group, geometry_msgs::PointStamped &goal_point);
 
 };
 #endif //MOTION_MOVEGROUPCONTROLLER_H

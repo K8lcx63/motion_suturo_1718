@@ -9,6 +9,7 @@
 #include <ros/package.h>
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
 #include "VisualizationMarkerPublisher.h"
+#include "MoveGroupController.h"
 
 const int COLOR_SCHEMA_MOTION = 0;
 const int COLOR_SCHEMA_KNOWLEDGE = 1;
@@ -26,7 +27,8 @@ private:
     motion_msgs::MovingCommandResult result;
     tf::TransformListener listener;
     tf::StampedTransform transform;
-    ros::Publisher vis_pub;
+    MoveGroupController moveGroupController;
+    VisualizationMarkerPublisher visualizationMarkerPublisher;
 
 public:
     Main(const ros::NodeHandle &nh) :
@@ -34,9 +36,11 @@ public:
             right_arm_group("right_arm"),
             left_arm_group("left_arm"),
             both_arms("arms"),
+            moveGroupController(),
+            visualizationMarkerPublisher(),
             action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false) {
         ros::Publisher vispub = node_handle.advertise<visualization_msgs::Marker>("visualization_marker", 0);
-        vis_pub = vispub;
+        visualizationMarkerPublisher.setVisPub(vispub);
         action_server.start();
     }
 
@@ -106,11 +110,11 @@ public:
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_RIGHT_ARM:
                 ROS_INFO("Planning to move right arm to: ");
-                error_code = moveGroupToCoordinates(right_arm_group, goal_point);
+                error_code = moveGroupController.moveGroupToCoordinates(visualizationMarkerPublisher, right_arm_group, goal_point);
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_LEFT_ARM:
                 ROS_INFO("Planning to move left arm to: ");
-                error_code = moveGroupToCoordinates(left_arm_group, goal_point);
+                error_code = moveGroupController.moveGroupToCoordinates(visualizationMarkerPublisher, left_arm_group, goal_point);
                 break;
             default:
                 ROS_ERROR("Got an unknown command constant. Can't do something. Make sure to call"
@@ -308,7 +312,7 @@ public:
                            const geometry_msgs::PointStamped &goal_point) {
         geometry_msgs::PointStamped point;
 
-        VisualizationMarkerPublisher::publishVisualizationMarker(vis_pub, goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
+        //VisualizationMarkerPublisher::publishVisualizationMarker(vis_pub, goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
         geometry_msgs::PointStamped tempPoint;
         tempPoint.header = goal_point.header;
         tempPoint.point.x = goal_point.point.x;
@@ -332,14 +336,11 @@ public:
         group.setGoalTolerance(0.05);
 
         //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
-        publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
+        //publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
 
         return group.move();
     }
 
-    ros::Publisher& getVisualizationMarkerPublisher() {
-        return vis_pub;
-    }
 };
 
 int main(int argc, char **argv) {

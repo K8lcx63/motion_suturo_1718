@@ -36,7 +36,13 @@ struct VisualizationMarkerPublisher::Private {
     }
 };
 
-static void VisualizationMarkerPublisher::publishVisualizationMarker(ros::Publisher &vis_pub, const geometry_msgs::PointStamped &point, const int &markerType) {
+void VisualizationMarkerPublisher::publishVisualizationMarker(const geometry_msgs::PointStamped &point, const int &markerType) {
     visualization_msgs::Marker marker = Private::createFrom(point, markerType);
     vis_pub.publish(marker);
 }
+
+void VisualizationMarkerPublisher::setVisPub(ros::Publisher pub) {
+    vis_pub = pub;
+}
+
+VisualizationMarkerPublisher::VisualizationMarkerPublisher() {}
