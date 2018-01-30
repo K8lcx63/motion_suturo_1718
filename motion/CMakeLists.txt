@@ -30,5 +30,5 @@ include_directories(
 )
 
 #create executables
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp src/MoveGroupController.cpp src/MoveGroupController.h src/VisualizationMarkerPublisher.cpp src/VisualizationMarkerPublisher.h)
 target_link_libraries(main ${catkin_LIBRARIES})
