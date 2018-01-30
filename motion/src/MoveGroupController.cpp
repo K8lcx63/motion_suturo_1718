@@ -27,8 +27,7 @@ struct MoveGroupController::Private {
     }
 };
 
-moveit_msgs::MoveItErrorCodes
-MoveGroupController::moveGroupToCoordinates(VisualizationMarkerPublisher& vis, moveit::planning_interface::MoveGroup &group, geometry_msgs::PointStamped &goal_point) {
+moveit_msgs::MoveItErrorCodes MoveGroupController::moveGroupToCoordinates(VisualizationMarkerPublisher& vis, moveit::planning_interface::MoveGroup &group, geometry_msgs::PointStamped &goal_point) {
     if (goal_point.header.frame_id != group.getPlanningFrame()) {
         vis.publishVisualizationMarker(goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
         //VisualizationMarkerPublisher::publishVisualizationMarker(vis_pub, goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
@@ -43,8 +42,7 @@ MoveGroupController::moveGroupToCoordinates(VisualizationMarkerPublisher& vis, m
     return group.move();
 }
 
-moveit_msgs::MoveItErrorCodes
-moveGroupToInitial(moveit::planning_interface::MoveGroup &group) {
+moveit_msgs::MoveItErrorCodes MoveGroupController::moveGroupToInitial(moveit::planning_interface::MoveGroup& group) {
     group.setNamedTarget("arms_initial");
     return group.move();
 }

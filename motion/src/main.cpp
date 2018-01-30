@@ -10,6 +10,7 @@
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
 #include "VisualizationMarkerPublisher.h"
 #include "MoveGroupController.h"
+#include "PlanningSceneController.h"
 
 const int COLOR_SCHEMA_MOTION = 0;
 const int COLOR_SCHEMA_KNOWLEDGE = 1;
@@ -29,6 +30,7 @@ private:
     tf::StampedTransform transform;
     MoveGroupController moveGroupController;
     VisualizationMarkerPublisher visualizationMarkerPublisher;
+    PlanningSceneController planningSceneController;
 
 public:
     Main(const ros::NodeHandle &nh) :
@@ -38,6 +40,7 @@ public:
             both_arms("arms"),
             moveGroupController(),
             visualizationMarkerPublisher(),
+            planningSceneController(),
             action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false) {
         ros::Publisher vispub = node_handle.advertise<visualization_msgs::Marker>("visualization_marker", 0);
         visualizationMarkerPublisher.setVisPub(vispub);
@@ -45,59 +48,7 @@ public:
     }
 
     bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
-        int namesSize = res.names.size();
-        int posesSize = res.poses.size();
-        int boundingBoxesSize = res.bounding_boxes.size();
-
-        if ((namesSize != posesSize) || (posesSize != boundingBoxesSize) || (namesSize != boundingBoxesSize)) {
-            ROS_ERROR("Kitchen objects received from knowledge are inconsistent. - Aborted.");
-            return false;
-        } else {
-
-            std::vector<moveit_msgs::CollisionObject> kitchenObjects;
-
-            //add objects to collision matrix
-            for (int i = 0; i < namesSize; i++) {
-                std::string name(res.names[i]);
-                geometry_msgs::Pose pose = res.poses[i];
-                geometry_msgs::Vector3 boundingBox = res.bounding_boxes[i];
-
-                //TODO: compare to which group's planning frame?
-                if (res.frame_id != both_arms.getPlanningFrame()) {
-                    geometry_msgs::PoseStamped poseIn;
-                    poseIn.header.frame_id = res.frame_id;
-                    poseIn.pose = pose;
-
-                    geometry_msgs::PoseStamped poseOut;
-
-                    listener.transformPose(both_arms.getPlanningFrame(), poseIn, poseOut);
-
-                    pose.orientation = poseOut.pose.orientation;
-                    pose.position = poseOut.pose.position;
-                }
-
-                moveit_msgs::CollisionObject kitchenObject;
-                kitchenObject.header.frame_id = both_arms.getPlanningFrame();
-                kitchenObject.id = name;
-
-                shape_msgs::SolidPrimitive primitive;
-                primitive.type = primitive.BOX;
-                primitive.dimensions.resize(3);
-                primitive.dimensions[0] = boundingBox.z;
-                primitive.dimensions[1] = boundingBox.x;
-                primitive.dimensions[2] = boundingBox.y;
-
-                kitchenObject.primitives.push_back(primitive);
-                kitchenObject.primitive_poses.push_back(pose);
-                kitchenObject.operation = kitchenObject.ADD;
-
-                kitchenObjects.push_back(kitchenObject);
-            }
-
-            planning_scene_interface.addCollisionObjects(kitchenObjects);
-
-            return true;
-        }
+        return planningSceneController.addKitchenCollisionObjects(res, planning_scene_interface, both_arms.getPlanningFrame());
     }
 
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
@@ -302,42 +253,7 @@ public:
                 ROS_ERROR("Movement aborted. Errorcode: ");
                 ROS_ERROR("UNKNOWN ERROR.");
                 break;
-
         }
-    }
-
-    moveit_msgs::MoveItErrorCodes
-    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group,
-                           const geometry_msgs::PointStamped &goal_point) {
-        geometry_msgs::PointStamped point;
-
-        //VisualizationMarkerPublisher::publishVisualizationMarker(vis_pub, goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
-        geometry_msgs::PointStamped tempPoint;
-        tempPoint.header = goal_point.header;
-        tempPoint.point.x = goal_point.point.x;
-        tempPoint.point.y = goal_point.point.y;
-        tempPoint.point.z = goal_point.point.z;
-        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(),
-                 group.getPlanningFrame().c_str());
-        listener.transformPoint(group.getPlanningFrame(), tempPoint, point);
-        ROS_INFO("----Transformed point----");
-        ROS_INFO("x %g", point.point.x);
-        ROS_INFO("y %g", point.point.y);
-        ROS_INFO("z %g", point.point.z);
-
-        geometry_msgs::PoseStamped poseStamped;
-        poseStamped.header.frame_id = point.header.frame_id;
-        poseStamped.pose.position.x = point.point.x;
-        poseStamped.pose.position.y = point.point.y;
-        poseStamped.pose.position.z = point.point.z;
-        poseStamped.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
-        group.setPoseTarget(poseStamped);
-        group.setGoalTolerance(0.05);
-
-        //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
-        //publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
-
-        return group.move();
     }
 
 };
