@@ -46,19 +46,37 @@
         <link name="l_gripper_tool_frame" />
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
-    <group_state name="arms_initial" group="arms">
-        <joint name="l_elbow_flex_joint" value="-1.8" />
-        <joint name="l_forearm_roll_joint" value="0" />
+    <group_state name="left_arm_initial" group="left_arm">
+        <joint name="l_elbow_flex_joint" value="-1.4347" />
+        <joint name="l_forearm_roll_joint" value="1.6943" />
         <joint name="l_shoulder_lift_joint" value="-0.3536" />
-        <joint name="l_shoulder_pan_joint" value="1.6" />
-        <joint name="l_upper_arm_roll_joint" value="0" />
+        <joint name="l_shoulder_pan_joint" value="1.5" />
+        <joint name="l_upper_arm_roll_joint" value="-0.0815" />
         <joint name="l_wrist_flex_joint" value="-0.1" />
         <joint name="l_wrist_roll_joint" value="0" />
-        <joint name="r_elbow_flex_joint" value="-1.8" />
-        <joint name="r_forearm_roll_joint" value="0" />
+    </group_state>
+    <group_state name="right_arm_initial" group="right_arm">
+        <joint name="r_elbow_flex_joint" value="-1.335" />
+        <joint name="r_forearm_roll_joint" value="-1.5531" />
         <joint name="r_shoulder_lift_joint" value="-0.3536" />
-        <joint name="r_shoulder_pan_joint" value="-1.6" />
-        <joint name="r_upper_arm_roll_joint" value="0" />
+        <joint name="r_shoulder_pan_joint" value="-1.5" />
+        <joint name="r_upper_arm_roll_joint" value="0.0073" />
+        <joint name="r_wrist_flex_joint" value="-0.1" />
+        <joint name="r_wrist_roll_joint" value="0" />
+    </group_state>
+    <group_state name="arms_initial" group="arms">
+        <joint name="l_elbow_flex_joint" value="-1.4347" />
+        <joint name="l_forearm_roll_joint" value="1.6943" />
+        <joint name="l_shoulder_lift_joint" value="-0.3536" />
+        <joint name="l_shoulder_pan_joint" value="1.5" />
+        <joint name="l_upper_arm_roll_joint" value="-0.0815" />
+        <joint name="l_wrist_flex_joint" value="-0.1" />
+        <joint name="l_wrist_roll_joint" value="0" />
+        <joint name="r_elbow_flex_joint" value="-1.335" />
+        <joint name="r_forearm_roll_joint" value="-1.5531" />
+        <joint name="r_shoulder_lift_joint" value="-0.3536" />
+        <joint name="r_shoulder_pan_joint" value="-1.5" />
+        <joint name="r_upper_arm_roll_joint" value="0.0073" />
         <joint name="r_wrist_flex_joint" value="-0.1" />
         <joint name="r_wrist_roll_joint" value="0" />
     </group_state>
@@ -83,10 +101,6 @@
     <disable_collisions link1="base_bellow_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="base_bellow_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="base_bellow_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="base_bellow_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="base_bellow_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="head_tilt_link" reason="Never" />
@@ -102,6 +116,7 @@
     <disable_collisions link1="base_bellow_link" link2="l_wrist_roll_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="r_elbow_flex_link" reason="Never" />
+    <disable_collisions link1="base_bellow_link" link2="r_forearm_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="r_forearm_roll_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="base_bellow_link" link2="r_shoulder_lift_link" reason="Never" />
@@ -126,10 +141,6 @@
     <disable_collisions link1="base_footprint" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="base_footprint" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="base_footprint" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="base_footprint" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="base_footprint" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="base_footprint" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="base_footprint" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="base_footprint" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="base_footprint" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="base_footprint" link2="head_tilt_link" reason="Never" />
@@ -179,19 +190,15 @@
     <disable_collisions link1="base_link" link2="fr_caster_l_wheel_link" reason="Default" />
     <disable_collisions link1="base_link" link2="fr_caster_r_wheel_link" reason="Default" />
     <disable_collisions link1="base_link" link2="fr_caster_rotation_link" reason="Adjacent" />
-    <disable_collisions link1="base_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="base_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="base_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="base_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="base_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="base_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="base_link" link2="head_tilt_link" reason="Never" />
+    <disable_collisions link1="base_link" link2="l_forearm_roll_link" reason="Never" />
     <disable_collisions link1="base_link" link2="l_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="base_link" link2="l_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="base_link" link2="l_upper_arm_link" reason="Never" />
     <disable_collisions link1="base_link" link2="l_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="base_link" link2="laser_tilt_mount_link" reason="Never" />
-    <disable_collisions link1="base_link" link2="r_elbow_flex_link" reason="Never" />
     <disable_collisions link1="base_link" link2="r_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="base_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="base_link" link2="r_upper_arm_link" reason="Never" />
@@ -210,17 +217,17 @@
     <disable_collisions link1="bl_caster_l_wheel_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="bl_caster_l_wheel_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="bl_caster_l_wheel_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="bl_caster_l_wheel_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="bl_caster_l_wheel_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="head_tilt_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="l_elbow_flex_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="l_forearm_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="l_forearm_roll_link" reason="Never" />
+    <disable_collisions link1="bl_caster_l_wheel_link" link2="l_gripper_l_finger_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
+    <disable_collisions link1="bl_caster_l_wheel_link" link2="l_gripper_palm_link" reason="Never" />
+    <disable_collisions link1="bl_caster_l_wheel_link" link2="l_gripper_r_finger_link" reason="Never" />
+    <disable_collisions link1="bl_caster_l_wheel_link" link2="l_gripper_r_finger_tip_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="l_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="l_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="bl_caster_l_wheel_link" link2="l_upper_arm_link" reason="Never" />
@@ -256,18 +263,15 @@
     <disable_collisions link1="bl_caster_r_wheel_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="bl_caster_r_wheel_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="bl_caster_r_wheel_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="bl_caster_r_wheel_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="bl_caster_r_wheel_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="head_tilt_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="l_elbow_flex_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="l_forearm_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="l_forearm_roll_link" reason="Never" />
+    <disable_collisions link1="bl_caster_r_wheel_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="bl_caster_r_wheel_link" link2="l_gripper_palm_link" reason="Never" />
+    <disable_collisions link1="bl_caster_r_wheel_link" link2="l_gripper_r_finger_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="l_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="l_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="bl_caster_r_wheel_link" link2="l_upper_arm_link" reason="Never" />
@@ -302,21 +306,15 @@
     <disable_collisions link1="bl_caster_rotation_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="bl_caster_rotation_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="bl_caster_rotation_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="bl_caster_rotation_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="bl_caster_rotation_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="head_tilt_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="l_elbow_flex_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="l_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="bl_caster_rotation_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="l_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="l_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="l_upper_arm_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="l_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="bl_caster_rotation_link" link2="l_wrist_roll_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="r_elbow_flex_link" reason="Never" />
     <disable_collisions link1="bl_caster_rotation_link" link2="r_forearm_link" reason="Never" />
@@ -344,10 +342,6 @@
     <disable_collisions link1="br_caster_l_wheel_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="head_tilt_link" reason="Never" />
@@ -368,17 +362,13 @@
     <disable_collisions link1="br_caster_l_wheel_link" link2="l_wrist_roll_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="r_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="r_forearm_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="r_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="r_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
+    <disable_collisions link1="br_caster_l_wheel_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="r_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="r_upper_arm_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="r_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="r_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="br_caster_l_wheel_link" link2="r_wrist_roll_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="br_caster_l_wheel_link" link2="torso_lift_link" reason="Never" />
     <disable_collisions link1="br_caster_r_wheel_link" link2="br_caster_rotation_link" reason="Adjacent" />
@@ -389,10 +379,6 @@
     <disable_collisions link1="br_caster_r_wheel_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="br_caster_r_wheel_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="br_caster_r_wheel_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="br_caster_r_wheel_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="br_caster_r_wheel_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="br_caster_r_wheel_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="br_caster_r_wheel_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="br_caster_r_wheel_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="br_caster_r_wheel_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="br_caster_r_wheel_link" link2="head_tilt_link" reason="Never" />
@@ -431,10 +417,6 @@
     <disable_collisions link1="br_caster_rotation_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="br_caster_rotation_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="br_caster_rotation_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="br_caster_rotation_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="br_caster_rotation_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="br_caster_rotation_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="br_caster_rotation_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="br_caster_rotation_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="br_caster_rotation_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="br_caster_rotation_link" link2="head_tilt_link" reason="Never" />
@@ -469,10 +451,6 @@
     <disable_collisions link1="double_stereo_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="double_stereo_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="double_stereo_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="double_stereo_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="double_stereo_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="double_stereo_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="double_stereo_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="double_stereo_link" link2="head_pan_link" reason="Default" />
     <disable_collisions link1="double_stereo_link" link2="head_plate_frame" reason="Default" />
     <disable_collisions link1="double_stereo_link" link2="head_tilt_link" reason="Default" />
@@ -499,7 +477,6 @@
     <disable_collisions link1="double_stereo_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="double_stereo_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="double_stereo_link" link2="r_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="double_stereo_link" link2="r_gripper_r_finger_link" reason="Never" />
     <disable_collisions link1="double_stereo_link" link2="r_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="double_stereo_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="double_stereo_link" link2="r_upper_arm_link" reason="Never" />
@@ -513,16 +490,11 @@
     <disable_collisions link1="fl_caster_l_wheel_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="fl_caster_l_wheel_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="fl_caster_l_wheel_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="fl_caster_l_wheel_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="fl_caster_l_wheel_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="head_tilt_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="l_elbow_flex_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="l_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="fl_caster_l_wheel_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="l_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="l_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="l_upper_arm_link" reason="Never" />
@@ -531,6 +503,8 @@
     <disable_collisions link1="fl_caster_l_wheel_link" link2="r_elbow_flex_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="r_forearm_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="r_forearm_roll_link" reason="Never" />
+    <disable_collisions link1="fl_caster_l_wheel_link" link2="r_gripper_l_finger_link" reason="Never" />
+    <disable_collisions link1="fl_caster_l_wheel_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="r_gripper_palm_link" reason="Never" />
     <disable_collisions link1="fl_caster_l_wheel_link" link2="r_gripper_r_finger_link" reason="Never" />
@@ -547,10 +521,6 @@
     <disable_collisions link1="fl_caster_r_wheel_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="fl_caster_r_wheel_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="fl_caster_r_wheel_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="fl_caster_r_wheel_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="fl_caster_r_wheel_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="head_tilt_link" reason="Never" />
@@ -565,6 +535,8 @@
     <disable_collisions link1="fl_caster_r_wheel_link" link2="r_elbow_flex_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="r_forearm_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="r_forearm_roll_link" reason="Never" />
+    <disable_collisions link1="fl_caster_r_wheel_link" link2="r_gripper_l_finger_link" reason="Never" />
+    <disable_collisions link1="fl_caster_r_wheel_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="r_gripper_palm_link" reason="Never" />
     <disable_collisions link1="fl_caster_r_wheel_link" link2="r_gripper_r_finger_link" reason="Never" />
@@ -580,10 +552,6 @@
     <disable_collisions link1="fl_caster_rotation_link" link2="fr_caster_l_wheel_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="fr_caster_rotation_link" reason="Never" />
-    <disable_collisions link1="fl_caster_rotation_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="fl_caster_rotation_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="fl_caster_rotation_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="fl_caster_rotation_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="head_tilt_link" reason="Never" />
@@ -595,6 +563,7 @@
     <disable_collisions link1="fl_caster_rotation_link" link2="l_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="r_elbow_flex_link" reason="Never" />
+    <disable_collisions link1="fl_caster_rotation_link" link2="r_forearm_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="r_forearm_roll_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="fl_caster_rotation_link" link2="r_shoulder_lift_link" reason="Never" />
@@ -605,16 +574,13 @@
     <disable_collisions link1="fl_caster_rotation_link" link2="torso_lift_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="fr_caster_r_wheel_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="fr_caster_rotation_link" reason="Adjacent" />
-    <disable_collisions link1="fr_caster_l_wheel_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="fr_caster_l_wheel_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="fr_caster_l_wheel_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="fr_caster_l_wheel_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="head_tilt_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="l_elbow_flex_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="l_forearm_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="l_forearm_roll_link" reason="Never" />
+    <disable_collisions link1="fr_caster_l_wheel_link" link2="l_gripper_l_finger_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="l_gripper_palm_link" reason="Never" />
@@ -629,6 +595,7 @@
     <disable_collisions link1="fr_caster_l_wheel_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="r_elbow_flex_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="r_forearm_roll_link" reason="Never" />
+    <disable_collisions link1="fr_caster_l_wheel_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="r_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="r_upper_arm_link" reason="Never" />
@@ -636,20 +603,16 @@
     <disable_collisions link1="fr_caster_l_wheel_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="fr_caster_l_wheel_link" link2="torso_lift_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="fr_caster_rotation_link" reason="Adjacent" />
-    <disable_collisions link1="fr_caster_r_wheel_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="fr_caster_r_wheel_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="fr_caster_r_wheel_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="fr_caster_r_wheel_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="head_tilt_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="l_elbow_flex_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="l_forearm_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="l_forearm_roll_link" reason="Never" />
+    <disable_collisions link1="fr_caster_r_wheel_link" link2="l_gripper_l_finger_link" reason="Never" />
+    <disable_collisions link1="fr_caster_r_wheel_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="l_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="fr_caster_r_wheel_link" link2="l_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="fr_caster_r_wheel_link" link2="l_gripper_r_finger_tip_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="l_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="l_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="l_upper_arm_link" reason="Never" />
@@ -666,10 +629,6 @@
     <disable_collisions link1="fr_caster_r_wheel_link" link2="r_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="fr_caster_r_wheel_link" link2="torso_lift_link" reason="Never" />
-    <disable_collisions link1="fr_caster_rotation_link" link2="head_mount_kinect_ir_link" reason="Never" />
-    <disable_collisions link1="fr_caster_rotation_link" link2="head_mount_kinect_rgb_link" reason="Never" />
-    <disable_collisions link1="fr_caster_rotation_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="fr_caster_rotation_link" link2="head_mount_prosilica_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="head_plate_frame" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="head_tilt_link" reason="Never" />
@@ -680,6 +639,7 @@
     <disable_collisions link1="fr_caster_rotation_link" link2="l_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="l_upper_arm_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="l_upper_arm_roll_link" reason="Never" />
+    <disable_collisions link1="fr_caster_rotation_link" link2="l_wrist_roll_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="r_elbow_flex_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="r_forearm_roll_link" reason="Never" />
@@ -689,156 +649,6 @@
     <disable_collisions link1="fr_caster_rotation_link" link2="r_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="fr_caster_rotation_link" link2="torso_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="head_mount_kinect_rgb_link" reason="Adjacent" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="head_mount_link" reason="Adjacent" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="head_mount_prosilica_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="head_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="head_plate_frame" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="head_tilt_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_forearm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_shoulder_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_upper_arm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="l_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="laser_tilt_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_forearm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_shoulder_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_upper_arm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="r_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="sensor_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_ir_link" link2="torso_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="head_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="head_mount_prosilica_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="head_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="head_plate_frame" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="head_tilt_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_forearm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_shoulder_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_upper_arm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="l_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="laser_tilt_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_forearm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_shoulder_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_upper_arm_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="r_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="sensor_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_kinect_rgb_link" link2="torso_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="head_mount_prosilica_link" reason="Adjacent" />
-    <disable_collisions link1="head_mount_link" link2="head_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="head_plate_frame" reason="Adjacent" />
-    <disable_collisions link1="head_mount_link" link2="head_tilt_link" reason="Default" />
-    <disable_collisions link1="head_mount_link" link2="l_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_forearm_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_shoulder_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_upper_arm_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="l_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="laser_tilt_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_forearm_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_shoulder_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_upper_arm_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="r_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="sensor_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_link" link2="torso_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="head_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="head_plate_frame" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="head_tilt_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_forearm_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_shoulder_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_upper_arm_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="l_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="laser_tilt_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_forearm_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_gripper_l_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_gripper_r_finger_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_shoulder_pan_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_upper_arm_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="r_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="sensor_mount_link" reason="Never" />
-    <disable_collisions link1="head_mount_prosilica_link" link2="torso_lift_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="head_plate_frame" reason="Default" />
     <disable_collisions link1="head_pan_link" link2="head_tilt_link" reason="Adjacent" />
     <disable_collisions link1="head_pan_link" link2="l_elbow_flex_link" reason="Never" />
@@ -847,6 +657,8 @@
     <disable_collisions link1="head_pan_link" link2="l_gripper_l_finger_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
+    <disable_collisions link1="head_pan_link" link2="l_gripper_palm_link" reason="Never" />
+    <disable_collisions link1="head_pan_link" link2="l_gripper_r_finger_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="l_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="l_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="l_upper_arm_link" reason="Never" />
@@ -855,15 +667,12 @@
     <disable_collisions link1="head_pan_link" link2="l_wrist_roll_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="r_elbow_flex_link" reason="Never" />
-    <disable_collisions link1="head_pan_link" link2="r_forearm_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="r_forearm_roll_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="r_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="r_upper_arm_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="r_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="head_pan_link" link2="r_wrist_flex_link" reason="Never" />
-    <disable_collisions link1="head_pan_link" link2="r_wrist_roll_link" reason="Never" />
     <disable_collisions link1="head_pan_link" link2="sensor_mount_link" reason="Default" />
     <disable_collisions link1="head_pan_link" link2="torso_lift_link" reason="Adjacent" />
     <disable_collisions link1="head_plate_frame" link2="head_tilt_link" reason="Adjacent" />
@@ -903,6 +712,8 @@
     <disable_collisions link1="head_tilt_link" link2="l_elbow_flex_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="l_forearm_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="l_forearm_roll_link" reason="Never" />
+    <disable_collisions link1="head_tilt_link" link2="l_gripper_l_finger_link" reason="Never" />
+    <disable_collisions link1="head_tilt_link" link2="l_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="l_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="l_gripper_palm_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="l_shoulder_lift_link" reason="Never" />
@@ -913,12 +724,15 @@
     <disable_collisions link1="head_tilt_link" link2="l_wrist_roll_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="r_elbow_flex_link" reason="Never" />
+    <disable_collisions link1="head_tilt_link" link2="r_forearm_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="r_forearm_roll_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="r_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="r_upper_arm_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="r_upper_arm_roll_link" reason="Never" />
+    <disable_collisions link1="head_tilt_link" link2="r_wrist_flex_link" reason="Never" />
+    <disable_collisions link1="head_tilt_link" link2="r_wrist_roll_link" reason="Never" />
     <disable_collisions link1="head_tilt_link" link2="sensor_mount_link" reason="Default" />
     <disable_collisions link1="head_tilt_link" link2="torso_lift_link" reason="Never" />
     <disable_collisions link1="l_elbow_flex_link" link2="l_forearm_link" reason="Never" />
@@ -936,6 +750,7 @@
     <disable_collisions link1="l_elbow_flex_link" link2="l_wrist_flex_link" reason="Never" />
     <disable_collisions link1="l_elbow_flex_link" link2="l_wrist_roll_link" reason="Never" />
     <disable_collisions link1="l_elbow_flex_link" link2="laser_tilt_mount_link" reason="Never" />
+    <disable_collisions link1="l_elbow_flex_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="l_elbow_flex_link" link2="r_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="l_elbow_flex_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="l_elbow_flex_link" link2="r_upper_arm_roll_link" reason="Never" />
@@ -995,10 +810,7 @@
     <disable_collisions link1="l_gripper_l_finger_tip_link" link2="l_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="l_gripper_l_finger_tip_link" link2="l_wrist_flex_link" reason="Never" />
     <disable_collisions link1="l_gripper_l_finger_tip_link" link2="l_wrist_roll_link" reason="Never" />
-    <disable_collisions link1="l_gripper_l_finger_tip_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="l_gripper_l_finger_tip_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="l_gripper_l_finger_tip_link" link2="r_upper_arm_roll_link" reason="Never" />
-    <disable_collisions link1="l_gripper_l_finger_tip_link" link2="r_wrist_roll_link" reason="Never" />
     <disable_collisions link1="l_gripper_l_finger_tip_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="l_gripper_palm_link" reason="Adjacent" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="l_gripper_r_finger_link" reason="Never" />
@@ -1014,10 +826,9 @@
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_gripper_l_finger_link" reason="Never" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_gripper_palm_link" reason="Never" />
-    <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_gripper_r_finger_link" reason="Never" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_shoulder_lift_link" reason="Never" />
+    <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_upper_arm_link" reason="Never" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="l_gripper_motor_accelerometer_link" link2="r_wrist_flex_link" reason="Never" />
@@ -1030,6 +841,7 @@
     <disable_collisions link1="l_gripper_palm_link" link2="l_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="l_gripper_palm_link" link2="l_wrist_flex_link" reason="Never" />
     <disable_collisions link1="l_gripper_palm_link" link2="l_wrist_roll_link" reason="Adjacent" />
+    <disable_collisions link1="l_gripper_palm_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="l_gripper_palm_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="l_gripper_palm_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="l_gripper_r_finger_link" link2="l_gripper_r_finger_tip_link" reason="Adjacent" />
@@ -1045,9 +857,8 @@
     <disable_collisions link1="l_gripper_r_finger_tip_link" link2="l_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="l_gripper_r_finger_tip_link" link2="l_wrist_flex_link" reason="Never" />
     <disable_collisions link1="l_gripper_r_finger_tip_link" link2="l_wrist_roll_link" reason="Never" />
+    <disable_collisions link1="l_gripper_r_finger_tip_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="l_gripper_r_finger_tip_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
-    <disable_collisions link1="l_gripper_r_finger_tip_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
-    <disable_collisions link1="l_gripper_r_finger_tip_link" link2="r_wrist_roll_link" reason="Never" />
     <disable_collisions link1="l_gripper_r_finger_tip_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="l_shoulder_lift_link" link2="l_shoulder_pan_link" reason="Adjacent" />
     <disable_collisions link1="l_shoulder_lift_link" link2="l_upper_arm_link" reason="Never" />
@@ -1084,9 +895,7 @@
     <disable_collisions link1="l_upper_arm_roll_link" link2="laser_tilt_mount_link" reason="Never" />
     <disable_collisions link1="l_upper_arm_roll_link" link2="r_elbow_flex_link" reason="Never" />
     <disable_collisions link1="l_upper_arm_roll_link" link2="r_forearm_roll_link" reason="Never" />
-    <disable_collisions link1="l_upper_arm_roll_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="l_upper_arm_roll_link" link2="r_shoulder_lift_link" reason="Never" />
-    <disable_collisions link1="l_upper_arm_roll_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="l_upper_arm_roll_link" link2="r_upper_arm_link" reason="Never" />
     <disable_collisions link1="l_upper_arm_roll_link" link2="r_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="l_upper_arm_roll_link" link2="sensor_mount_link" reason="Never" />
@@ -1096,12 +905,17 @@
     <disable_collisions link1="l_wrist_flex_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
     <disable_collisions link1="l_wrist_flex_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="l_wrist_roll_link" link2="laser_tilt_mount_link" reason="Never" />
-    <disable_collisions link1="l_wrist_roll_link" link2="r_gripper_l_finger_tip_link" reason="Never" />
     <disable_collisions link1="l_wrist_roll_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
+    <disable_collisions link1="l_wrist_roll_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
+    <disable_collisions link1="l_wrist_roll_link" link2="r_shoulder_lift_link" reason="Never" />
+    <disable_collisions link1="l_wrist_roll_link" link2="r_upper_arm_roll_link" reason="Never" />
     <disable_collisions link1="l_wrist_roll_link" link2="sensor_mount_link" reason="Never" />
     <disable_collisions link1="laser_tilt_mount_link" link2="r_elbow_flex_link" reason="Never" />
     <disable_collisions link1="laser_tilt_mount_link" link2="r_forearm_roll_link" reason="Never" />
     <disable_collisions link1="laser_tilt_mount_link" link2="r_gripper_motor_accelerometer_link" reason="Never" />
+    <disable_collisions link1="laser_tilt_mount_link" link2="r_gripper_palm_link" reason="Never" />
+    <disable_collisions link1="laser_tilt_mount_link" link2="r_gripper_r_finger_link" reason="Never" />
+    <disable_collisions link1="laser_tilt_mount_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
     <disable_collisions link1="laser_tilt_mount_link" link2="r_shoulder_lift_link" reason="Never" />
     <disable_collisions link1="laser_tilt_mount_link" link2="r_shoulder_pan_link" reason="Never" />
     <disable_collisions link1="laser_tilt_mount_link" link2="r_upper_arm_link" reason="Never" />
@@ -1183,7 +997,6 @@
     <disable_collisions link1="r_gripper_motor_accelerometer_link" link2="r_wrist_flex_link" reason="Never" />
     <disable_collisions link1="r_gripper_motor_accelerometer_link" link2="r_wrist_roll_link" reason="Never" />
     <disable_collisions link1="r_gripper_motor_accelerometer_link" link2="sensor_mount_link" reason="Never" />
-    <disable_collisions link1="r_gripper_motor_accelerometer_link" link2="torso_lift_link" reason="Never" />
     <disable_collisions link1="r_gripper_palm_link" link2="r_gripper_r_finger_link" reason="Adjacent" />
     <disable_collisions link1="r_gripper_palm_link" link2="r_gripper_r_finger_tip_link" reason="Never" />
     <disable_collisions link1="r_gripper_palm_link" link2="r_shoulder_lift_link" reason="Never" />
