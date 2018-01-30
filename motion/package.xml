@@ -66,6 +66,8 @@
   <depend>tf</depend>
   <depend>visualization_msgs</depend>
   <depend>gmapping</depend>
+  <depend>motion_msgs</depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
