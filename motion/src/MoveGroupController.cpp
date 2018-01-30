@@ -30,11 +30,11 @@ struct MoveGroupController::Private {
 moveit_msgs::MoveItErrorCodes
 MoveGroupController::moveGroupToCoordinates(VisualizationMarkerPublisher& vis, moveit::planning_interface::MoveGroup &group, geometry_msgs::PointStamped &goal_point) {
     if (goal_point.header.frame_id != group.getPlanningFrame()) {
-        //vis.publishVisualizationMarker(goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
+        vis.publishVisualizationMarker(goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
         //VisualizationMarkerPublisher::publishVisualizationMarker(vis_pub, goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
         goal_point = Private::transform(goal_point, group.getPlanningFrame());
     }
-    //vis.publishVisualizationMarker(goal_point, VisualizationMarkerPublisher::TYPE_KNOWLEDGE);
+    vis.publishVisualizationMarker(goal_point, VisualizationMarkerPublisher::TYPE_MOTION);
     geometry_msgs::PoseStamped goalPose = Private::createPose(goal_point);
 
     group.setPoseTarget(goalPose);

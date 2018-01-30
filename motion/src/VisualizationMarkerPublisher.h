@@ -23,9 +23,9 @@ public:
      * @param point of the visualization marker as pointStamped.
      * @param color_schema ColorSchema, 0 = Red Point, 1 = Yellow Point.
      */
-    void publishVisualizationMarker(const geometry_msgs::PointStamped &point, const int &color_schema);
+    void publishVisualizationMarker(const geometry_msgs::PointStamped &point, const int color_schema);
 
-    void setVisPub(ros::Publisher);
+    void setVisPub(ros::Publisher publisher);
 };
 
 

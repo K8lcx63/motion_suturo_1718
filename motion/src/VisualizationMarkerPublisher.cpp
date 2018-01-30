@@ -3,7 +3,7 @@
 #include "VisualizationMarkerPublisher.h"
 
 struct VisualizationMarkerPublisher::Private {
-    static visualization_msgs::Marker createFrom(const geometry_msgs::PointStamped &point, const int &markerType) {
+    static visualization_msgs::Marker createFrom(const geometry_msgs::PointStamped &point, const int markerType) {
         visualization_msgs::Marker marker;
         marker.header.frame_id = point.header.frame_id;
         marker.header.stamp = ros::Time();
@@ -36,7 +36,7 @@ struct VisualizationMarkerPublisher::Private {
     }
 };
 
-void VisualizationMarkerPublisher::publishVisualizationMarker(const geometry_msgs::PointStamped &point, const int &markerType) {
+void VisualizationMarkerPublisher::publishVisualizationMarker(const geometry_msgs::PointStamped &point, const int markerType) {
     visualization_msgs::Marker marker = Private::createFrom(point, markerType);
     vis_pub.publish(marker);
 }
