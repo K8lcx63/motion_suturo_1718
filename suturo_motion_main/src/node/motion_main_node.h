@@ -10,6 +10,7 @@
 
 class MotionNode {
 private:
+    struct Private;
     ros::NodeHandle node_handle;
     actionlib::SimpleActionServer<motion_msgs::MovingCommandAction> action_server;
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;

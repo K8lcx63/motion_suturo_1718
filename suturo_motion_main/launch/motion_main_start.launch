@@ -1,0 +1,20 @@
+<launch>
+
+	<include file="$(find vision)/launch/vision_main_pr2_sim_only_zero_position.launch"/>
+	<include file="$(find knowledge)/launch/knowledge_main.launch"/>
+	<include file="$(find pr2_moveit_generated)/launch/move_group.launch"/>
+
+	<node pkg="gmapping" type="slam_gmapping" name="localization_node">
+		<param name="scan" value="base_scan"/>
+		<param name="odom_frame" value="odom_combined" />
+	</node>
+
+	<node pkg="amcl" type="amcl" name="localization_system">
+		<param name="odom_frame_id" value="odom_combined"/>
+	</node>
+
+	<node name="suturo_motion_main" pkg="motion" type="main" output="screen"/>
+<!--
+	<node name="simple_gripper" pkg="motion_gripper" type="simple_gripper" output="screen" />
+-->
+</launch>
