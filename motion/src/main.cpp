@@ -16,7 +16,6 @@ class Main {
 private:
     ros::NodeHandle node_handle;
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-    moveit::planning_interface::MoveGroup::Plan execution_plan;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
     moveit::planning_interface::MoveGroup both_arms;
@@ -100,23 +99,16 @@ public:
         switch (goal->command) {
             case motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE :
                 ROS_INFO("Starting to move to initial pose.");
-                both_arms.setStartStateToCurrentState();
                 both_arms.setNamedTarget("arms_initial");
-
-                error_code = both_arms.plan(execution_plan);
-
-                if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-                    error_code = both_arms.move();
-                }
-
+                error_code = both_arms.move();
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_RIGHT_ARM:
                 ROS_INFO("Planning to move right arm to: ");
-                moveGroupToCoordinates(right_arm_group, goal_point);
+                error_code = moveGroupToCoordinates(right_arm_group, goal_point);
                 break;
             case motion_msgs::MovingCommandGoal::MOVE_LEFT_ARM:
                 ROS_INFO("Planning to move left arm to: ");
-                moveGroupToCoordinates(left_arm_group, goal_point);
+                error_code = moveGroupToCoordinates(left_arm_group, goal_point);
                 break;
             default:
                 ROS_ERROR("Got an unknown command constant. Can't do something. Make sure to call"
@@ -153,7 +145,7 @@ public:
                 break;
             case moveit_msgs::MoveItErrorCodes::INVALID_MOTION_PLAN:
                 result.successful = false;
-                result.status = motion_msgs::MovingCommandResult::COLLISION;
+                result.status = motion_msgs::MovingCommandResult::UNMANAGEBLE_ERROR;
                 action_server.setAborted(result, "INVALID MOTION PLAN");
                 ROS_ERROR("Movement aborted. Errorcode: ");
                 ROS_ERROR("INVALID MOTION PLAN.");
@@ -347,7 +339,7 @@ public:
         vis_pub.publish(marker);
     }
 
-    void
+    moveit_msgs::MoveItErrorCodes
     moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
         geometry_msgs::PointStamped point;
 
@@ -370,22 +362,13 @@ public:
         poseStamped.pose.position.y = point.point.y;
         poseStamped.pose.position.z = point.point.z;
         poseStamped.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2,0,0);
-        group.setStartStateToCurrentState();
         group.setPoseTarget(poseStamped);
-        //group.setGoalTolerance(0.05);
+        group.setGoalTolerance(0.05);
 
         //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
         publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
 
-        error_code = group.plan(execution_plan);
-
-        ROS_INFO("NACH PLANNING: %d", error_code.val);
-
-        if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-            error_code = group.move();
-            ROS_INFO("NACH EXECUTION: %d", error_code.val);
-        }
-
+        return group.move();
     }
 };
 
