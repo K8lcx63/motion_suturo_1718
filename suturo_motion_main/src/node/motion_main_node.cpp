@@ -1,10 +1,29 @@
 #include <ros/init.h>
 #include "motion_main_node.h"
 
-void start_node(int argc, char **argv) {
+int start_node(int argc, char **argv) {
     ros::init(argc, argv, "suturo_motion_main");
     ros::NodeHandle nh;
+    MotionNode motionNode(nh);
+    //add kitchen models to collision detection matrix
+    ros::ServiceClient kitchenObjectsClient = nh.serviceClient<knowledge_msgs::GetFixedKitchenObjects>("/kitchen_model_service/get_fixed_kitchen_objects");
+    knowledge_msgs::GetFixedKitchenObjects srv;
+    if(kitchenObjectsClient.call(srv)){
+        ROS_INFO("Received kitchen objects from knowledge service, start to add objects to collision matrix.");
+        if(motionNode.addKitchenCollisionObjects(srv.response)){
+            ROS_INFO("Successfully added kitchen objects to collision matrix.");
+        }else{
+            ROS_ERROR("Could not add kitchen to collision matrix, because the data received from knowledge service was not correct.");
+            return 1;
+        }
+    }else{
+        ROS_ERROR("Could not add kitchen to collision matrix, because knowledge service is not available.");
+        return 1;
+    }
 
+    ros::spin();
+
+    return 0;
 }
 
 MotionNode::MotionNode(const ros::NodeHandle &nh) :
@@ -221,6 +240,10 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             return;
     }
     Private::handleErrorAndReturnResult(error_code, action_server, result);
+}
+
+bool MotionNode::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
+    return planning_scene_controller.addKitchenCollisionObjects(res, both_arms.getPlanningFrame(), planning_scene_interface);
 }
 
 

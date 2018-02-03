@@ -30,5 +30,5 @@ include_directories(
 )
 
 #create executables
-add_executable(main src/main.cpp src/node/motion_main_node.cpp src/node/motion_main_node.h src/movegroup/group_controller.cpp src/movegroup/group_controller.h)
+add_executable(main src/main.cpp src/node/motion_main_node.cpp src/node/motion_main_node.h src/movegroup/group_controller.cpp src/movegroup/group_controller.h src/visualization/visualization_marker.cpp src/visualization/visualization_marker.h src/planningscene/planning_scene.cpp src/planningscene/planning_scene.h src/transformer/point_transformer.cpp src/transformer/point_transformer.h)
 target_link_libraries(main ${catkin_LIBRARIES})

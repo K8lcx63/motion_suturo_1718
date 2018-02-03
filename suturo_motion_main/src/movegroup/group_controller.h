@@ -5,14 +5,12 @@
 #include <geometry_msgs/PointStamped.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
+#include "../transformer/point_transformer.h"
 
 class GroupController {
 private:
-    tf::TransformListener listener;
     moveit::planning_interface::MoveGroup::Plan execution_plan;
-
-    geometry_msgs::PointStamped
-    transformPointStamped(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &point);
+    PointTransformer point_transformer;
 
 public:
     /**
