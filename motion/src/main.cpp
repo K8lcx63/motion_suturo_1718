@@ -9,6 +9,9 @@
 #include <tf/transform_listener.h>
 #include <ros/package.h>
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
+#include <eigen_conversions/eigen_msg.h>
+#include <moveit/robot_state/robot_state.h>
+#include <moveit/robot_trajectory/robot_trajectory.h>
 #include <moveit/robot_model_loader/robot_model_loader.h>
 
 const int COLOR_SCHEMA_MOTION = 0;
@@ -118,6 +121,14 @@ public:
             case motion_msgs::MovingCommandGoal::MOVE_LEFT_ARM:
                 ROS_INFO("Planning to move left arm to: ");
                 moveGroupToCoordinates(left_arm_group, goal_point);
+                break;
+            case motion_msgs::MovingCommandGoal::MOVE_RIGHT_GRIPPER:
+                ROS_INFO("Planning to move right gripper to: ");
+                moveEndEffectorToGoal(right_arm_group, goal_point);
+                break;
+            case motion_msgs::MovingCommandGoal::MOVE_LEFT_GRIPPER:
+                ROS_INFO("Planning to move left gripper to: ");
+                moveEndEffectorToGoal(left_arm_group, goal_point);
                 break;
             default:
                 ROS_ERROR("Got an unknown command constant. Can't do something. Make sure to call"
@@ -383,6 +394,52 @@ public:
 
         if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
             error_code = group.move();
+        }
+
+    }
+
+    void
+    moveEndEffectorToGoal(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
+        publishVisualizationMarker(goal_point, COLOR_SCHEMA_MOTION);
+
+
+        geometry_msgs::PointStamped point;
+
+        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
+        listener.transformPoint(group.getPlanningFrame(), goal_point, point);
+
+        geometry_msgs::PoseStamped poseStamped;
+        poseStamped.header.frame_id = point.header.frame_id;
+        poseStamped.pose.position.x = point.point.x;
+        poseStamped.pose.position.y = point.point.y;
+        poseStamped.pose.position.z = point.point.z;
+        poseStamped.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2,0,0);
+        group.setPoseTarget(poseStamped);
+        group.setGoalTolerance(0.02);
+
+
+        error_code = group.plan(execution_plan);
+
+        if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+            robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+            robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
+
+            robot_trajectory::RobotTrajectory trajectory (kinematic_model, group.getName());
+            trajectory.setRobotTrajectoryMsg(*(group.getCurrentState()), execution_plan.trajectory_);
+
+            moveit::core::RobotState robotState = trajectory.getLastWayPoint();
+            Eigen::Affine3d eef_transform = robotState.getGlobalLinkTransform(group.getEndEffectorLink());
+
+            geometry_msgs::Pose pose;
+            tf::poseEigenToMsg(eef_transform, pose);
+
+            pose.position.x -= 0.18f;
+            group.setPoseTarget(pose);
+
+            error_code = group.plan(execution_plan);
+
+            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                group.move();
         }
 
     }
