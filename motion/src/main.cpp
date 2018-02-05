@@ -102,6 +102,15 @@ public:
 
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
         geometry_msgs::PointStamped goal_point(goal->point_stamped);
+
+        if(goal->command != motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE
+                && goal_point.header.frame_id == ""){
+            ROS_ERROR("Reference frame has to be declared for goal.");
+            result.successful = false;
+            action_server.setAborted(result, "NO REFERENCE FRAME DECLARED.");
+            return;
+        }
+
         switch (goal->command) {
             case motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE :
                 ROS_INFO("Starting to move to initial pose.");
