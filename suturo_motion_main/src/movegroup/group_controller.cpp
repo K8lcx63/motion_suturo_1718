@@ -1,4 +1,5 @@
 #include "group_controller.h"
+#include "../visualization/visualization_marker.h"
 
 moveit_msgs::MoveItErrorCodes
 GroupController::moveGroupToCoordinates(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PointStamped& goal_point) {
@@ -16,6 +17,7 @@ GroupController::moveGroupToCoordinates(moveit::planning_interface::MoveGroup& g
     group.setGoalTolerance(0.05);
 
     //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
+    visualizationMarker.publishVisualizationMarker(point, "motion");
     //publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
 
 

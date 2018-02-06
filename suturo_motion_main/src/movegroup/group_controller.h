@@ -6,11 +6,13 @@
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
 #include "../transformer/point_transformer.h"
+#include "../visualization/visualization_marker.h"
 
 class GroupController {
 private:
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     PointTransformer point_transformer;
+    VisualizationMarker visualizationMarker;
 
 public:
     /**
