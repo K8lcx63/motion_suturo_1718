@@ -16,6 +16,9 @@
 
 const int COLOR_SCHEMA_MOTION = 0;
 const int COLOR_SCHEMA_KNOWLEDGE= 1;
+const int COLOR_SCHEMA_VISION = 2;
+const float GRIPPER_LENGTH_RIGHT = 0.15f;
+const float GRIPPER_LENGTH_LEFT = 0.18f;
 
 class Main {
 private:
@@ -40,30 +43,30 @@ public:
             left_arm_group("left_arm"),
             both_arms("arms"),
             action_server(node_handle, "moving", boost::bind(&Main::executeCommand, this, _1), false) {
-            vis_pub = vispub;
-            action_server.start();
+        vis_pub = vispub;
+        action_server.start();
     }
 
-    bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res){
+    bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
         int namesSize = res.names.size();
         int posesSize = res.poses.size();
         int boundingBoxesSize = res.bounding_boxes.size();
 
-        if((namesSize != posesSize) || (posesSize != boundingBoxesSize) || (namesSize != boundingBoxesSize)){
+        if ((namesSize != posesSize) || (posesSize != boundingBoxesSize) || (namesSize != boundingBoxesSize)) {
             ROS_ERROR("Kitchen objects received from knowledge are inconsistent. - Aborted.");
             return false;
-        }else{
+        } else {
 
             std::vector<moveit_msgs::CollisionObject> kitchenObjects;
 
             //add objects to collision matrix
-            for(int i = 0; i < namesSize; i++){
+            for (int i = 0; i < namesSize; i++) {
                 std::string name(res.names[i]);
                 geometry_msgs::Pose pose = res.poses[i];
                 geometry_msgs::Vector3 boundingBox = res.bounding_boxes[i];
 
                 //TODO: compare to which group's planning frame?
-                if(res.frame_id != both_arms.getPlanningFrame()){
+                if (res.frame_id != both_arms.getPlanningFrame()) {
                     geometry_msgs::PoseStamped poseIn;
                     poseIn.header.frame_id = res.frame_id;
                     poseIn.pose = pose;
@@ -103,9 +106,9 @@ public:
     void executeCommand(const motion_msgs::MovingCommandGoalConstPtr &goal) {
         geometry_msgs::PointStamped goal_point(goal->point_stamped);
 
-        if(goal->command != motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE
-                && goal_point.header.frame_id == ""){
-            ROS_ERROR("Reference frame has to be declared for goal.");
+        if (goal->command != motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE
+            && (goal_point.header.frame_id == "" || !listener.frameExists(goal_point.header.frame_id))) {
+            ROS_ERROR("Correct reference frame has to be declared for goal.");
             result.successful = false;
             action_server.setAborted(result, "NO REFERENCE FRAME DECLARED.");
             return;
@@ -118,7 +121,7 @@ public:
 
                 error_code = both_arms.plan(execution_plan);
 
-                if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+                if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
                     error_code = both_arms.move();
                 }
 
@@ -151,7 +154,7 @@ public:
     }
 
     void handleErrorAndReturnResult() {
-        switch(error_code.val){
+        switch (error_code.val) {
             case moveit_msgs::MoveItErrorCodes::SUCCESS:
                 result.successful = true;
                 result.status = motion_msgs::MovingCommandResult::SUCCESS;
@@ -336,11 +339,9 @@ public:
      * @param point of the visualization marker as pointStamped.
      * @param color_schema ColorSchema, 0 = Red Point, 1 = Yellow Point.
      */
-    void publishVisualizationMarker(geometry_msgs::PointStamped point, int color_schema){
+    void publishVisualizationMarker(geometry_msgs::PointStamped point, int color_schema) {
         visualization_msgs::Marker marker;
-        marker.header.frame_id = point.header.frame_id;
-        marker.header.stamp = ros::Time();
-        marker.id = 0;
+        marker.header.frame_id = "base_footprint";//point.header.frame_id;
         marker.type = visualization_msgs::Marker::SPHERE;
         marker.action = visualization_msgs::Marker::ADD;
         marker.pose.position.x = point.point.x;
@@ -364,12 +365,18 @@ public:
             marker.color.r = 0.0;
             marker.color.g = 1.0;
             marker.color.b = 0.0;
+        } else if (color_schema == COLOR_SCHEMA_VISION) {
+            marker.ns = "vision";
+            marker.color.r = 0.0;
+            marker.color.g = 0.0;
+            marker.color.b = 1.0;
         }
         vis_pub.publish(marker);
     }
 
     void
-    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
+    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group,
+                           const geometry_msgs::PointStamped &goal_point) {
         geometry_msgs::PointStamped point;
 
         publishVisualizationMarker(goal_point, COLOR_SCHEMA_KNOWLEDGE);
@@ -378,7 +385,8 @@ public:
         tempPoint.point.x = goal_point.point.x;
         tempPoint.point.y = goal_point.point.y;
         tempPoint.point.z = goal_point.point.z;
-        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
+        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(),
+                 group.getPlanningFrame().c_str());
         listener.transformPoint(group.getPlanningFrame(), tempPoint, point);
         ROS_INFO("----Transformed point----");
         ROS_INFO("x %g", point.point.x);
@@ -390,7 +398,7 @@ public:
         poseStamped.pose.position.x = point.point.x;
         poseStamped.pose.position.y = point.point.y;
         poseStamped.pose.position.z = point.point.z;
-        poseStamped.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2,0,0);
+        poseStamped.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
         group.setPoseTarget(poseStamped);
         group.setGoalTolerance(0.05);
 
@@ -401,7 +409,7 @@ public:
         error_code = group.plan(execution_plan);
 
 
-        if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+        if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
             error_code = group.move();
         }
 
@@ -410,79 +418,188 @@ public:
     void
     moveEndEffectorToGoal(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
         publishVisualizationMarker(goal_point, COLOR_SCHEMA_MOTION);
+        /*
+         * First calculate pose to move endeffector to frontdirection of object
+         */
 
+        //plan to move endeffector in front of object
+        geometry_msgs::PointStamped frontDirectionOfObject;
+        listener.transformPoint("base_footprint", goal_point, frontDirectionOfObject);
 
-        geometry_msgs::PointStamped point;
+        //calculate position in front of object and half of the way to the robot
+        frontDirectionOfObject.point.x = frontDirectionOfObject.point.x / 2;
+        publishVisualizationMarker(frontDirectionOfObject, COLOR_SCHEMA_KNOWLEDGE);
+        ROS_INFO("X: %g", frontDirectionOfObject.point.x);
+        ROS_INFO("Y: %g", frontDirectionOfObject.point.y);
+        ROS_INFO("Z: %g", frontDirectionOfObject.point.z);
 
-        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(), group.getPlanningFrame().c_str());
-        listener.transformPoint(group.getPlanningFrame(), goal_point, point);
+        //transform to PoseStamped and set orientation
+        geometry_msgs::PoseStamped frontDirectionOfObjectPose;
+        frontDirectionOfObjectPose.header.frame_id = frontDirectionOfObject.header.frame_id;
+        frontDirectionOfObjectPose.pose.position = frontDirectionOfObject.point;
+        frontDirectionOfObjectPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
 
-        geometry_msgs::PoseStamped poseStamped;
-        poseStamped.header.frame_id = point.header.frame_id;
-        poseStamped.pose.position.x = point.point.x;
-        poseStamped.pose.position.y = point.point.y;
-        poseStamped.pose.position.z = point.point.z;
-        poseStamped.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2,0,0);
-        group.setPoseTarget(poseStamped);
-        group.setGoalTolerance(0.02);
+        //transform to group's planning frame
+        geometry_msgs::PoseStamped goalFrontDirectionOfObjectPose;
+        listener.transformPose(group.getPlanningFrame(), frontDirectionOfObjectPose, goalFrontDirectionOfObjectPose);
 
-
+        group.setPoseTarget(goalFrontDirectionOfObjectPose);
+        group.setGoalTolerance(0.015);
         error_code = group.plan(execution_plan);
 
-        if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+        if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+
             robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
             robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
 
-            robot_trajectory::RobotTrajectory trajectory (kinematic_model, group.getName());
+            robot_trajectory::RobotTrajectory trajectory(kinematic_model, group.getName());
             trajectory.setRobotTrajectoryMsg(*(group.getCurrentState()), execution_plan.trajectory_);
 
             moveit::core::RobotState robotState = trajectory.getLastWayPoint();
             Eigen::Affine3d eef_transform = robotState.getGlobalLinkTransform(group.getEndEffectorLink());
 
-            geometry_msgs::Pose pose;
-            tf::poseEigenToMsg(eef_transform, pose);
+            geometry_msgs::Pose inFrontOfObjectEndEffectorPose;
+            tf::poseEigenToMsg(eef_transform, inFrontOfObjectEndEffectorPose);
 
-            pose.position.x -= 0.18f;
-            group.setPoseTarget(pose);
+            if(group.getName() == "right_arm_group"){
+                inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_RIGHT;
+            }else{
+                inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_LEFT;
+            }
+
+            ROS_INFO("X: %g", inFrontOfObjectEndEffectorPose.position.x);
+            ROS_INFO("Y: %g", inFrontOfObjectEndEffectorPose.position.y);
+            ROS_INFO("Z: %g", inFrontOfObjectEndEffectorPose.position.z);
+
+            geometry_msgs::PoseStamped inFrontOfObjectEndEffectorPoseStamped;
+            inFrontOfObjectEndEffectorPoseStamped.pose = inFrontOfObjectEndEffectorPose;
+            inFrontOfObjectEndEffectorPoseStamped.header.frame_id = "map";
+            ROS_INFO_STREAM("POSESTAMPED FRAME: " << inFrontOfObjectEndEffectorPoseStamped.header.frame_id);
+
+            geometry_msgs::PointStamped newPoint;
+            geometry_msgs::PointStamped oldPoint;
+            oldPoint.header.frame_id = inFrontOfObjectEndEffectorPoseStamped.header.frame_id;
+            oldPoint.point = inFrontOfObjectEndEffectorPoseStamped.pose.position;
+            listener.transformPoint("base_footprint", oldPoint, newPoint);
+
+            //set new goal for movegroup and plan again with new goal
+            group.setPoseTarget(inFrontOfObjectEndEffectorPoseStamped);
+            group.setGoalTolerance(0.015);
 
             error_code = group.plan(execution_plan);
 
-            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
-                group.move();
+            //if plan succeeded, move to goal
+            if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                error_code = group.move();
+
         }
 
+        /*
+         * Then calculate pose to move endeffector to the object
+         */
+
+        //plan to move endeffector to object
+        geometry_msgs::PointStamped point;
+
+        ROS_INFO("Transforming Point from %s to %s", goal_point.header.frame_id.c_str(),
+                 group.getPlanningFrame().c_str());
+        listener.transformPoint(group.getPlanningFrame(), goal_point, point);
+
+        geometry_msgs::PoseStamped objectPosition;
+        objectPosition.header.frame_id = point.header.frame_id;
+        objectPosition.pose.position.x = point.point.x;
+        objectPosition.pose.position.y = point.point.y;
+        objectPosition.pose.position.z = point.point.z;
+        objectPosition.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
+
+        //set target for movegroup instance
+        group.setPoseTarget(objectPosition);
+        group.setGoalTolerance(0.015);
+
+        error_code = group.plan(execution_plan);
+
+
+        //if planning to move arm to the pose, recalculate last waypoint so that the endeffector is moved to
+        //object instead of the arm
+        if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+
+            robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+            robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
+
+            robot_trajectory::RobotTrajectory trajectory(kinematic_model, group.getName());
+            trajectory.setRobotTrajectoryMsg(*(group.getCurrentState()), execution_plan.trajectory_);
+
+            moveit::core::RobotState robotState = trajectory.getLastWayPoint();
+            Eigen::Affine3d eef_transform = robotState.getGlobalLinkTransform(group.getEndEffectorLink());
+
+            geometry_msgs::Pose objectEndEffectorPose;
+            tf::poseEigenToMsg(eef_transform, objectEndEffectorPose);
+
+            if(group.getName() == "right_arm_group"){
+                objectEndEffectorPose.position.x -= GRIPPER_LENGTH_RIGHT/3;
+            }else{
+                objectEndEffectorPose.position.x -= GRIPPER_LENGTH_LEFT/3;
+            }
+
+            geometry_msgs::PoseStamped objectEndEffectorPoseStamped;
+            objectEndEffectorPoseStamped.pose = objectEndEffectorPose;
+            objectEndEffectorPoseStamped.header.frame_id = "map";
+
+            geometry_msgs::PoseStamped objectEndEffectorPoseStampedNewHeight;
+            listener.transformPose("base_footprint", objectEndEffectorPoseStamped, objectEndEffectorPoseStampedNewHeight);
+
+            objectEndEffectorPoseStampedNewHeight.pose.position.z += 0.03;
+
+            //set new goal for movegroup and plan again with new goal
+            group.setPoseTarget(objectEndEffectorPoseStampedNewHeight);
+            group.setGoalTolerance(0.015);
+
+            geometry_msgs::PointStamped markerPoint;
+            markerPoint.header = objectEndEffectorPoseStampedNewHeight.header;
+            markerPoint.point = objectEndEffectorPoseStampedNewHeight.pose.position;
+            publishVisualizationMarker(markerPoint, COLOR_SCHEMA_VISION);
+
+            error_code = group.plan(execution_plan);
+
+            //if plan succeeded, move to goal
+            if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                error_code = group.move();
+
+        }
     }
 };
 
-int main(int argc, char **argv) {
-    ros::init(argc, argv, "motion_main");
-    ros::NodeHandle node_handle;
+    int main(int argc, char **argv) {
+        ros::init(argc, argv, "motion_main");
+        ros::NodeHandle node_handle;
 
-    ros::Publisher pub = node_handle.advertise<visualization_msgs::Marker>( "visualization_marker", 0 );
-    Main main(node_handle, pub);
+        ros::Publisher pub = node_handle.advertise<visualization_msgs::Marker>("visualization_marker", 0);
+        Main main(node_handle, pub);
 
-    //add kitchen models to collision detection matrix
-    ros::ServiceClient kitchenObjectsClient = node_handle.serviceClient<knowledge_msgs::GetFixedKitchenObjects>("/kitchen_model_service/get_fixed_kitchen_objects");
+        //add kitchen models to collision detection matrix
+        ros::ServiceClient kitchenObjectsClient = node_handle.serviceClient<knowledge_msgs::GetFixedKitchenObjects>(
+                "/kitchen_model_service/get_fixed_kitchen_objects");
 
 
-    knowledge_msgs::GetFixedKitchenObjects srv;
+        knowledge_msgs::GetFixedKitchenObjects srv;
 
-    if(kitchenObjectsClient.call(srv)){
-        ROS_INFO("Received kitchen objects from knowledge service, start to add objects to collision matrix.");
-        if(main.addKitchenCollisionObjects(srv.response)){
-            ROS_INFO("Successfully added kitchen objects to collision matrix.");
-        }else{
-            ROS_ERROR("Could not add kitchen to collision matrix, because the data received from knowledge service was not correct.");
+        if (kitchenObjectsClient.call(srv)) {
+            ROS_INFO("Received kitchen objects from knowledge service, start to add objects to collision matrix.");
+            if (main.addKitchenCollisionObjects(srv.response)) {
+                ROS_INFO("Successfully added kitchen objects to collision matrix.");
+            } else {
+                ROS_ERROR(
+                        "Could not add kitchen to collision matrix, because the data received from knowledge service was not correct.");
+                return 1;
+            }
+        } else {
+            ROS_ERROR("Could not add kitchen to collision matrix, because knowledge service is not available.");
             return 1;
         }
-    }else{
-        ROS_ERROR("Could not add kitchen to collision matrix, because knowledge service is not available.");
-        return 1;
+
+        ros::spin();
+
+        return 0;
     }
-
-    ros::spin();
-
-    return 0;
-}
 
 
