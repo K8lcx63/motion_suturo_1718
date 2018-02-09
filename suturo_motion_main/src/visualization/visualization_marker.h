@@ -3,12 +3,18 @@
 
 
 #include <geometry_msgs/PointStamped.h>
+#include <marker_publisher/marker_publisher.h>
 
 class VisualizationMarker {
+private:
+    MarkerPublisher markerPublisher;
 public:
 
-    VisualizationMarker(){
-    }
+    /**
+     * Constructor.
+     */
+    VisualizationMarker();
+
 
     /**
      * Publishes a visualization marker.

@@ -7,6 +7,7 @@
 #include <tf/transform_listener.h>
 #include "../transformer/point_transformer.h"
 #include "../visualization/visualization_marker.h"
+#include <eigen_conversions/eigen_msg.h>
 
 class GroupController {
 private:
@@ -15,6 +16,7 @@ private:
     VisualizationMarker visualizationMarker;
 
 public:
+
     /**
      * Moves the given {@link moveit::planning_interface::MoveGroup}
      * to the desired coordinates provided in {@link geometry_msgs::PointStamped}.
