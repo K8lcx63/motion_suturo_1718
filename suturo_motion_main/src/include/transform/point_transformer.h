@@ -7,6 +7,9 @@
 #include <tf/transform_listener.h>
 #include "../visualization/visualization_marker.h"
 
+/**
+ * Class for transforming PointStampeds and PoseStampeds.
+ */
 class PointTransformer {
 private:
     tf::TransformListener listener;

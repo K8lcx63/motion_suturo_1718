@@ -5,6 +5,9 @@
 #include <geometry_msgs/PointStamped.h>
 #include <marker_publisher/marker_publisher.h>
 
+/**
+ * Class for publishing visualization markers.
+ */
 class VisualizationMarker {
 private:
     MarkerPublisher markerPublisher;
@@ -13,6 +16,7 @@ public:
      * Constructor.
      */
     VisualizationMarker();
+
     /**
      * Publishes a visualization marker.
      *

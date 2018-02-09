@@ -9,6 +9,9 @@
 #include "../visualization/visualization_marker.h"
 #include <eigen_conversions/eigen_msg.h>
 
+/**
+ * Class to controlle movement of moveit MoveGroups.
+ */
 class GroupController {
 private:
     const float GRIPPER_LENGTH_RIGHT = 0.15f;

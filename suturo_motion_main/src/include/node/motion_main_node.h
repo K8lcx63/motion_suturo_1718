@@ -10,6 +10,9 @@
 #ifndef SUTURO_MOTION_MAIN_MOTION_MAIN_NODE_H
 #define SUTURO_MOTION_MAIN_MOTION_MAIN_NODE_H
 
+/**
+ * Mainclass for registring the node in the ros environment.
+ */
 class MotionNode {
 private:
     // Variables Declaration

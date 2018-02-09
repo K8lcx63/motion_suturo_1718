@@ -100,9 +100,10 @@ moveit_msgs::MoveItErrorCodes GroupController::moveEndEffectorToGoal(moveit::pla
         error_code = group.plan(execution_plan);
 
         //if plan succeeded, move to goal
-        if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+        if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
             error_code = group.move();
-
+        }
+        return error_code;
     }
 
     /*
