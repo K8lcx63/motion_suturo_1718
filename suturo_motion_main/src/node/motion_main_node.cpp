@@ -232,6 +232,14 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             ROS_INFO("Planning to move left arm to: ");
             error_code = group_controller.moveGroupToCoordinates(left_arm_group, goal_point);
             break;
+        case motion_msgs::MovingCommandGoal::MOVE_LEFT_GRIPPER:
+            ROS_INFO("Planning to move left gripper to: ");
+            error_code = group_controller.moveEndEffectorToGoal(left_arm_group, goal_point);
+            break;
+        case motion_msgs::MovingCommandGoal::MOVE_RIGHT_GRIPPER:
+            ROS_INFO("Planning to move right gripper to: ");
+            error_code = group_controller.moveEndEffectorToGoal(right_arm_group, goal_point);
+            break;
         default:
             ROS_ERROR("Got an unknown command constant. Can't do something. Make sure to call"
                               " the Service with the right constants from the msg file.");
