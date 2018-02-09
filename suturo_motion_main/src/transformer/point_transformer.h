@@ -5,10 +5,12 @@
 #include <geometry_msgs/PointStamped.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
+#include "../visualization/visualization_marker.h"
 
 class PointTransformer {
 private:
     tf::TransformListener listener;
+    VisualizationMarker visualizationMarker;
 public:
     /**
      * Transforms a given {@link geometry_msgs::PointStamped} to the matching PointStamped

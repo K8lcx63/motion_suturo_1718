@@ -9,12 +9,17 @@ class VisualizationMarker {
 private:
     MarkerPublisher markerPublisher;
 public:
-
     /**
      * Constructor.
      */
     VisualizationMarker();
-
+    /**
+     * Publishes a visualization marker.
+     *
+     * @param point of the visualization marker as pointStamped.
+     * @param ns NameSpace of the VisualizationMarker.
+     */
+    void publishVisualizationMarker(const geometry_msgs::PointStamped& point, std::string ns);
 
     /**
      * Publishes a visualization marker.
@@ -22,7 +27,7 @@ public:
      * @param point of the visualization marker as pointStamped.
      * @param ns NameSpace of the VisualizationMarker.
      */
-    void publishVisualizationMarker(geometry_msgs::PointStamped& point, std::string ns);
+    void publishVisualizationMarkerWithColor(const geometry_msgs::PointStamped& point, std::string ns, const Color color);
 };
 
 

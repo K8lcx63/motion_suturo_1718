@@ -29,7 +29,7 @@ GroupController::moveGroupToCoordinates(moveit::planning_interface::MoveGroup& g
     group.setGoalTolerance(0.02);
 
     //group.setPositionTarget(point.point.x, point.point.y, point.point.z);
-    visualizationMarker.publishVisualizationMarker(point, "motion");
+    //visualizationMarker.publishVisualizationMarker(point, "motion");
     //publishVisualizationMarker(point, COLOR_SCHEMA_MOTION);
 
 
