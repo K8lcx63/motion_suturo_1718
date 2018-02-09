@@ -1,7 +1,7 @@
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
-#include "group_controller.h"
-#include "../visualization/visualization_marker.h"
+#include "../include/movegroup/group_controller.h"
+#include "../include/visualization/visualization_marker.h"
 
 moveit_msgs::MoveItErrorCodes
 GroupController::moveGroupToCoordinates(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PointStamped& goal_point) {

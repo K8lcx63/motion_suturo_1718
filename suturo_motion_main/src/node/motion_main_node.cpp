@@ -1,5 +1,5 @@
 #include <ros/init.h>
-#include "motion_main_node.h"
+#include "../include/node/motion_main_node.h"
 
 int start_node(int argc, char **argv) {
     ros::init(argc, argv, "suturo_motion_main");

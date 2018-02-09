@@ -5,7 +5,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
-#include "../transformer/point_transformer.h"
+#include "../transform/point_transformer.h"
 #include "../visualization/visualization_marker.h"
 #include <eigen_conversions/eigen_msg.h>
 

@@ -4,7 +4,7 @@
 
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
 #include <ros/ros.h>
-#include "../transformer/point_transformer.h"
+#include "../transform/point_transformer.h"
 
 class PlanningSceneController {
 private:
