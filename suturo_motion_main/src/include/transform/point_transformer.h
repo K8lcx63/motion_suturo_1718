@@ -21,7 +21,17 @@ public:
      * @return the transformed {@link geometry_msgs::PointStamped}.
     */
     geometry_msgs::PointStamped
-    transformPointStamped(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &point);
+    transformPointStamped(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PointStamped& point);
+
+    /**
+     * Transforms a given {@link geometry_msgs::PointStamped} to the matching PointStamped
+     * in the given target_frame.
+     *
+     * @param target_frame the frame to transform the point to.
+     * @param point the point to transform.
+     * @return the transformed {@link geometry_msgs::PointStamped}.
+    */
+    geometry_msgs::PointStamped transformPointStamped(const std::string& target_frame, const geometry_msgs::PointStamped& point);
 
     /**
      * Transforms a {@link geometry_msgs::PoseStamped} into the given target_frame.

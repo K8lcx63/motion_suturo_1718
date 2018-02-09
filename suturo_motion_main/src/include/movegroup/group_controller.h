@@ -11,6 +11,9 @@
 
 class GroupController {
 private:
+    const float GRIPPER_LENGTH_RIGHT = 0.15f;
+    const float GRIPPER_LENGTH_LEFT = 0.18f;
+
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     PointTransformer point_transformer;
     VisualizationMarker visualizationMarker;
@@ -35,6 +38,14 @@ public:
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement.
      */
     moveit_msgs::MoveItErrorCodes moveArmsToInitial(moveit::planning_interface::MoveGroup &group);
+
+    /**
+     * Moves the given {@link moveit::planning_interface::MoveGroup} with the gripper as end effector.
+     * @param group The group to move.
+     * @param goal_point The point to move the group to.
+     * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement.
+     */
+    moveit_msgs::MoveItErrorCodes moveEndEffectorToGoal(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PointStamped& goal_point);
 };
 
 
