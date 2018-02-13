@@ -418,7 +418,10 @@ public:
 
     void
     moveEndEffectorToGoal(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
-        publishVisualizationMarker(goal_point, COLOR_SCHEMA_MOTION);
+        geometry_msgs::PointStamped toVisualize;
+
+        listener.transformPoint("base_footprint", goal_point, toVisualize);
+        publishVisualizationMarker(toVisualize, COLOR_SCHEMA_MOTION);
         /*
          * First calculate pose to move endeffector to frontdirection of object
          */
