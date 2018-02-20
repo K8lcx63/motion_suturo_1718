@@ -420,6 +420,8 @@ public:
     moveEndEffectorToGoal(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
         geometry_msgs::PointStamped toVisualize;
 
+        group.setPlannerId("RRTConnectkConfigDefault");
+
         listener.transformPoint("base_footprint", goal_point, toVisualize);
         publishVisualizationMarker(toVisualize, COLOR_SCHEMA_MOTION);
         /*
