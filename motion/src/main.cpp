@@ -432,18 +432,19 @@ public:
 
         //calculate position in front of object and two-third of the way to the robot
         frontDirectionOfObject.point.x = frontDirectionOfObject.point.x * 3/4;
-        frontDirectionOfObject.point.z = frontDirectionOfObject.point.z + 0.08;
+        frontDirectionOfObject.point.z = frontDirectionOfObject.point.z + 0.15;
         publishVisualizationMarker(frontDirectionOfObject, COLOR_SCHEMA_KNOWLEDGE);
 
         //transform to PoseStamped and set orientation
         geometry_msgs::PoseStamped frontDirectionOfObjectPose;
         frontDirectionOfObjectPose.header.frame_id = frontDirectionOfObject.header.frame_id;
         frontDirectionOfObjectPose.pose.position = frontDirectionOfObject.point;
-        frontDirectionOfObjectPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
 
         //transform to group's planning frame
         geometry_msgs::PoseStamped goalFrontDirectionOfObjectPose;
         listener.transformPose(group.getPlanningFrame(), frontDirectionOfObjectPose, goalFrontDirectionOfObjectPose);
+
+        goalFrontDirectionOfObjectPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
 
         group.setPoseTarget(goalFrontDirectionOfObjectPose);
         group.setGoalTolerance(0.015);
@@ -456,7 +457,7 @@ public:
             geometry_msgs::PointStamped goalInBase;
             listener.transformPoint("base_footprint", goal_point, goalInBase);
             //goalInBase.point.x += 0.025;
-            goalInBase.point.z = goalInBase.point.z + 0.08;
+            goalInBase.point.z = goalInBase.point.z + 0.15;
             publishVisualizationMarker(goalInBase, COLOR_SCHEMA_VISION);
 
             geometry_msgs::PointStamped newGoal;
@@ -481,9 +482,9 @@ public:
             geometry_msgs::PointStamped secondPoint;
             listener.transformPoint(group.getPlanningFrame(), goal_point, secondPoint);
             graspGoal.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, M_PI_2, 0);
-            graspGoal.pose.position.x = (secondPoint.point.x/newGoalWithPose.pose.position.x)/2.0f;
-            graspGoal.pose.position.y = (secondPoint.point.y/newGoalWithPose.pose.position.y)/2.0f;
-            graspGoal.pose.position.z = (secondPoint.point.z/newGoalWithPose.pose.position.z)/2.0f;
+            graspGoal.pose.position.x = (secondPoint.point.x+newGoalWithPose.pose.position.x)/2.0f;
+            graspGoal.pose.position.y = (secondPoint.point.y+newGoalWithPose.pose.position.y)/2.0f;
+            graspGoal.pose.position.z = (secondPoint.point.z+newGoalWithPose.pose.position.z)/2.0f;
 
             group.setPoseTarget(graspGoal);
             group.setGoalTolerance(0.015);
