@@ -453,7 +453,8 @@ public:
         error_code = group.plan(execution_plan);
 
         if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-
+            group.move();
+/*
             robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
             robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
 
@@ -494,9 +495,9 @@ public:
 
 
 
-                /*
+                *//*
                 * If first movement was successful, calculate path to move endeffector to the object
-                */
+                *//*
 
                 //plan to move endeffector to object
                 geometry_msgs::PointStamped point;
@@ -597,12 +598,12 @@ public:
                     marker2.color.b = 0.5;
                     //vis_pub.publish(marker2);
 
-                    /*ROS_INFO("STARTX:  %f", frontDirectionOfObject.point.x);
+                    *//*ROS_INFO("STARTX:  %f", frontDirectionOfObject.point.x);
                     ROS_INFO("STARTY:  %f", frontDirectionOfObject.point.y);
                     ROS_INFO("STARTZ:  %f", frontDirectionOfObject.point.z);
                     ROS_INFO("ENDX:  %f", end.x);
                     ROS_INFO("ENDY:  %f", end.y);
-                    ROS_INFO("ENDZ:  %f", end.z);*/
+                    ROS_INFO("ENDZ:  %f", end.z);*//*
 
                     float distance = sqrt(pow(directionVector.x, 2.0) + pow(directionVector.y, 2.0)
                             + pow(directionVector.z, 2.0));
@@ -677,9 +678,9 @@ public:
                     if(fraction != -1){
                         robot_trajectory::RobotTrajectory rt(group.getCurrentState()->getRobotModel(), group.getName());
                         rt.setRobotTrajectoryMsg(*group.getCurrentState(), robotTrajectory);
-                        /*trajectory_processing::IterativeParabolicTimeParameterization iptp;
+                        *//*trajectory_processing::IterativeParabolicTimeParameterization iptp;
                         success = iptp.computeTimeStamps(rt);
-                        ROS_INFO("Computed time stamp %s",success?"SUCCEDED":"FAILED");*/
+                        ROS_INFO("Computed time stamp %s",success?"SUCCEDED":"FAILED");*//*
 
                         rt.getRobotTrajectoryMsg(robotTrajectory);
 
@@ -693,15 +694,15 @@ public:
 
 
                     }
-                    /*
+                    *//*
                     error_code = group.plan(execution_plan);
 
                     //if plan succeeded, move to goal
                     if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
-                        error_code = group.move();*/
+                        error_code = group.move();*//*
 
                 }
-            }
+            }*/
 
         }
 
