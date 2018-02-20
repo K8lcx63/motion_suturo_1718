@@ -481,6 +481,8 @@ public:
             oldPoint.header.frame_id = inFrontOfObjectEndEffectorPoseStamped.header.frame_id;
             oldPoint.point = inFrontOfObjectEndEffectorPoseStamped.pose.position;
             listener.transformPoint("base_footprint", oldPoint, newPoint);
+            publishVisualizationMarker(newPoint, COLOR_SCHEMA_VISION);
+
 
             //set new goal for movegroup and plan again with new goal
             group.setPoseTarget(inFrontOfObjectEndEffectorPoseStamped);
