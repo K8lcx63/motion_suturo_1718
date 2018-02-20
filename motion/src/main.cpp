@@ -431,18 +431,14 @@ public:
         listener.transformPoint("base_footprint", goal_point, frontDirectionOfObject);
 
         //calculate position in front of object and two-third of the way to the robot
-        frontDirectionOfObject.point.x = frontDirectionOfObject.point.x * 3/4;
+        frontDirectionOfObject.point.x = frontDirectionOfObject.point.x * 1/2;
         publishVisualizationMarker(frontDirectionOfObject, COLOR_SCHEMA_KNOWLEDGE);
 
         //transform to PoseStamped and set orientation
         geometry_msgs::PoseStamped frontDirectionOfObjectPose;
         frontDirectionOfObjectPose.header.frame_id = frontDirectionOfObject.header.frame_id;
         frontDirectionOfObjectPose.pose.position = frontDirectionOfObject.point;
-        //frontDirectionOfObjectPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
-        frontDirectionOfObjectPose.pose.orientation.x = 0;
-        frontDirectionOfObjectPose.pose.orientation.y = 0;
-        frontDirectionOfObjectPose.pose.orientation.z = 0;
-        frontDirectionOfObjectPose.pose.orientation.w = 1;
+        frontDirectionOfObjectPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
 
         //transform to group's planning frame
         geometry_msgs::PoseStamped goalFrontDirectionOfObjectPose;
@@ -454,7 +450,29 @@ public:
 
         if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
-            robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+            error_code = group.move();
+
+            geometry_msgs::PointStamped goalInBase;
+            listener.transformPoint("base_footprint", goal_point, goalInBase);
+            goalInBase.point.x += 0.025;
+            goalInBase.point.z += 0.02;
+            publishVisualizationMarker(goalInBase, COLOR_SCHEMA_VISION);
+
+            geometry_msgs::PointStamped newGoal;
+            listener.transformPoint(group.getPlanningFrame(), goalInBase, newGoal);
+
+            geometry_msgs::PoseStamped newGoalWithPose;
+            newGoalWithPose.header = newGoal.header;
+            newGoalWithPose.pose.position = newGoal.point;
+            newGoalWithPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
+
+            error_code = group.plan(execution_plan);
+
+            if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+                error_code = group.move();
+            }
+
+            /*robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
             robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
 
             robot_trajectory::RobotTrajectory trajectory(kinematic_model, group.getName());
@@ -467,9 +485,9 @@ public:
             tf::poseEigenToMsg(eef_transform, inFrontOfObjectEndEffectorPose);
 
             if(group.getName() == "right_arm_group"){
-                //inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_RIGHT;
+                inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_RIGHT;
             }else{
-                //inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_LEFT;
+                inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_LEFT;
             }
 
             geometry_msgs::PoseStamped inFrontOfObjectEndEffectorPoseStamped;
@@ -494,7 +512,7 @@ public:
             if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
                 ROS_INFO("PLANNING SUCCEEDED!");
                 error_code = group.move();
-            }
+            }*/
                 /*
 
 
