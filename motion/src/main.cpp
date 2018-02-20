@@ -490,6 +490,7 @@ public:
 
             //if plan succeeded, move to goal
             if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+                ROS_INFO("PLANNING SUCCEEDED!");
                 error_code = group.move();
             }
                 /*
