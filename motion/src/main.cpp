@@ -420,8 +420,6 @@ public:
     moveEndEffectorToGoal(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point) {
         geometry_msgs::PointStamped toVisualize;
 
-        group.setPlannerId("RRTConnectkConfigDefault");
-
         listener.transformPoint("base_footprint", goal_point, toVisualize);
         publishVisualizationMarker(toVisualize, COLOR_SCHEMA_MOTION);
         /*
@@ -440,7 +438,11 @@ public:
         geometry_msgs::PoseStamped frontDirectionOfObjectPose;
         frontDirectionOfObjectPose.header.frame_id = frontDirectionOfObject.header.frame_id;
         frontDirectionOfObjectPose.pose.position = frontDirectionOfObject.point;
-        frontDirectionOfObjectPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
+        //frontDirectionOfObjectPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
+        frontDirectionOfObjectPose.pose.orientation.x = 0;
+        frontDirectionOfObjectPose.pose.orientation.y = 0;
+        frontDirectionOfObjectPose.pose.orientation.z = 0;
+        frontDirectionOfObjectPose.pose.orientation.w = 1;
 
         //transform to group's planning frame
         geometry_msgs::PoseStamped goalFrontDirectionOfObjectPose;
@@ -508,7 +510,11 @@ public:
                 objectPosition.pose.position.x = point.point.x;
                 objectPosition.pose.position.y = point.point.y;
                 objectPosition.pose.position.z = point.point.z;
-                objectPosition.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
+                //objectPosition.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
+                objectPosition.pose.orientation.x = 0;
+                objectPosition.pose.orientation.y = 0;
+                objectPosition.pose.orientation.z = 0;
+                objectPosition.pose.orientation.w = 1;
 
                 //set target for movegroup instance
                 group.setPoseTarget(objectPosition);
@@ -639,7 +645,12 @@ public:
                         waypoint.position.x = frontDirectionOfObject.point.x + step.x;
                         waypoint.position.y = frontDirectionOfObject.point.y + step.y;
                         waypoint.position.z = frontDirectionOfObject.point.z + step.z;
-                        waypoint.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
+                        //waypoint.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
+                        waypoint.orientation.x = 0;
+                        waypoint.orientation.y = 0;
+                        waypoint.orientation.z = 0;
+                        waypoint.orientation.w = 1;
+
 
                         waypoints.push_back(waypoint);
 
