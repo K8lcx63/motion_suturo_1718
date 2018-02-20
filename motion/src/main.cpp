@@ -467,9 +467,9 @@ public:
             tf::poseEigenToMsg(eef_transform, inFrontOfObjectEndEffectorPose);
 
             if(group.getName() == "right_arm_group"){
-                inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_RIGHT;
+                //inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_RIGHT;
             }else{
-                inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_LEFT;
+                //inFrontOfObjectEndEffectorPose.position.x -= GRIPPER_LENGTH_LEFT;
             }
 
             geometry_msgs::PoseStamped inFrontOfObjectEndEffectorPoseStamped;
