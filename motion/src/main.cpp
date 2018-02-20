@@ -431,7 +431,7 @@ public:
         listener.transformPoint("base_footprint", goal_point, frontDirectionOfObject);
 
         //calculate position in front of object and two-third of the way to the robot
-        frontDirectionOfObject.point.x = frontDirectionOfObject.point.x * 1/2;
+        frontDirectionOfObject.point.x = frontDirectionOfObject.point.x * 3/4;
         publishVisualizationMarker(frontDirectionOfObject, COLOR_SCHEMA_KNOWLEDGE);
 
         //transform to PoseStamped and set orientation
