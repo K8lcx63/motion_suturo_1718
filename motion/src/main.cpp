@@ -439,6 +439,7 @@ public:
         geometry_msgs::PoseStamped frontDirectionOfObjectPose;
         frontDirectionOfObjectPose.header.frame_id = frontDirectionOfObject.header.frame_id;
         frontDirectionOfObjectPose.pose.position = frontDirectionOfObject.point;
+        frontDirectionOfObjectPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
 
         //transform to group's planning frame
         geometry_msgs::PoseStamped goalFrontDirectionOfObjectPose;
