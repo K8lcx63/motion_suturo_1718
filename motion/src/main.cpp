@@ -453,8 +453,7 @@ public:
         error_code = group.plan(execution_plan);
 
         if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-            group.move();
-/*
+
             robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
             robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
 
@@ -492,7 +491,8 @@ public:
             //if plan succeeded, move to goal
             if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
                 error_code = group.move();
-
+            }
+                /*
 
 
                 *//*
