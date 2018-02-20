@@ -466,6 +466,8 @@ public:
             newGoalWithPose.pose.position = newGoal.point;
             newGoalWithPose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI_2, 0, 0);
 
+            group.setPoseTarget(newGoalWithPose);
+            group.setGoalTolerance(0.015);
             error_code = group.plan(execution_plan);
 
             if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
