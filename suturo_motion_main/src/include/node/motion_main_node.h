@@ -24,7 +24,7 @@ private:
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
     moveit::planning_interface::MoveGroup both_arms;
-    GroupController group_controller;
+    GroupController groupController;
     motion_msgs::MovingCommandResult result;
     PlanningSceneController planning_scene_controller;
 

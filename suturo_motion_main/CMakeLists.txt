@@ -18,6 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   visualization_msgs
   marker_publisher
+  motion_gripper
+  pr2_controllers_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS

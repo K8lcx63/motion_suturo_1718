@@ -50,6 +50,8 @@
   <exec_depend>visualization_msgs</exec_depend>
   <depend>message_runtime</depend>
   <depend>marker_publisher</depend>
+  <depend>motion_gripper</depend>
+  <depend>pr2_controllers_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
