@@ -13,6 +13,9 @@
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
 #include <moveit/robot_model_loader/robot_model_loader.h>
+#include <geometric_shapes/shapes.h>
+#include <geometric_shapes/mesh_operations.h>
+#include <geometric_shapes/shape_operations.h>
 #include <math.h>
 
 const int COLOR_SCHEMA_MOTION = 0;
@@ -50,10 +53,10 @@ public:
 
     bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
         int namesSize = res.names.size();
-        int posesSize = res.poses.size();
-        int boundingBoxesSize = res.bounding_boxes.size();
+        int meshesSize = res.meshes.size();
+        int framesSize = res.frames.size();
 
-        if ((namesSize != posesSize) || (posesSize != boundingBoxesSize) || (namesSize != boundingBoxesSize)) {
+        if ((namesSize != meshesSize) || (meshesSize != framesSize) || (namesSize != framesSize)) {
             ROS_ERROR("Kitchen objects received from knowledge are inconsistent. - Aborted.");
             return false;
         } else {
@@ -63,17 +66,17 @@ public:
             //add objects to collision matrix
             for (int i = 0; i < namesSize; i++) {
                 std::string name(res.names[i]);
-                geometry_msgs::Pose pose = res.poses[i];
-                geometry_msgs::Vector3 boundingBox = res.bounding_boxes[i];
-
+                geometry_msgs::Pose pose;
+                pose.orientation.w = 1.0;
+                ROS_INFO_STREAM(res.frames[i]);
                 //TODO: compare to which group's planning frame?
-                if (res.frame_id != both_arms.getPlanningFrame()) {
+                if (res.frames[i] != both_arms.getPlanningFrame()) {
                     geometry_msgs::PoseStamped poseIn;
-                    poseIn.header.frame_id = res.frame_id;
+                    poseIn.header.frame_id = res.frames[i];
                     poseIn.pose = pose;
 
                     geometry_msgs::PoseStamped poseOut;
-
+                    listener.waitForTransform(both_arms.getPlanningFrame(), res.frames[i], ros::Time(0), ros::Duration(10.0));
                     listener.transformPose(both_arms.getPlanningFrame(), poseIn, poseOut);
 
                     pose.orientation = poseOut.pose.orientation;
@@ -84,15 +87,14 @@ public:
                 kitchenObject.header.frame_id = both_arms.getPlanningFrame();
                 kitchenObject.id = name;
 
-                shape_msgs::SolidPrimitive primitive;
-                primitive.type = primitive.BOX;
-                primitive.dimensions.resize(3);
-                primitive.dimensions[0] = boundingBox.z;
-                primitive.dimensions[1] = boundingBox.x;
-                primitive.dimensions[2] = boundingBox.y;
+                shapes::Mesh* m = shapes::createMeshFromResource(res.meshes[i]);
+                shape_msgs::Mesh co_mesh;
+                shapes::ShapeMsg co_mesh_msg;
+                shapes::constructMsgFromShape(m,co_mesh_msg);
+                co_mesh = boost::get<shape_msgs::Mesh>(co_mesh_msg);
 
-                kitchenObject.primitives.push_back(primitive);
-                kitchenObject.primitive_poses.push_back(pose);
+                kitchenObject.meshes.push_back(co_mesh);
+                kitchenObject.mesh_poses.push_back(pose);
                 kitchenObject.operation = kitchenObject.ADD;
 
                 kitchenObjects.push_back(kitchenObject);
