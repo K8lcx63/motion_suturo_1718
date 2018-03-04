@@ -17,7 +17,7 @@ private:
     const float GRIPPER_LENGTH_RIGHT = 0.15f;
     const float GRIPPER_LENGTH_LEFT = 0.18f;
     const float DISTANCE_BEFORE_POKING = 0.03f; 
-    const float TABLE_HEIGHT = 0.80f;
+    const float TABLE_HEIGHT = 0.90f; 
     const float MAXIMUM_OBJECT_HEIGHT = 0.25f; 
     const float DISTANCE_BEFORE_GRASPING = 0.03f; 
 
@@ -26,6 +26,17 @@ private:
     VisualizationMarker visualizationMarker;
 
 public:
+
+    /**
+     * Moves the given {@link moveit::planning_interface::MoveGroup}
+     * to the desired coordinates provided in {@link geometry_msgs::PointStamped}.
+     *
+     * @param group the group to move.
+     * @param goal_point the coordinates to move the group to.
+     * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement.
+     */
+    moveit_msgs::MoveItErrorCodes
+    moveGroupToCoordinates(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PointStamped &goal_point);
 
     /** 
      * Moves the given {@link moveit::planning_interface::MoveGroup} 
@@ -52,16 +63,16 @@ public:
      * @param object_middle The point at the center of the object to poke. 
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the poking action. 
      */ 
-    moveit_msgs::MoveItErrorCodes pokeObject(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PoseStamped& object_middle);
+    moveit_msgs::MoveItErrorCodes pokeObject(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PointStamped& object_middle); 
  
     /** 
      * Uses the given {@link moveit::planning_interface::MoveGroup} to grasp the object, of which 
-     * the pose to grasp is given by {@link geometry_msgs::PoseStamped}.
+     * the point to grasp is given by {@link geometry_msgs::PointStamped}. 
      * @param group The group to take. 
-     * @param object_grasp_pose The pose how to grasp the object.
+     * @param object_grasp_point The point how to grasp the object. 
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the grasping action. 
      */ 
-    moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PoseStamped& object_grasp_pose);
+    moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PointStamped& 			object_grasp_point); 
  
     /** 
      * Opens the gripper given by gripperName. 

@@ -2,6 +2,6 @@
 	
 	<include file="$(find iai_pr2)/launch/move_group.launch"/>
 
-	<node name="motion_main" pkg="motion" type="main" output="screen"/>
+	<node name="suturo_motion_main" pkg="suturo_motion_main" type="suturo_motion_main" output="screen"/>
 	
 </launch>
