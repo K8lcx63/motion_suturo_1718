@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   marker_publisher
   pr2_controllers_msgs
-  iai_maps
+  motion_gripper
 )
 
 find_package(Boost REQUIRED COMPONENTS

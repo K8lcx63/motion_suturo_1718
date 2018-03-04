@@ -39,6 +39,17 @@ public:
     moveGroupToPose(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PoseStamped &goal_pose); 
 
     /**
+     * Moves the given {@link moveit::planning_interface::MoveGroup}
+     * to the desired pose provided in {@link geometry_msgs::PoseStamped}.
+     *
+     * @param group the group to move.
+     * @param goal_pose the pose to move the group to.
+     * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement.
+     */
+    moveit_msgs::MoveItErrorCodes
+    moveGroupToPose(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PoseStamped &goal_pose);
+
+    /**
      * Moves the given {@link moveit::planning_interface::MoveGroup} to the initial pose.
      *
      * @param group the group to move.
