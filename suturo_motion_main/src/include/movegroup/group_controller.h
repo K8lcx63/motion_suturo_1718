@@ -17,8 +17,8 @@ private:
     const float GRIPPER_LENGTH_RIGHT = 0.15f;
     const float GRIPPER_LENGTH_LEFT = 0.18f;
     const float DISTANCE_BEFORE_POKING = 0.03f; 
-    const float TABLE_HEIGHT = 0.80f;
-    const float MAXIMUM_OBJECT_HEIGHT = 0.25f; 
+    const float TABLE_HEIGHT = 0.84f;
+    const float MAXIMUM_OBJECT_HEIGHT = 0.30f;
     const float DISTANCE_BEFORE_GRASPING = 0.03f; 
 
     moveit::planning_interface::MoveGroup::Plan execution_plan;
