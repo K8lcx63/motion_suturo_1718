@@ -51,11 +51,7 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup& group, c
 
 moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_interface::MoveGroup &group,
                                                                      const geometry_msgs::PoseStamped &object_middle) {
- 
- 
     /* First calculate pose to move group to front-direction of object to poke */
- 
- 
     // plan to move group in front of object
     geometry_msgs::PoseStamped firstGoalPose = point_transformer.transformPoseStamped("base_footprint", object_middle);
  

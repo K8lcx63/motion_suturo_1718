@@ -16,27 +16,6 @@ PointTransformer::lookupTransform(const std::string& target_frame, const std::st
     toReturn.point.z = result.getOrigin().z();
 
     return toReturn; 
-} 
-
-geometry_msgs::PointStamped
-PointTransformer::lookupTransform(const std::string& target_frame, const std::string& source_frame, const ros::Time& time){
-    tf::StampedTransform result;
-    geometry_msgs::PointStamped toReturn;
-
-    listener.lookupTransform (target_frame, source_frame, time, result);
-
-    // create geometry_msgs::PointStamped from tf::StampedTransform
-    tf::Vector3 positionInTargetFrame (0,0,0);
-    tf::Vector3 targetFramePosition = result * positionInTargetFrame;
-
-    toReturn.header.seq++;
-    toReturn.header.stamp = ros::Time::now();
-    toReturn.header.frame_id = source_frame;
-    toReturn.point.x = targetFramePosition.getX();
-    toReturn.point.y = targetFramePosition.getY();
-    toReturn.point.z = targetFramePosition.getZ();
-
-    return toReturn;
 }
 
 geometry_msgs::PointStamped

@@ -26,17 +26,6 @@ public:
     lookupTransform(const std::string& target_frame, const std::string& source_frame, const ros::Time& time); 
 
     /**
-     * Looks up a given target frame in a given source frame at a given {@link ros::Time}.
-     *
-     * @param target_frame the frame to be looked up.
-     * @param source_frame the frame in which the looked up frame should be given back.
-     * @param time the time at which the frame should be looked up.
-     * @return the target frame in the source frame at time in form of a {@link geometry_msgs::PointStamped}.
-    */
-    geometry_msgs::PointStamped
-    lookupTransform(const std::string& target_frame, const std::string& source_frame, const ros::Time& time);
-
-    /**
      * Transforms a given {@link geometry_msgs::PointStamped} to the matching PointStamped
      * in the planningframe of the given {@link moveit::planning_interface::MoveGroup}.
      *
