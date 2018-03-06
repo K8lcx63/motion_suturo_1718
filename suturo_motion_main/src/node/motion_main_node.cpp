@@ -31,7 +31,10 @@ node_handle(nh),
 right_arm_group("right_arm"),
 left_arm_group("left_arm"),
 both_arms("arms"),
-action_server(node_handle, "moving", boost::bind(&MotionNode::executeCommand, this, _1), false) {
+action_server(node_handle, "moving", boost::bind(&MotionNode::executeCommand, this, _1), false)
+{
+    beliefstatePublisherGrasp = node_handle.advertise<knowledge_msgs::GraspObject>("/beliefstate/grasp_action", 1000);
+    beliefstatePublisherDrop = node_handle.advertise<knowledge_msgs::DropObject>("/beliefstate/drop_action", 1000);
     action_server.start();
 }
 
@@ -263,32 +266,50 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             ROS_INFO("Planning to grasp object with right arm at: ");
             error_code = group_controller.graspObject(right_arm_group, goal_pose, false);
 
-            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
                 ROS_INFO("\x1B[32mX: Successfully grasped object with right arm.");
+                knowledge_msgs::GraspObject msg;
+                msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
+                msg.object_label = goal->grasped_object_label;
+                beliefstatePublisherGrasp.publish(msg);
+            }
 
             break;
         case motion_msgs::MovingCommandGoal::GRASP_LEFT_ARM:
             ROS_INFO("Planning to grasped object with left arm at: ");
             error_code = group_controller.graspObject(left_arm_group, goal_pose, false);
 
-            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
                 ROS_INFO("\x1B[32mX: Successfully grasped object with left arm.");
+                knowledge_msgs::GraspObject msg;
+                msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
+                msg.object_label = goal->grasped_object_label;
+                beliefstatePublisherGrasp.publish(msg);
+            }
 
             break;
         case motion_msgs::MovingCommandGoal::PLACE_RIGHT_ARM:
             ROS_INFO("Planning to palce object with right arm at: ");
             error_code = group_controller.graspObject(right_arm_group, goal_pose, true);
 
-            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
                 ROS_INFO("\x1B[32mX: Successfully placed object with right arm.");
+                knowledge_msgs::DropObject msg;
+                msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
+                beliefstatePublisherDrop.publish(msg);
+            }
 
             break;
         case motion_msgs::MovingCommandGoal::PLACE_LEFT_ARM:
             ROS_INFO("Planning to place object with left arm at: ");
             error_code = group_controller.graspObject(left_arm_group, goal_pose, true);
 
-            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
                 ROS_INFO("\x1B[32mX: Successfully placed object with left arm.");
+                knowledge_msgs::DropObject msg;
+                msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
+                beliefstatePublisherDrop.publish(msg);
+            }
 
             break;
         default:

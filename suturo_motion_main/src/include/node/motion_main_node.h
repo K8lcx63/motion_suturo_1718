@@ -4,6 +4,9 @@
 #include <actionlib/server/simple_action_server.h>
 #include <motion_msgs/MovingCommandAction.h>
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
+#include <knowledge_msgs/GraspObject.h>
+#include <knowledge_msgs/DropObject.h>
+#include <knowledge_msgs/Gripper.h>
 #include "../movegroup/group_controller.h"
 #include "../planningscene/planning_scene.h"
 
@@ -19,6 +22,8 @@ private:
     struct Private;
     ros::NodeHandle node_handle;
     actionlib::SimpleActionServer<motion_msgs::MovingCommandAction> action_server;
+    ros::Publisher beliefstatePublisherGrasp;
+    ros::Publisher beliefstatePublisherDrop;
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     moveit::planning_interface::MoveGroup right_arm_group;
