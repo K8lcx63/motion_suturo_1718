@@ -245,19 +245,19 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                     if(group.getName() == "right_arm"){
                         if(releaseObject){
                             // TODO
-                            openGripper("r_gripper_controller/gripper_action");
+                            openGripper(motion_msgs::GripperGoal::RIGHT);
                         } else{
                             // TODO
-                            closeGripper("r_gripper_controller/gripper_action");
+                            closeGripper(motion_msgs::GripperGoal::RIGHT);
                         }
 
-                    } else{
+                    } else {
                         if(releaseObject){
                             // TODO
-                            openGripper("l_gripper_controller/gripper_action");
+                            openGripper(motion_msgs::GripperGoal::LEFT);
                         } else{
                             // TODO
-                            closeGripper("l_gripper_controller/gripper_action");
+                            closeGripper(motion_msgs::GripperGoal::LEFT);
                         }
 
                     }
