@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>suturo_motion_main</name>
+  <name>motion</name>
   <version>0.0.0</version>
   <description>The suturo_motion_main package</description>
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(suturo_motion_main)
+project(motion)
 
 add_definitions(-std=c++11)
 
@@ -23,16 +23,16 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED COMPONENTS
-        system
+    system
 )
 
 catkin_package(
-        CATKIN_DEPENDS
-        message_runtime
-        std_msgs
-        geometry_msgs
-        tf
-        motion_gripper
+    CATKIN_DEPENDS
+    message_runtime
+    std_msgs
+    geometry_msgs
+    tf
+    motion_gripper
 )
 
 include_directories(
@@ -42,7 +42,7 @@ include_directories(
 
 #create executables
 add_executable(
-        suturo_motion_main
+    motion
     src/main.cpp
     src/visualization/visualization_marker.cpp
     src/include/visualization/visualization_marker.h
@@ -57,6 +57,6 @@ add_executable(
 )
 
 target_link_libraries(
-        suturo_motion_main
-        ${catkin_LIBRARIES}
+    motion
+    ${catkin_LIBRARIES}
 )

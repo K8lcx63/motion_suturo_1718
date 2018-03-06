@@ -13,7 +13,7 @@
 		<param name="odom_frame_id" value="odom_combined"/>
 	</node>
 
-	<node name="suturo_motion_main" pkg="suturo_motion_main" type="suturo_motion_main" output="screen"/>
+	<node name="motion" pkg="motion" type="motion" output="screen"/>
 <!--
 	<node name="simple_gripper" pkg="motion_gripper" type="simple_gripper" output="screen" />
 -->

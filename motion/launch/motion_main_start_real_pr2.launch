@@ -1,0 +1,7 @@
+<launch>
+	
+	<include file="$(find iai_pr2)/launch/move_group.launch"/>
+
+	<node name="motion" pkg="motion" type="motion" output="screen"/>
+	
+</launch>

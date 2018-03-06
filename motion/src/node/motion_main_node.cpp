@@ -2,7 +2,7 @@
 #include "../include/node/motion_main_node.h"
 
 int start_node(int argc, char **argv) {
-    ros::init(argc, argv, "suturo_motion_main");
+    ros::init(argc, argv, "motion");
     ros::NodeHandle nh;
     MotionNode motionNode(nh);
     //add kitchen models to collision detection matrix
