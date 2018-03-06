@@ -4,4 +4,6 @@
 
 	<node name="motion" pkg="motion" type="motion" output="screen"/>
 	
+	<node name="simple_gripper" pkg="motion_gripper" type="simple_gripper" output="screen" />
+	
 </launch>
