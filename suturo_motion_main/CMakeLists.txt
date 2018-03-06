@@ -27,7 +27,12 @@ find_package(Boost REQUIRED COMPONENTS
 )
 
 catkin_package(
-        CATKIN_DEPENDS message_runtime std_msgs geometry_msgs tf
+        CATKIN_DEPENDS
+        message_runtime
+        std_msgs
+        geometry_msgs
+        tf
+        motion_gripper
 )
 
 include_directories(
@@ -40,10 +45,15 @@ add_executable(
         suturo_motion_main
     src/main.cpp
     src/visualization/visualization_marker.cpp
+    src/include/visualization/visualization_marker.h
     src/transformer/point_transformer.cpp
+    src/include/transform/point_transformer.h
     src/planningscene/planning_scene.cpp
+    src/include/planningscene/planning_scene.h
     src/node/motion_main_node.cpp
+    src/include/node/motion_main_node.h
     src/movegroup/group_controller.cpp
+    src/include/movegroup/group_controller.h
 )
 
 target_link_libraries(
