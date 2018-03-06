@@ -40,8 +40,9 @@ geometry_msgs::PointStamped PointTransformer::transformPointStamped(const std::s
 geometry_msgs::PoseStamped
 PointTransformer::transformPoseStamped(const std::string &target_frame, const geometry_msgs::PoseStamped &pose) {
     geometry_msgs::PoseStamped pose_out;
-    listener.waitForTransform(target_frame, pose.header.frame_id, ros::Time(0), ros::Duration(5));
-    listener.transformPose(target_frame, pose, pose_out);
+    //listener.waitForTransform(target_frame, pose.header.frame_id, ros::Time(0), ros::Duration(3));
+    //listener.lookupTransform()
+    listener.transformPose(target_frame,ros::Time(0), pose, "map", pose_out);
 
     geometry_msgs::PointStamped toVisualize;
     toVisualize.header.frame_id = target_frame;
