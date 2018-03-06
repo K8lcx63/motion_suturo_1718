@@ -215,13 +215,13 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                 if(group.getName() == "right_arm"){
                     if(!releaseObject){
                         // TODO
-                        //openGripper("r_gripper_controller/gripper_action");
+                        openGripper("r_gripper_controller/gripper_action");
                     }
 
                 } else{
                     if(!releaseObject){
                         // TODO
-                        //openGripper("l_gripper_controller/gripper_action");
+                        openGripper("l_gripper_controller/gripper_action");
                     }
                 }
 
@@ -244,19 +244,19 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                     if(group.getName() == "right_arm"){
                         if(releaseObject){
                             // TODO
-                            //openGripper("r_gripper_controller/gripper_action");
+                            openGripper("r_gripper_controller/gripper_action");
                         } else{
                             // TODO
-                            //closeGripper("r_gripper_controller/gripper_action");
+                            closeGripper("r_gripper_controller/gripper_action");
                         }
 
                     } else{
                         if(releaseObject){
                             // TODO
-                            //openGripper("l_gripper_controller/gripper_action");
+                            openGripper("l_gripper_controller/gripper_action");
                         } else{
                             // TODO
-                            //closeGripper("l_gripper_controller/gripper_action");
+                            closeGripper("l_gripper_controller/gripper_action");
                         }
 
                     }
