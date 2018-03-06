@@ -202,11 +202,8 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
  
         if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
             // TODO
-            aboveObjectGoal.pose.orientation.x = 0;
-            aboveObjectGoal.pose.orientation.y = 0;
-            aboveObjectGoal.pose.orientation.z = 0;
-            aboveObjectGoal.pose.orientation.w = 1.0;
- 
+            aboveObjectGoal.pose.orientation = object_grasp_pose.pose.orientation;
+
             error_code = moveGroupToPose(group, aboveObjectGoal);
  
             /* If successful, open/close left or right gripper, depending on which group is active and if releaseObject
