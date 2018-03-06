@@ -63,16 +63,20 @@ public:
      * @param object_middle The point at the center of the object to poke. 
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the poking action. 
      */ 
-    moveit_msgs::MoveItErrorCodes pokeObject(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PoseStamped& object_middle);
+    moveit_msgs::MoveItErrorCodes pokeObject(moveit::planning_interface::MoveGroup& group,
+                                             const geometry_msgs::PoseStamped& object_middle);
  
     /** 
-     * Uses the given {@link moveit::planning_interface::MoveGroup} to grasp the object, of which 
-     * the pose to grasp is given by {@link geometry_msgs::PoseStamped}.
+     * Uses the given {@link moveit::planning_interface::MoveGroup} to grasp/drop the object, of which
+     * the pose to grasp/drop is given by {@link geometry_msgs::PoseStamped}.
+     * The bool states out, whether to releaseObject. If false, object get's grasped.
      * @param group The group to take. 
      * @param object_grasp_pose The pose how to grasp the object.
+     * @param releaseObject True, if object shell be released. False if it shell be grasped.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the grasping action. 
      */ 
-    moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PoseStamped& object_grasp_pose);
+    moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
+                                              const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject);
  
     /** 
      * Opens the gripper given by gripperName. 

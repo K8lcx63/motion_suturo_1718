@@ -149,7 +149,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup& group,
-                                          const geometry_msgs::PoseStamped& object_grasp_pose) {
+                                          const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject) {
 
     /* Move arm to height which is up above all objects on table, so that collision is avoided */
 
@@ -212,15 +212,21 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
  
             error_code = moveGroupToPose(group, aboveObjectGoal);
  
-            /* If successful, open left or right gripper, depending on which group is active */
+            /* If successful, open/close left or right gripper, depending on which group is active and if releaseObject
+             * is true or false. */
  
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
                 if(group.getName() == "right_arm"){
-                    // TODO
-                    //openGripper("r_gripper_controller/gripper_action");
+                    if(!releaseObject){
+                        // TODO
+                        //openGripper("r_gripper_controller/gripper_action");
+                    }
+
                 } else{
-                    // TODO
-                    //openGripper("l_gripper_controller/gripper_action");
+                    if(!releaseObject){
+                        // TODO
+                        //openGripper("l_gripper_controller/gripper_action");
+                    }
                 }
 
                 /* move to point from where gripper is able to grasp object */
@@ -235,15 +241,28 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
  
                 error_code = moveGroupToPose(group, graspGoal);
  
-                /* If successful, close gripper to grasp object */
+                /* If successful, close gripper to grasp object or open gripper to release object, depending on
+                 * the value of releaseObject. */
  
                 if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
                     if(group.getName() == "right_arm"){
-                        // TODO
-                        //closeGripper("r_gripper_controller/gripper_action");
+                        if(releaseObject){
+                            // TODO
+                            //openGripper("r_gripper_controller/gripper_action");
+                        } else{
+                            // TODO
+                            //closeGripper("r_gripper_controller/gripper_action");
+                        }
+
                     } else{
-                        // TODO
-                        //closeGripper("l_gripper_controller/gripper_action");
+                        if(releaseObject){
+                            // TODO
+                            //openGripper("l_gripper_controller/gripper_action");
+                        } else{
+                            // TODO
+                            //closeGripper("l_gripper_controller/gripper_action");
+                        }
+
                     }
  
                     /* move arm again to height it had at the beginning to lift the object */

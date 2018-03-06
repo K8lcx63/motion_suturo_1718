@@ -7,10 +7,7 @@ PointTransformer::lookupTransform(const std::string& target_frame, const std::st
  
     listener.lookupTransform (target_frame, source_frame, time, result); 
  
-    // create geometry_msgs::PointStamped from tf::StampedTransform 
-    tf::Vector3 positionInTargetFrame (0,0,0); 
-    tf::Vector3 targetFramePosition = result * positionInTargetFrame; 
- 
+    // create geometry_msgs::PointStamped from tf::StampedTransform
     toReturn.header.seq++; 
     toReturn.header.stamp = ros::Time::now(); 
     toReturn.header.frame_id = target_frame;

@@ -261,7 +261,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::GRASP_RIGHT_ARM:
             ROS_INFO("Planning to grasp object with right arm at: ");
-            error_code = group_controller.graspObject(right_arm_group, goal_pose);
+            error_code = group_controller.graspObject(right_arm_group, goal_pose, false);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32mX: Successfully grasped object with right arm.");
@@ -269,7 +269,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::GRASP_LEFT_ARM:
             ROS_INFO("Planning to grasped object with left arm at: ");
-            error_code = group_controller.graspObject(left_arm_group, goal_pose);
+            error_code = group_controller.graspObject(left_arm_group, goal_pose, false);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32mX: Successfully grasped object with left arm.");
@@ -277,7 +277,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::PLACE_RIGHT_ARM:
             ROS_INFO("Planning to palce object with right arm at: ");
-            //error_code = group_controller.graspObject(right_arm_group, goal_pose);
+            error_code = group_controller.graspObject(right_arm_group, goal_pose, true);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32mX: Successfully placed object with right arm.");
@@ -285,7 +285,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::PLACE_LEFT_ARM:
             ROS_INFO("Planning to place object with left arm at: ");
-            //error_code = group_controller.graspObject(left_arm_group, goal_pose);
+            error_code = group_controller.graspObject(left_arm_group, goal_pose, true);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32mX: Successfully placed object with left arm.");
