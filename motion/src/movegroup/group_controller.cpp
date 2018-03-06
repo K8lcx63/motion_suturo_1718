@@ -2,9 +2,10 @@
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
 #include <pr2_controllers_msgs/Pr2GripperCommandAction.h>
-#include <actionlib/client/simple_action_client.h>
 #include "../include/movegroup/group_controller.h"
 #include "../include/visualization/visualization_marker.h"
+
+GroupController::GroupController() : gripperclient("gripper", true) {}
 
 moveit_msgs::MoveItErrorCodes GroupController::moveArmsToInitial(moveit::planning_interface::MoveGroup &group) {
     group.setNamedTarget("arms_initial");
@@ -272,51 +273,26 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     return error_code;
 }
 
-void GroupController::openGripper(std::string gripperName){
-    typedef actionlib::SimpleActionClient <pr2_controllers_msgs::Pr2GripperCommandAction> GripperClient;
-    GripperClient *gripper_client_;
-    gripper_client_ = new GripperClient(gripperName, true);
- 
-    pr2_controllers_msgs::Pr2GripperCommandGoal open;
-    open.command.position = 0.07;
-    open.command.max_effort = -1;  // Do not limit effort (negative)
-    ROS_INFO("Sending open goal");
-    gripper_client_->sendGoal(open);
-    gripper_client_->waitForResult();
-    if (gripper_client_->getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-        ROS_INFO("The gripper opened!");
+void GroupController::openGripper(int gripperNum){
+    if (gripperclient.isServerConnected()) {
+        motion_msgs::GripperGoal goal;
+        goal.position = 0.08;
+        goal.effort = -1;
+        goal.gripper = gripperNum;
+        gripperclient.sendGoalAndWait(goal);
     } else {
-        ROS_INFO("The gripper failed to open.");
-        //ROS_INFO(gripper_client_->getState().toString().c_str());
-        if(gripper_client_->isServerConnected()) {
-            ROS_INFO("Client is connected");
-        } else {
-            ROS_INFO("Client NOT connected");
-        }
+        ROS_ERROR("GRIPPER SERVER NOT CONNECTED - ABORTED");
     }
 }
 
-void GroupController::closeGripper(std::string gripperName){
-    typedef actionlib::SimpleActionClient <pr2_controllers_msgs::Pr2GripperCommandAction> GripperClient;
-    GripperClient *gripper_client_;
-    gripper_client_ = new GripperClient(gripperName, true);
- 
-    pr2_controllers_msgs::Pr2GripperCommandGoal squeeze;
-    squeeze.command.position = 0.01;
-    squeeze.command.max_effort = -1;
-    ROS_INFO("Sending squeeze goal");
-    gripper_client_->sendGoal(squeeze);
-    gripper_client_->waitForResult(ros::Duration(5.0));
-    ROS_INFO("Waited 5 seconds for goal");
-    if (gripper_client_->getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-        ROS_INFO("The gripper closed!");
+void GroupController::closeGripper(int gripperNum){
+    if (gripperclient.isServerConnected()) {
+        motion_msgs::GripperGoal goal;
+        goal.position = 0.00;
+        goal.effort = 20;
+        goal.gripper = gripperNum;
+        gripperclient.sendGoalAndWait(goal);
     } else {
-        ROS_INFO("The gripper failed to close.");
-        //ROS_INFO(gripper_client_->getState().toString().c_str());
-        if(gripper_client_->isServerConnected()) {
-            ROS_INFO("Client is connected");
-        } else {
-            ROS_INFO("Client NOT connected");
-        }
+        ROS_ERROR("GRIPPER SERVER NOT CONNECTED - ABORTED");
     }
 }

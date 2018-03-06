@@ -1,13 +1,14 @@
 #ifndef SUTURO_MOTION_MAIN_GROUP_CONTROLLER_H
 #define SUTURO_MOTION_MAIN_GROUP_CONTROLLER_H
 
-
 #include <geometry_msgs/PointStamped.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
 #include "../transform/point_transformer.h"
 #include "../visualization/visualization_marker.h"
 #include <eigen_conversions/eigen_msg.h>
+#include <motion_msgs/GripperAction.h>
+#include <actionlib/client/simple_action_client.h>
 
 /**
  * Class to control movement of moveit MoveGroups.
@@ -24,8 +25,13 @@ private:
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     PointTransformer point_transformer;
     VisualizationMarker visualizationMarker;
+    actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
 
 public:
+    /**
+     * Constructor.
+     */
+    GroupController();
 
     /** 
      * Moves the given {@link moveit::planning_interface::MoveGroup} 
@@ -69,15 +75,15 @@ public:
  
     /** 
      * Opens the gripper given by gripperName. 
-     * @param gripperName The gripper to open. 
-     */ 
-    void openGripper(std::string gripperName); 
+     * @param gripperNum the number of the gripper to close.
+     */
+    void openGripper(int gripperNum);
 
-    /** 
-     * Closes the gripper given by gripperName. 
-     * @param gripperName The gripper to close. 
-     */ 
-    void closeGripper(std::string gripperName);
+    /**
+     * Closes the gripper given by gripperName.
+     * @param gripperNum the number of the gripper to close.
+     */
+    void closeGripper(int gripperNum);
 };
 
 
