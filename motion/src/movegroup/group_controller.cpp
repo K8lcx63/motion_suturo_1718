@@ -274,7 +274,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 void GroupController::openGripper(int gripperNum){
     if (gripperclient.isServerConnected()) {
         motion_msgs::GripperGoal goal;
-        goal.position = 0.08;
+        goal.position = 0.09;
         goal.effort = -1;
         goal.gripper = gripperNum;
         gripperclient.sendGoalAndWait(goal);
@@ -287,7 +287,7 @@ void GroupController::closeGripper(int gripperNum){
     if (gripperclient.isServerConnected()) {
         motion_msgs::GripperGoal goal;
         goal.position = 0.00;
-        goal.effort = 20;
+        goal.effort = 30;
         goal.gripper = gripperNum;
         gripperclient.sendGoalAndWait(goal);
     } else {
