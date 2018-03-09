@@ -38,9 +38,9 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup& group, c
 
     geometry_msgs::PoseStamped goalPoseInPlanningFrame = point_transformer.transformPoseStamped(group.getPlanningFrame(), goal_pose);
     group.setPoseTarget(goalPoseInPlanningFrame);
-    group.setGoalTolerance(0.03);
+    group.setGoalTolerance(0.01);
     // TODO
-    group.setGoalOrientationTolerance(0.1);
+    group.setGoalOrientationTolerance(0.05);
  
     moveit::planning_interface::MoveItErrorCode error_code = group.plan(execution_plan);
  
@@ -226,7 +226,8 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                 /* move to point from where gripper is able to grasp object */
  
                 geometry_msgs::PoseStamped graspGoal = point_transformer.transformPoseStamped("base_footprint", object_grasp_pose);
- 
+                graspGoal.pose.orientation = aboveObjectGoal.pose.orientation;
+
                 if(group.getName() == "right_arm"){
                     graspGoal.pose.position.z += GRIPPER_LENGTH_RIGHT;
                 } else{
