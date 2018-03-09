@@ -38,9 +38,9 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup& group, c
 
     geometry_msgs::PoseStamped goalPoseInPlanningFrame = point_transformer.transformPoseStamped(group.getPlanningFrame(), goal_pose);
     group.setPoseTarget(goalPoseInPlanningFrame);
-    group.setGoalTolerance(0.01);
+    group.setGoalTolerance(0.03);
     // TODO
-    group.setGoalOrientationTolerance(0.05);
+    group.setGoalOrientationTolerance(0.1);
  
     moveit::planning_interface::MoveItErrorCode error_code = group.plan(execution_plan);
  
