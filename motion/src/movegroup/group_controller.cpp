@@ -287,7 +287,7 @@ void GroupController::closeGripper(int gripperNum){
     if (gripperclient.isServerConnected()) {
         motion_msgs::GripperGoal goal;
         goal.position = 0.00;
-        goal.effort = 50;
+        goal.effort = 70;
         goal.gripper = gripperNum;
         gripperclient.sendGoalAndWait(goal);
     } else {
