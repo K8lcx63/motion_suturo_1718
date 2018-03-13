@@ -56,7 +56,17 @@ add_executable(
     src/include/movegroup/group_controller.h
 )
 
+add_executable(
+	move_base 
+	src/movebase/move_base.cpp
+)
+
 target_link_libraries(
     motion
+    ${catkin_LIBRARIES}
+)
+
+target_link_libraries(
+    move_base
     ${catkin_LIBRARIES}
 )
