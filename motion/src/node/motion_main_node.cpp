@@ -31,7 +31,6 @@ node_handle(nh),
 right_arm_group("right_arm"),
 left_arm_group("left_arm"),
 both_arms("arms"),
-arms_and_head("arms_and_head"),
 action_server(node_handle, "moving", boost::bind(&MotionNode::executeCommand, this, _1), false)
 {
     beliefstatePublisherGrasp = node_handle.advertise<knowledge_msgs::GraspObject>("/beliefstate/grasp_action", 1000);
@@ -297,18 +296,6 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32mX: Successfully placed object with left arm.");
-
-            break;
-        case 10:
-            ROS_INFO("Planning to dab.");
-
-            arms_and_head.setNamedTarget("dab_pose");
-            error_code = arms_and_head.plan(execution_plan);
-
-            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-                arms_and_head.move();
-                ROS_INFO("\x1B[32mX: Successfully executed dab.");
-            }
 
             break;
         default:
