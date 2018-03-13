@@ -42,7 +42,7 @@ public:
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement. 
      */ 
     moveit_msgs::MoveItErrorCodes 
-    moveGroupToPose(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PoseStamped &goal_pose); 
+    moveGroupToPose(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PoseStamped &goal_pose);
 
     /**
      * Moves the given {@link moveit::planning_interface::MoveGroup} to the initial pose.
@@ -65,13 +65,19 @@ public:
      * Uses the given {@link moveit::planning_interface::MoveGroup} to grasp/drop the object, of which
      * the pose to grasp/drop is given by {@link geometry_msgs::PoseStamped}.
      * The bool states out, whether to releaseObject. If false, object get's grasped.
+     * The {@link ros::Publisher} is for publishing a message to a topic after grasping/
+     * releasing an object. This is needed for the beliefstate.
+     * The string contains the label of the object to grasp/release.
      * @param group The group to take. 
      * @param object_grasp_pose The pose how to grasp the object.
      * @param releaseObject True, if object shell be released. False if it shell be grasped.
+     * @param beliefstatePublisher Publisher to publish message for beliefstatetopic.
+     * @param objectLabel The name of the object to grasp/release.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the grasping action. 
      */ 
     moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
-                                              const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject);
+                                              const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject,
+                                                ros::Publisher beliefstatePublisher, std::string objectLabel);
  
     /** 
      * Opens the gripper given by gripperName. 

@@ -41,15 +41,11 @@ geometry_msgs::PoseStamped
 PointTransformer::transformPoseStamped(const std::string &target_frame, const geometry_msgs::PoseStamped &pose) {
     geometry_msgs::PoseStamped pose_out;
 
-    geometry_msgs::PoseStamped pose_copy;
-    pose_copy.pose = pose.pose;
-    pose_copy.header.frame_id = pose.header.frame_id;
-    pose_copy.header.stamp = ros::Time(0);
-    listener.transformPose(target_frame, pose_copy, pose_out);
+    // reset stamp in header to take latest data available
+    geometry_msgs::PoseStamped poseStampedLatest = pose;
+    poseStampedLatest.header.stamp = ros::Time(0);
 
-    geometry_msgs::PointStamped toVisualize;
-    toVisualize.header.frame_id = target_frame;
-    toVisualize.point = pose_out.pose.position;
+    listener.transformPose(target_frame, poseStampedLatest, pose_out);
 
     return pose_out;
 }

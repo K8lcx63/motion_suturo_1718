@@ -2,6 +2,9 @@
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
 #include <pr2_controllers_msgs/Pr2GripperCommandAction.h>
+#include <knowledge_msgs/GraspObject.h>
+#include <knowledge_msgs/DropObject.h>
+#include <knowledge_msgs/Gripper.h>
 #include "../include/movegroup/group_controller.h"
 #include "../include/visualization/visualization_marker.h"
 
@@ -146,7 +149,8 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup& group,
-                                          const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject) {
+                                          const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject,
+                                            ros::Publisher beliefstatePublisher, std::string objectLabel) {
 
     /* Move arm to height which is up above all objects on table, so that collision is avoided */
 
@@ -187,7 +191,6 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
         geometry_msgs::PoseStamped aboveObjectGoal = point_transformer.transformPoseStamped("base_footprint", object_grasp_pose);
 
-        // TODO
         // change orientation
         aboveObjectGoal.pose.orientation.x = 0;
         aboveObjectGoal.pose.orientation.y = 0;
@@ -201,7 +204,6 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
         /* If successful, set pose of arm to pose in 'object_grasp_pose' */
  
         if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-            // TODO
             aboveObjectGoal.pose.orientation = object_grasp_pose.pose.orientation;
 
             error_code = moveGroupToPose(group, aboveObjectGoal);
@@ -212,13 +214,11 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
                 if(group.getName() == "right_arm"){
                     if(!releaseObject){
-                        // TODO
                         openGripper(motion_msgs::GripperGoal::RIGHT);
                     }
 
                 } else{
                     if(!releaseObject){
-                        // TODO
                         openGripper(motion_msgs::GripperGoal::LEFT);
                     }
                 }
@@ -242,20 +242,38 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                 if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
                     if(group.getName() == "right_arm"){
                         if(releaseObject){
-                            // TODO
                             openGripper(motion_msgs::GripperGoal::RIGHT);
+
+                            // publish message for beliefstate
+                            knowledge_msgs::DropObject msg;
+                            msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
+                            beliefstatePublisher.publish(msg);
                         } else{
-                            // TODO
                             closeGripper(motion_msgs::GripperGoal::RIGHT);
+
+                            // publish message for beliefstate
+                            knowledge_msgs::GraspObject msg;
+                            msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
+                            msg.object_label = objectLabel;
+                            beliefstatePublisher.publish(msg);
                         }
 
                     } else {
                         if(releaseObject){
-                            // TODO
                             openGripper(motion_msgs::GripperGoal::LEFT);
+
+                            // publish message for beliefstate
+                            knowledge_msgs::DropObject msg;
+                            msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
+                            beliefstatePublisher.publish(msg);
                         } else{
-                            // TODO
                             closeGripper(motion_msgs::GripperGoal::LEFT);
+
+                            // publish message for beliefstate
+                            knowledge_msgs::GraspObject msg;
+                            msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
+                            msg.object_label = objectLabel;
+                            beliefstatePublisher.publish(msg);
                         }
 
                     }
