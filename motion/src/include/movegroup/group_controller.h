@@ -45,12 +45,22 @@ public:
     moveGroupToPose(moveit::planning_interface::MoveGroup &group, const geometry_msgs::PoseStamped &goal_pose);
 
     /**
-     * Moves the given {@link moveit::planning_interface::MoveGroup} to the initial pose.
+     * Moves the given {@link moveit::planning_interface::MoveGroup} to a pose which is
+     * suitable for driving the robot.
      *
-     * @param group the group to move.
+     * @param group the group to move to pose.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement.
      */
-    moveit_msgs::MoveItErrorCodes moveArmsToInitial(moveit::planning_interface::MoveGroup &group);
+    moveit_msgs::MoveItErrorCodes moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group);
+
+    /**
+     * Moves the given {@link moveit::planning_interface::MoveGroup} to a pose which is
+     * suitable for driving the robot while carrying an object.
+     *
+     * @param group the group to move to pose.
+     * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement.
+     */
+    moveit_msgs::MoveItErrorCodes moveArmsToCarryingObjectPose(moveit::planning_interface::MoveGroup &group);
 
     /** Uses the given {@link moveit::planning_interface::MoveGroup} to poke the object, of which 
      * the center is given by {@link geometry_msgs::PointStamped}. 

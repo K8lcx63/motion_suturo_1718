@@ -222,9 +222,17 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
     moveit_msgs::MoveItErrorCodes error_code;
     geometry_msgs::PoseStamped goal_pose(goal->goal_pose);
     switch (goal->command) {
-        case motion_msgs::MovingCommandGoal::MOVE_STANDARD_POSE :
+        case motion_msgs::MovingCommandGoal::MOVE_DRIVE_POSE :
             ROS_INFO("Starting to move to initial pose.");
-            error_code = group_controller.moveArmsToInitial(both_arms);
+            error_code = group_controller.moveArmsToDrivePose(both_arms);
+
+            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                ROS_INFO("\x1B[32mX: Moved successfully to standardpose.");
+
+            break;
+        case motion_msgs::MovingCommandGoal::MOVE_CARRY_POSE :
+            ROS_INFO("Starting to move to initial pose.");
+            error_code = group_controller.moveArmsToCarryingObjectPose(both_arms);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32mX: Moved successfully to standardpose.");

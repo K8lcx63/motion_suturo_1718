@@ -10,8 +10,8 @@
 
 GroupController::GroupController() : gripperclient("gripper", true) {}
 
-moveit_msgs::MoveItErrorCodes GroupController::moveArmsToInitial(moveit::planning_interface::MoveGroup &group) {
-    group.setNamedTarget("arms_initial");
+moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group) {
+    group.setNamedTarget("arms_drive_pose");
  
     moveit_msgs::MoveItErrorCodes error_code = group.plan(execution_plan);
  
@@ -19,6 +19,18 @@ moveit_msgs::MoveItErrorCodes GroupController::moveArmsToInitial(moveit::plannin
         error_code = group.move();
     }
  
+    return error_code;
+}
+
+moveit_msgs::MoveItErrorCodes GroupController::moveArmsToCarryingObjectPose(moveit::planning_interface::MoveGroup &group) {
+    group.setNamedTarget("arms_carry_pose");
+
+    moveit_msgs::MoveItErrorCodes error_code = group.plan(execution_plan);
+
+    if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+        error_code = group.move();
+    }
+
     return error_code;
 }
 
