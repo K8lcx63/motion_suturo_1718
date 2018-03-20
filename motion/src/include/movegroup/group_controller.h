@@ -15,8 +15,8 @@
  */
 class GroupController {
 private:
-    const float GRIPPER_LENGTH_RIGHT = 0.15f;
-    const float GRIPPER_LENGTH_LEFT = 0.18f;
+    const float GRIPPER_LENGTH_RIGHT = 0.21f;
+    const float GRIPPER_LENGTH_LEFT = 0.24f;
     const float DISTANCE_BEFORE_POKING = 0.03f; 
     const float TABLE_HEIGHT = 0.84f;
     const float MAXIMUM_OBJECT_HEIGHT = 0.30f;
