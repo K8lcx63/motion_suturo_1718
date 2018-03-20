@@ -5,6 +5,7 @@
 #include <knowledge_msgs/GraspObject.h>
 #include <knowledge_msgs/DropObject.h>
 #include <knowledge_msgs/Gripper.h>
+#include <motion_msgs/MovingCommandAction.h>
 #include "../include/movegroup/group_controller.h"
 #include "../include/visualization/visualization_marker.h"
 
@@ -159,7 +160,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup& group,
-                                          const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject,
+                                          const geometry_msgs::PoseStamped& object_grasp_pose, float effort, bool releaseObject,
                                             ros::Publisher beliefstatePublisher, std::string objectLabel) {
 
     /* Move arm to height which is up above all objects on table, so that collision is avoided */
@@ -259,7 +260,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
                             beliefstatePublisher.publish(msg);
                         } else{
-                            closeGripper(motion_msgs::GripperGoal::RIGHT);
+                            closeGripper(motion_msgs::GripperGoal::RIGHT, effort);
 
                             // publish message for beliefstate
                             knowledge_msgs::GraspObject msg;
@@ -278,7 +279,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
                             beliefstatePublisher.publish(msg);
                         } else{
-                            closeGripper(motion_msgs::GripperGoal::LEFT);
+                            closeGripper(motion_msgs::GripperGoal::LEFT, effort);
 
                             // publish message for beliefstate
                             knowledge_msgs::GraspObject msg;
@@ -313,11 +314,15 @@ void GroupController::openGripper(int gripperNum){
     }
 }
 
-void GroupController::closeGripper(int gripperNum){
+void GroupController::closeGripper(int gripperNum, float& effort){
     if (gripperclient.isServerConnected()) {
         motion_msgs::GripperGoal goal;
         goal.position = 0.00;
-        goal.effort = 70;
+        if (isnanf(effort)) {
+            goal.effort = motion_msgs::MovingCommandGoal::FORCE_DEFAULT;
+        } else {
+            goal.effort = effort;
+        }
         goal.gripper = gripperNum;
         gripperclient.sendGoalAndWait(goal);
     } else {

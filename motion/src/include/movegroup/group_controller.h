@@ -86,7 +86,7 @@ public:
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the grasping action. 
      */ 
     moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
-                                              const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject,
+                                              const geometry_msgs::PoseStamped& object_grasp_pose, float effort, bool releaseObject,
                                                 ros::Publisher beliefstatePublisher, std::string objectLabel);
  
     /** 
@@ -99,7 +99,7 @@ public:
      * Closes the gripper given by gripperName.
      * @param gripperNum the number of the gripper to close.
      */
-    void closeGripper(int gripperNum);
+    void closeGripper(int gripperNum, float& effort);
 };
 
 
