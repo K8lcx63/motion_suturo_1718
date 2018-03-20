@@ -255,6 +255,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             knowledge_msgs::GraspObject msg;
                             msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
                             msg.object_label = objectLabel;
+                            msg.grasp_pose = object_grasp_pose;
                             beliefstatePublisher.publish(msg);
                         }
 
@@ -273,6 +274,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             knowledge_msgs::GraspObject msg;
                             msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
                             msg.object_label = objectLabel;
+                            msg.grasp_pose = object_grasp_pose;
                             beliefstatePublisher.publish(msg);
                         }
 
