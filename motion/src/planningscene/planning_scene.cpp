@@ -57,3 +57,24 @@ bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixe
         return true;
     }
 }
+
+
+bool PlanningSceneController::addPerceivedObjectToWorld(knowledge_msgs::PerceivedObjectBoundingBoxConstPtr newPerceivedObject) {
+    return true;
+}
+
+bool allowCollision(const std::string object_label){
+    return true;
+}
+
+bool avoidCollision(const std::string object_label){
+    return true;
+}
+
+bool attachObject(const std::string object_label, move_group_interface::MoveGroup group){
+    return true;
+}
+
+bool detachObject(const std::string object_label, move_group_interface::MoveGroup group){
+    return true;
+}

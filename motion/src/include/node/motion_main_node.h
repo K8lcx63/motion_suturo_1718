@@ -25,6 +25,7 @@ private:
     ros::Publisher beliefstatePublisherGrasp;
     ros::Publisher beliefstatePublisherDrop;
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+    ros::Publisher planningSceneDifferencePublisher;
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
