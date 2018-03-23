@@ -63,28 +63,129 @@ bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixe
     }
 }
 
+bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr newPerceivedObject) {
 
-bool PlanningSceneController::addPerceivedObjectToWorld(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr newPerceivedObject) {
-    ROS_INFO("ADDED OBJECT TO THE WORLD!");
-    ROS_INFO("ADDED OBJECT TO THE WORLD!");
-    ROS_INFO("ADDED OBJECT TO THE WORLD!");
-    ROS_INFO("ADDED OBJECT TO THE WORLD!");
-    ROS_INFO("ADDED OBJECT TO THE WORLD!");
+    // for info on console
+    std::string infoOutput;
+    std::string errorOutput;
+
+    infoOutput = "START TO ADD OBJECT " + newPerceivedObject->object_label + " TO THE PLANNING SCENE.";
+    ROS_INFO (infoOutput.c_str());
+
+    // check if data is valid
+    if(!newPerceivedObject->object_label.empty() && !newPerceivedObject->pose.header.frame_id.empty() &&
+            !(newPerceivedObject->bounding_box.x == 0 && newPerceivedObject->bounding_box.y == 0 &&
+                    newPerceivedObject->bounding_box.z == 0)) {
+
+        infoOutput = "DATA SEEMS VALID, CONTINUING.";
+        ROS_INFO (infoOutput.c_str());
+
+        // create new CollisionObject-message to fill it with the data about the newly perceived object
+        moveit_msgs::CollisionObject perceivedObject;
+
+        // fill header
+        perceivedObject.header.stamp = ros::Time::now();
+        perceivedObject.header.frame_id = newPerceivedObject->pose.header.frame_id;
+        perceivedObject.header.seq++;
+
+        // fill in name
+        perceivedObject.id = newPerceivedObject->object_label;
+
+        // create collider to add to planning scene
+        shape_msgs::SolidPrimitive boxCollider;
+        boxCollider.type = boxCollider.BOX;
+        boxCollider.dimensions.resize(3);
+        boxCollider.dimensions[0] = newPerceivedObject->bounding_box.x;
+        boxCollider.dimensions[1] = newPerceivedObject->bounding_box.y;
+        boxCollider.dimensions[2] = newPerceivedObject->bounding_box.z;
+
+        perceivedObject.primitives.push_back(boxCollider);
+
+        // fill in pose of object
+        geometry_msgs::Pose poseOfObject;
+        poseOfObject.orientation = newPerceivedObject->pose.pose.orientation;
+        poseOfObject.position = newPerceivedObject->pose.pose.position;
+
+        perceivedObject.primitive_poses.push_back(poseOfObject);
+
+        // define as operation to add an object to the environment
+        perceivedObject.operation = perceivedObject.ADD;
+
+        // publish PlanningScene-message to add object
+        moveit_msgs::PlanningScene planning_scene;
+        planning_scene.world.collision_objects.push_back(perceivedObject);
+        planning_scene.is_diff = true;
+        planningSceneDifferencePublisher.publish(planning_scene);
+
+        infoOutput = "SUCCESSFULLY ADDED OBJECT TO THE PLANNINGSCENE.";
+        ROS_INFO(infoOutput.c_str());
+
+        return true;
+    }
+
+    errorOutput = "COULD NOT ADD NEWLY PERCEIVED OBJECT " + newPerceivedObject->object_label + " TO PLANNINGSCENE BECAUSE"
+                                                                                                       "OF INCORRECT DATA!";
+    ROS_ERROR(errorOutput.c_str());
+    return false;
+}
+
+bool PlanningSceneController::removeObjectFromEnvironment(const std::string objectName){
+
+    if(objectName.empty()){
+        ROS_ERROR ("CAN'T REMOVE OBJECT FROM PLANNINGSCENE-ENVIRONMENT, GIVEN NAME IS EMPTY!");
+        return false;
+    }
+
+    // for info on console
+    std::string infoOutput;
+
+    infoOutput = "STARTING TO REMOVE OBJECT " + objectName + " FROM PLANNINGSCENE-ENVIRONMENT.";
+    ROS_INFO (infoOutput.c_str());
+
+    // create CollisionObject-message for defining the object to remove
+    moveit_msgs::CollisionObject objectToRemove;
+    objectToRemove.id = objectName;
+    objectToRemove.header.frame_id = "odom_combined";
+    objectToRemove.operation = objectToRemove.REMOVE;
+
+    // publish to apply removing the object
+    moveit_msgs::PlanningScene planningScene;
+    planningScene.world.collision_objects.push_back(objectToRemove);
+    planningSceneDifferencePublisher.publish(planningScene);
+
+    infoOutput = "SUCCESSFULLY REMOVED OBJECT FROM PLANNINGSCENE-ENVIRONMENT.";
+    ROS_INFO (infoOutput.c_str());
+
     return true;
 }
 
-bool allowCollision(const std::string object_label){
+bool PlanningSceneController::allowCollision(const std::string objectName){
     return true;
 }
 
-bool avoidCollision(const std::string object_label){
+bool PlanningSceneController::avoidCollision(const std::string objectName){
     return true;
 }
 
-bool attachObject(const std::string object_label, move_group_interface::MoveGroup group){
+bool PlanningSceneController::attachObject(const std::string objectName, const std::string link){
+
+    // for info on console
+    std::string infoOutput;
+    std::string errorOutput;
+
+    infoOutput = "START TO ATTACH OBJECT " + objectName + " TO LINK " + link + ".";
+    ROS_INFO (infoOutput.c_str());
+
+    //removeObjectFromEnvironment
+    //attachToLink
+
     return true;
 }
 
-bool detachObject(const std::string object_label, move_group_interface::MoveGroup group){
+bool PlanningSceneController::detachObject(const std::string objectName, const std::string link){
+
+    //detachFromLink
+    //re-introduce object to world
+
     return true;
 }

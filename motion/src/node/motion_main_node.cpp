@@ -323,7 +323,7 @@ bool MotionNode::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjec
 }
 
 void MotionNode::perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr &msg) {
-    planning_scene_controller.addPerceivedObjectToWorld(msg);
+    planning_scene_controller.addPerceivedObjectToEnvironment(msg);
 }
 
 
