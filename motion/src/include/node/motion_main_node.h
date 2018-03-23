@@ -7,6 +7,7 @@
 #include <knowledge_msgs/GraspObject.h>
 #include <knowledge_msgs/DropObject.h>
 #include <knowledge_msgs/Gripper.h>
+#include <knowledge_msgs/PerceivedObjectBoundingBox.h>
 #include "../movegroup/group_controller.h"
 #include "../planningscene/planning_scene.h"
 
@@ -24,8 +25,7 @@ private:
     actionlib::SimpleActionServer<motion_msgs::MovingCommandAction> action_server;
     ros::Publisher beliefstatePublisherGrasp;
     ros::Publisher beliefstatePublisherDrop;
-    moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-    ros::Publisher planningSceneDifferencePublisher;
+    ros::Subscriber perceivedObjectBoundingBoxSubscriber;
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
@@ -57,6 +57,13 @@ public:
      * @return true/false wether the objects could be added to the planning scene or not.
      */
     bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res);
+
+    /**
+     * Callback function getting called when a new object was perceived in the scene.
+     *
+     * @param msg The message containing the name, pose and bounding box of the perceived object.
+     */
+    void perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBoxConstPtr &msg);
 };
 
 /**

@@ -13,8 +13,17 @@
  */
 class PlanningSceneController {
 private:
+    ros::NodeHandle node_handle;
+    ros::Publisher planningSceneDifferencePublisher;
+    moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
     PointTransformer transformer;
 public:
+
+    /**
+     * Constructor.
+     * @param nh Node Handle.
+     */
+    PlanningSceneController(const ros::NodeHandle &nh);
 
     /**
      * Adds the Objects from the knowledge response to the moveit planning scene.
@@ -25,8 +34,7 @@ public:
      * @return true/false whether the objects could be added successful or not.
      */
     bool
-    addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res, const std::string &planning_frame,
-                               moveit::planning_interface::PlanningSceneInterface &planning_scene_interface);
+    addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res, const std::string &planning_frame);
 
     /**
      * Adds a bounding box into the planningscene for the newly perceived object.

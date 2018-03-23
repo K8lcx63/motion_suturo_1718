@@ -28,12 +28,13 @@ int start_node(int argc, char **argv) {
 
 MotionNode::MotionNode(const ros::NodeHandle &nh) :
 node_handle(nh),
+planning_scene_controller(node_handle),
 right_arm_group("right_arm"),
 left_arm_group("left_arm"),
 both_arms("arms"),
 action_server(node_handle, "moving", boost::bind(&MotionNode::executeCommand, this, _1), false)
 {
-    planningSceneDifferencePublisher = node_handle.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
+    perceivedObjectBoundingBoxSubscriber = node_handle.subscribe("perceived_object_bounding_box", 10, MotionNode::perceivedObjectBoundingBoxCallback);
     beliefstatePublisherGrasp = node_handle.advertise<knowledge_msgs::GraspObject>("/beliefstate/grasp_action", 1000);
     beliefstatePublisherDrop = node_handle.advertise<knowledge_msgs::DropObject>("/beliefstate/drop_action", 1000);
     action_server.start();
@@ -318,8 +319,17 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
 }
 
 bool MotionNode::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
-    return planning_scene_controller.addKitchenCollisionObjects(res, both_arms.getPlanningFrame(), planning_scene_interface);
+    return planning_scene_controller.addKitchenCollisionObjects(res, both_arms.getPlanningFrame());
 }
 
+void MotionNode::perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBoxConstPtr &msg) {
+    ROS_INFO("I GOT SOME MESSAGES!");
+    ROS_INFO("I GOT SOME MESSAGES!");
+    ROS_INFO("I GOT SOME MESSAGES!");
+    ROS_INFO("I GOT SOME MESSAGES!");
+    ROS_INFO("I GOT SOME MESSAGES!");
+    ROS_INFO("I GOT SOME MESSAGES!");
+
+}
 
 

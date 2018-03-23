@@ -4,9 +4,14 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include "../include/planningscene/planning_scene.h"
 
+PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
+        node_handle(nh)
+{
+    planningSceneDifferencePublisher = node_handle.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
+}
+
 bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res,
-                                                         const std::string& planning_frame,
-                                                         moveit::planning_interface::PlanningSceneInterface& planning_scene_interface) {
+                                                         const std::string& planning_frame) {
     int namesSize = res.names.size();
     int posesSize = res.poses.size();
     int boundingBoxesSize = res.bounding_boxes.size();
