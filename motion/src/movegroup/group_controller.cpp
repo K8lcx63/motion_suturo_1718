@@ -23,8 +23,17 @@ moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::plann
     return error_code;
 }
 
-moveit_msgs::MoveItErrorCodes GroupController::moveArmsToCarryingObjectPose(moveit::planning_interface::MoveGroup &group) {
-    group.setNamedTarget("arms_carry_pose");
+moveit_msgs::MoveItErrorCodes GroupController::moveGroupToCarryingObjectPose(moveit::planning_interface::MoveGroup &group) {
+
+    std::string groupName = group.getName();
+
+    if(groupName == "arms") {
+        group.setNamedTarget("arms_carry_pose");
+    } else if (groupName == "right_arm") {
+        group.setNamedTarget("right_arm_carry_pose");
+    } else if (groupName == "left_arm") {
+        group.setNamedTarget("left_arm_carry_pose");
+    }
 
     moveit_msgs::MoveItErrorCodes error_code = group.plan(execution_plan);
 
