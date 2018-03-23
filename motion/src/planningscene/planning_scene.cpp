@@ -64,7 +64,12 @@ bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixe
 }
 
 
-bool PlanningSceneController::addPerceivedObjectToWorld(knowledge_msgs::PerceivedObjectBoundingBoxConstPtr newPerceivedObject) {
+bool PlanningSceneController::addPerceivedObjectToWorld(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr newPerceivedObject) {
+    ROS_INFO("ADDED OBJECT TO THE WORLD!");
+    ROS_INFO("ADDED OBJECT TO THE WORLD!");
+    ROS_INFO("ADDED OBJECT TO THE WORLD!");
+    ROS_INFO("ADDED OBJECT TO THE WORLD!");
+    ROS_INFO("ADDED OBJECT TO THE WORLD!");
     return true;
 }
 

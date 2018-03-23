@@ -43,7 +43,7 @@ public:
      * @return true/false whether the object could be added successful or not.
      */
     bool
-    addPerceivedObjectToWorld(knowledge_msgs::PerceivedObjectBoundingBoxConstPtr newPerceivedObject);
+    addPerceivedObjectToWorld(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr newPerceivedObject);
 
     /**
      * Allow collision with the object with the given label in the future.
