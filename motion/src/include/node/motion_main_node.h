@@ -57,18 +57,18 @@ public:
      * @return true/false wether the objects could be added to the planning scene or not.
      */
     bool addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res);
-
-    /**
-     * Callback function getting called when a new object was perceived in the scene.
-     *
-     * @param msg The message containing the name, pose and bounding box of the perceived object.
-     */
-    void perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBoxConstPtr &msg);
 };
 
 /**
  * Starts the motion node.
  */
 int start_node(int argc, char **argv);
+
+/**
+ * Callback function getting called when a new object was perceived in the scene.
+ *
+ * @param msg The message containing the name, pose and bounding box of the perceived object.
+ */
+void perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr &msg);
 
 #endif //SUTURO_MOTION_MAIN_MOTION_MAIN_NODE_H
