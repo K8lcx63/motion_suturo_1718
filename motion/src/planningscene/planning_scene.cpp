@@ -74,8 +74,7 @@ bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_ms
 
     // check if data is valid
     if(!newPerceivedObject->object_label.empty() && !newPerceivedObject->pose.header.frame_id.empty() &&
-            !(newPerceivedObject->bounding_box.x == 0 && newPerceivedObject->bounding_box.y == 0 &&
-                    newPerceivedObject->bounding_box.z == 0)) {
+            !newPerceivedObject->mesh_path.empty()) {
 
         infoOutput = "DATA SEEMS VALID, CONTINUING.";
         ROS_INFO (infoOutput.c_str());
@@ -91,27 +90,26 @@ bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_ms
         // fill in name
         perceivedObject.id = newPerceivedObject->object_label;
 
-        // create collider to add to planning scene
-        shape_msgs::SolidPrimitive boxCollider;
-        boxCollider.type = boxCollider.BOX;
-        boxCollider.dimensions.resize(3);
-        boxCollider.dimensions[0] = newPerceivedObject->bounding_box.x;
-        boxCollider.dimensions[1] = newPerceivedObject->bounding_box.y;
-        boxCollider.dimensions[2] = newPerceivedObject->bounding_box.z;
+        // create mesh to add to planning scene
+        shapes::Mesh* mesh = shapes::createMeshFromResource(newPerceivedObject->mesh_path);
+        shape_msgs::Mesh co_mesh;
+        shapes::ShapeMsg co_mesh_msg;
+        shapes::constructMsgFromShape(mesh,co_mesh_msg);
+        co_mesh = boost::get<shape_msgs::Mesh>(co_mesh_msg);
 
-        perceivedObject.primitives.push_back(boxCollider);
+        perceivedObject.meshes.push_back(co_mesh);
 
-        // fill in pose of object
-        geometry_msgs::Pose poseOfObject;
-        poseOfObject.orientation = newPerceivedObject->pose.pose.orientation;
-        poseOfObject.position = newPerceivedObject->pose.pose.position;
+        // fill in pose of mesh
+        geometry_msgs::Pose poseOfMesh;
+        poseOfMesh.orientation = newPerceivedObject->pose.pose.orientation;
+        poseOfMesh.position = newPerceivedObject->pose.pose.position;
 
-        perceivedObject.primitive_poses.push_back(poseOfObject);
+        perceivedObject.mesh_poses.push_back(poseOfMesh);
 
-        // define as operation to add an object to the environment
+        // define as operation to add a mesh to the environment
         perceivedObject.operation = perceivedObject.ADD;
 
-        // publish PlanningScene-message to add object
+        // publish PlanningScene-message to add mesh
         moveit_msgs::PlanningScene planning_scene;
         planning_scene.world.collision_objects.push_back(perceivedObject);
         planning_scene.is_diff = true;

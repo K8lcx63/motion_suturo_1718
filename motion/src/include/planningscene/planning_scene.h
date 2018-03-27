@@ -8,6 +8,9 @@
 #include "../transform/point_transformer.h"
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/PlanningScene.h>
+#include <geometric_shapes/shapes.h>
+#include <geometric_shapes/mesh_operations.h>
+#include <geometric_shapes/shape_operations.h>
 
 /**
  * Class to control the planningscene.
