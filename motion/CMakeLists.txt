@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning_interface
   roscpp
   std_msgs
+  geometric_shapes
   tf
   visualization_msgs
   marker_publisher

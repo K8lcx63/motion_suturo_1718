@@ -11,17 +11,36 @@
 #include <geometric_shapes/shapes.h>
 #include <geometric_shapes/mesh_operations.h>
 #include <geometric_shapes/shape_operations.h>
+#include <map>
+#include <moveit/robot_model_loader/robot_model_loader.h>
 
 /**
  * Class to control the planningscene.
  * Currently used to add the kitchen to the moveit planningscene.
  */
+
+using namespace std;
+
 class PlanningSceneController {
 private:
     ros::NodeHandle node_handle;
     ros::Publisher planningSceneDifferencePublisher;
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+    robot_model_loader::RobotModelLoader robotModelLoader;
+    planning_scene::PlanningScene planningScene;
     PointTransformer transformer;
+
+    // to save the mesh-path's for the perceived objects
+    map<string, string> object_meshes;
+    // to save the object-frames on tf
+    map<string, string> object_frames;
+
+    /**
+     * Returns a Mesh object for the mesh-file at the given path.
+     * @param meshPath the path to the mesh-file.
+     */
+    shape_msgs::Mesh getMeshFromResource(const string &meshPath);
+
 public:
 
     /**
@@ -39,10 +58,10 @@ public:
      * @return true/false whether the objects could be added or not.
      */
     bool
-    addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res, const std::string &planning_frame);
+    addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res, const string &planning_frame);
 
     /**
-     * Adds a bounding box into the planningscene for the newly perceived object.
+     * Adds a mesh-collider into the planningscene for a newly perceived object.
      *
      * @param newPerceivedObject The data for the object to be added to the planningscene.
      * @return true/false whether the object could be added or not.
@@ -57,25 +76,19 @@ public:
      * @return true/false whether the object could be removed or not.
      */
     bool
-    removeObjectFromEnvironment(const std::string objectName);
+    removeObjectFromEnvironment(const string objectName);
 
     /**
-     * Allow collision with the object with the given label in the future.
+     * Allow or avoids collision with the object with the given label in the future, depending
+     * on the value of the bool parameter.
      *
-     * @param objectName the name of the object to allow collision with.
-     * @return true/false whether the collision was successfully allowed.
+     * @param objectName the name of the object to allow/avoid collision for/with.
+     * @param allowed if true, collision with object get's allowed in the future.
+     *              If false, collision is avoided in the future.
+     * @return true/false whether the collision was successfully allowed/avoided.
      */
     bool
-    allowCollision(const std::string objectName);
-
-    /**
-     * Avoid collision with the object with the given label in the future.
-     *
-     * @param objectName the name of the object to avoid collision with.
-     * @return true/false whether the collision was successfully avoided.
-     */
-    bool
-    avoidCollision(const std::string objectName);
+    setAllowCollision(const string objectName, const bool allowed);
 
     /**
      * Attach object to robot after grasping it.
@@ -85,7 +98,7 @@ public:
      * @return true/false whether the object was successfully attached.
      */
     bool
-    attachObject(const std::string objectName, const std::string link);
+    attachObject(const string objectName, const string link);
 
     /**
      * Detach object from robot after releasing it.
@@ -95,7 +108,7 @@ public:
      * @return true/false whether the object was successfully detached.
      */
     bool
-    detachObject(const std::string objectName, const std::string link);
+    detachObject(const string objectName, const string link);
 };
 
 

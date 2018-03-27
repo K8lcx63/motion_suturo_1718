@@ -5,10 +5,15 @@
 #include <knowledge_msgs/GraspObject.h>
 #include <knowledge_msgs/DropObject.h>
 #include <knowledge_msgs/Gripper.h>
+#include <motion_msgs/MovingCommandAction.h>
 #include "../include/movegroup/group_controller.h"
 #include "../include/visualization/visualization_marker.h"
 
-GroupController::GroupController() : gripperclient("gripper", true) {}
+GroupController::GroupController(const PlanningSceneController &planningSceneController) :
+        gripperclient("gripper", true)
+        {
+            planning_scene_controller = planningSceneController;
+        }
 
 moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group) {
     group.setNamedTarget("arms_drive_pose");
@@ -22,8 +27,17 @@ moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::plann
     return error_code;
 }
 
-moveit_msgs::MoveItErrorCodes GroupController::moveArmsToCarryingObjectPose(moveit::planning_interface::MoveGroup &group) {
-    group.setNamedTarget("arms_carry_pose");
+moveit_msgs::MoveItErrorCodes GroupController::moveGroupToCarryingObjectPose(moveit::planning_interface::MoveGroup &group) {
+
+    std::string groupName = group.getName();
+
+    if(groupName == "arms") {
+        group.setNamedTarget("arms_carry_pose");
+    } else if (groupName == "right_arm") {
+        group.setNamedTarget("right_arm_carry_pose");
+    } else if (groupName == "left_arm") {
+        group.setNamedTarget("left_arm_carry_pose");
+    }
 
     moveit_msgs::MoveItErrorCodes error_code = group.plan(execution_plan);
 
@@ -159,7 +173,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup& group,
-                                          const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject,
+                                          const geometry_msgs::PoseStamped& object_grasp_pose, float effort, bool releaseObject,
                                             ros::Publisher beliefstatePublisher, std::string objectLabel) {
 
     /* Move arm to height which is up above all objects on table, so that collision is avoided */
@@ -258,8 +272,17 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             knowledge_msgs::DropObject msg;
                             msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
                             beliefstatePublisher.publish(msg);
+
+                            // forbid collision with object in future
+                            planning_scene_controller.setAllowCollision(objectLabel, false);
+
+                            // detach object from gripper in planningscene
+                            planning_scene_controller.detachObject(objectLabel, "r_gripper_tool_frame");
                         } else{
-                            closeGripper(motion_msgs::GripperGoal::RIGHT);
+                            // allow collision for object
+                            planning_scene_controller.setAllowCollision(objectLabel, true);
+
+                            closeGripper(motion_msgs::GripperGoal::RIGHT, effort);
 
                             // publish message for beliefstate
                             knowledge_msgs::GraspObject msg;
@@ -267,6 +290,9 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             msg.object_label = objectLabel;
                             msg.grasp_pose = object_grasp_pose;
                             beliefstatePublisher.publish(msg);
+
+                            // attach object to gripper in planningscene
+                            planning_scene_controller.attachObject(objectLabel, "r_gripper_tool_frame");
                         }
 
                     } else {
@@ -277,8 +303,18 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             knowledge_msgs::DropObject msg;
                             msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
                             beliefstatePublisher.publish(msg);
+
+                            // forbid collision with object in future
+                            planning_scene_controller.setAllowCollision(objectLabel, false);
+
+                            // detach object from gripper in planningscene
+                            planning_scene_controller.detachObject(objectLabel, "l_gripper_tool_frame");
+
                         } else{
-                            closeGripper(motion_msgs::GripperGoal::LEFT);
+                            // allow collision for object
+                            planning_scene_controller.setAllowCollision(objectLabel, true);
+
+                            closeGripper(motion_msgs::GripperGoal::LEFT, effort);
 
                             // publish message for beliefstate
                             knowledge_msgs::GraspObject msg;
@@ -286,6 +322,9 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             msg.object_label = objectLabel;
                             msg.grasp_pose = object_grasp_pose;
                             beliefstatePublisher.publish(msg);
+
+                            // attach object to gripper in planningscene
+                            planning_scene_controller.attachObject(objectLabel, "l_gripper_tool_frame");
                         }
 
                     }
@@ -313,11 +352,15 @@ void GroupController::openGripper(int gripperNum){
     }
 }
 
-void GroupController::closeGripper(int gripperNum){
+void GroupController::closeGripper(int gripperNum, float& effort){
     if (gripperclient.isServerConnected()) {
         motion_msgs::GripperGoal goal;
         goal.position = 0.00;
-        goal.effort = 70;
+        if (isnanf(effort)) {
+            goal.effort = motion_msgs::MovingCommandGoal::FORCE_DEFAULT;
+        } else {
+            goal.effort = effort;
+        }
         goal.gripper = gripperNum;
         gripperclient.sendGoalAndWait(goal);
     } else {

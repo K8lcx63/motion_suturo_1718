@@ -9,6 +9,7 @@
 #include <eigen_conversions/eigen_msg.h>
 #include <motion_msgs/GripperAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include "../planningscene/planning_scene.h"
 
 /**
  * Class to control movement of moveit MoveGroups.
@@ -26,12 +27,14 @@ private:
     PointTransformer point_transformer;
     VisualizationMarker visualizationMarker;
     actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
+    PlanningSceneController planning_scene_controller;
 
 public:
+
     /**
      * Constructor.
      */
-    GroupController();
+    GroupController(const PlanningSceneController &planningSceneController);
 
     /** 
      * Moves the given {@link moveit::planning_interface::MoveGroup} 
@@ -46,21 +49,21 @@ public:
 
     /**
      * Moves the given {@link moveit::planning_interface::MoveGroup} to a pose which is
-     * suitable for driving the robot.
+     * suitable for navigating the robot.
      *
-     * @param group the group to move to pose.
+     * @param group the group to move to the driving pose.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement.
      */
     moveit_msgs::MoveItErrorCodes moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group);
 
     /**
      * Moves the given {@link moveit::planning_interface::MoveGroup} to a pose which is
-     * suitable for driving the robot while carrying an object.
+     * suitable for navigating the robot while carrying an object.
      *
-     * @param group the group to move to pose.
+     * @param group the group to move to 'navigating-while-holding-object' pose.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the movement.
      */
-    moveit_msgs::MoveItErrorCodes moveArmsToCarryingObjectPose(moveit::planning_interface::MoveGroup &group);
+    moveit_msgs::MoveItErrorCodes moveGroupToCarryingObjectPose(moveit::planning_interface::MoveGroup &group);
 
     /** Uses the given {@link moveit::planning_interface::MoveGroup} to poke the object, of which 
      * the center is given by {@link geometry_msgs::PointStamped}. 
@@ -86,7 +89,7 @@ public:
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the grasping action. 
      */ 
     moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
-                                              const geometry_msgs::PoseStamped& object_grasp_pose, bool releaseObject,
+                                              const geometry_msgs::PoseStamped& object_grasp_pose, float effort, bool releaseObject,
                                                 ros::Publisher beliefstatePublisher, std::string objectLabel);
  
     /** 
@@ -99,7 +102,7 @@ public:
      * Closes the gripper given by gripperName.
      * @param gripperNum the number of the gripper to close.
      */
-    void closeGripper(int gripperNum);
+    void closeGripper(int gripperNum, float& effort);
 };
 
 

@@ -234,7 +234,23 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::MOVE_CARRY_POSE :
             ROS_INFO("Starting to move to initial pose.");
-            error_code = group_controller.moveArmsToCarryingObjectPose(both_arms);
+            error_code = group_controller.moveGroupToCarryingObjectPose(both_arms);
+
+            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                ROS_INFO("\x1B[32mX: Moved successfully to standardpose.");
+
+            break;
+        case motion_msgs::MovingCommandGoal::MOVE_CARRY_POSE_RIGHT :
+            ROS_INFO("Starting to move to initial pose.");
+            error_code = group_controller.moveGroupToCarryingObjectPose(right_arm_group);
+
+            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                ROS_INFO("\x1B[32mX: Moved successfully to standardpose.");
+
+            break;
+        case motion_msgs::MovingCommandGoal::MOVE_CARRY_POSE_LEFT :
+            ROS_INFO("Starting to move to initial pose.");
+            error_code = group_controller.moveGroupToCarryingObjectPose(left_arm_group);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32mX: Moved successfully to standardpose.");
@@ -274,7 +290,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::GRASP_RIGHT_ARM:
             ROS_INFO("Planning to grasp object with right arm at: ");
-            error_code = group_controller.graspObject(right_arm_group, goal_pose, false, beliefstatePublisherGrasp,
+            error_code = group_controller.graspObject(right_arm_group, goal_pose, goal->force, false, beliefstatePublisherGrasp,
                                                         goal->grasped_object_label);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -283,7 +299,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::GRASP_LEFT_ARM:
             ROS_INFO("Planning to grasped object with left arm at: ");
-            error_code = group_controller.graspObject(left_arm_group, goal_pose, false, beliefstatePublisherGrasp,
+            error_code = group_controller.graspObject(left_arm_group, goal_pose, goal->force, false, beliefstatePublisherGrasp,
                                                       goal->grasped_object_label);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -292,7 +308,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::PLACE_RIGHT_ARM:
             ROS_INFO("Planning to palce object with right arm at: ");
-            error_code = group_controller.graspObject(right_arm_group, goal_pose, true, beliefstatePublisherDrop,
+            error_code = group_controller.graspObject(right_arm_group, goal_pose, goal->force, true, beliefstatePublisherDrop,
                                                       goal->grasped_object_label);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -301,7 +317,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::PLACE_LEFT_ARM:
             ROS_INFO("Planning to place object with left arm at: ");
-            error_code = group_controller.graspObject(left_arm_group, goal_pose, true, beliefstatePublisherDrop,
+            error_code = group_controller.graspObject(left_arm_group, goal_pose, goal->force, true, beliefstatePublisherDrop,
                                                       goal->grasped_object_label);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)

@@ -2,16 +2,22 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
+#include <moveit/collision_detection/collision_matrix.h>
+#include <moveit/robot_model_loader/robot_model_loader.h>
+#include <moveit/planning_scene/planning_scene.h>
 #include "../include/planningscene/planning_scene.h"
 
 PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
-        node_handle(nh)
+        node_handle(nh),
+        robotModelLoader("robot_description"),
+        planningScene(robotModelLoader.getModel())
 {
+
     planningSceneDifferencePublisher = node_handle.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
 }
 
 bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res,
-                                                         const std::string& planning_frame) {
+                                                         const string& planning_frame) {
     int namesSize = res.names.size();
     int posesSize = res.poses.size();
     int boundingBoxesSize = res.bounding_boxes.size();
@@ -21,11 +27,11 @@ bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixe
         return false;
     }else{
 
-        std::vector<moveit_msgs::CollisionObject> kitchenObjects;
+        vector<moveit_msgs::CollisionObject> kitchenObjects;
 
         //add objects to collision matrix
         for(int i = 0; i < namesSize; i++){
-            std::string name(res.names[i]);
+            string name(res.names[i]);
             geometry_msgs::Pose pose = res.poses[i];
             geometry_msgs::Vector3 boundingBox = res.bounding_boxes[i];
 
@@ -66,8 +72,8 @@ bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixe
 bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr newPerceivedObject) {
 
     // for info on console
-    std::string infoOutput;
-    std::string errorOutput;
+    string infoOutput;
+    string errorOutput;
 
     infoOutput = "START TO ADD OBJECT " + newPerceivedObject->object_label + " TO THE PLANNING SCENE.";
     ROS_INFO (infoOutput.c_str());
@@ -75,6 +81,25 @@ bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_ms
     // check if data is valid
     if(!newPerceivedObject->object_label.empty() && !newPerceivedObject->pose.header.frame_id.empty() &&
             !newPerceivedObject->mesh_path.empty()) {
+
+        // add mesh-path to map for later access to it
+        pair<map<string, string>::iterator,bool> ret;
+        ret = object_meshes.insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->mesh_path));
+
+        // if mesh for object already in map, replace through new mesh-path
+        if (ret.second==false) {
+            object_meshes.erase(newPerceivedObject->object_label);
+            object_meshes.insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->mesh_path));
+        }
+
+        // add name of object-topic to map for later access to it
+        ret = object_frames.insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->pose.header.frame_id));
+
+        // if topic name for object already in map, replace through new topic name
+        if (ret.second==false) {
+            object_frames.erase(newPerceivedObject->object_label);
+            object_frames.insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->pose.header.frame_id));
+        }
 
         infoOutput = "DATA SEEMS VALID, CONTINUING.";
         ROS_INFO (infoOutput.c_str());
@@ -90,14 +115,10 @@ bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_ms
         // fill in name
         perceivedObject.id = newPerceivedObject->object_label;
 
-        // create mesh to add to planning scene
-        shapes::Mesh* mesh = shapes::createMeshFromResource(newPerceivedObject->mesh_path);
-        shape_msgs::Mesh co_mesh;
-        shapes::ShapeMsg co_mesh_msg;
-        shapes::constructMsgFromShape(mesh,co_mesh_msg);
-        co_mesh = boost::get<shape_msgs::Mesh>(co_mesh_msg);
+        // get mesh to add to planning scene
+        shape_msgs::Mesh mesh = getMeshFromResource(newPerceivedObject->mesh_path);
 
-        perceivedObject.meshes.push_back(co_mesh);
+        perceivedObject.meshes.push_back(mesh);
 
         // fill in pose of mesh
         geometry_msgs::Pose poseOfMesh;
@@ -127,7 +148,7 @@ bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_ms
     return false;
 }
 
-bool PlanningSceneController::removeObjectFromEnvironment(const std::string objectName){
+bool PlanningSceneController::removeObjectFromEnvironment(const string objectName){
 
     if(objectName.empty()){
         ROS_ERROR ("CAN'T REMOVE OBJECT FROM PLANNINGSCENE-ENVIRONMENT, GIVEN NAME IS EMPTY!");
@@ -135,7 +156,7 @@ bool PlanningSceneController::removeObjectFromEnvironment(const std::string obje
     }
 
     // for info on console
-    std::string infoOutput;
+    string infoOutput;
 
     infoOutput = "STARTING TO REMOVE OBJECT " + objectName + " FROM PLANNINGSCENE-ENVIRONMENT.";
     ROS_INFO (infoOutput.c_str());
@@ -157,33 +178,168 @@ bool PlanningSceneController::removeObjectFromEnvironment(const std::string obje
     return true;
 }
 
-bool PlanningSceneController::allowCollision(const std::string objectName){
-    return true;
-}
-
-bool PlanningSceneController::avoidCollision(const std::string objectName){
-    return true;
-}
-
-bool PlanningSceneController::attachObject(const std::string objectName, const std::string link){
+bool PlanningSceneController::attachObject(const string objectName, const string link){
 
     // for info on console
-    std::string infoOutput;
-    std::string errorOutput;
+    string infoOutput;
+    string errorOutput;
 
-    infoOutput = "START TO ATTACH OBJECT " + objectName + " TO LINK " + link + ".";
-    ROS_INFO (infoOutput.c_str());
+    if(!objectName.empty() && !link.empty()) {
+        infoOutput = "DATA SEEMS VALID, START TO ATTACH OBJECT " + objectName + " TO LINK " + link + ".";
+        ROS_INFO (infoOutput.c_str());
 
-    //removeObjectFromEnvironment
-    //attachToLink
+        // first remove the object from the environment
+        removeObjectFromEnvironment(objectName);
 
-    return true;
+        // then the object has to be attached to the robot
+
+        // define the link the object has to be attached to
+        moveit_msgs::AttachedCollisionObject attachedObject;
+        attachedObject.link_name = link;
+
+        // get name of topic for this object
+        map<string,string>::iterator iterator;
+        iterator = object_frames.find(objectName);
+
+        if(iterator != object_frames.end()) {
+
+            attachedObject.object.header.frame_id = "base_footprint";
+            // define name and define that this is an add-operation
+            attachedObject.object.id = objectName;
+            attachedObject.object.operation = attachedObject.object.ADD;
+
+            // get pose of object
+            geometry_msgs::Pose poseOfMesh = transformer.lookupTransformPose("base_footprint", iterator->second, ros::Time(0));
+
+            // get the mesh for the object
+            iterator = object_meshes.find(objectName);
+
+            if (iterator != object_meshes.end()) {
+                // fill mesh-path in message to send
+                string meshPath = iterator->second;
+                shape_msgs::Mesh mesh = getMeshFromResource(meshPath);
+
+                attachedObject.object.meshes.push_back(mesh);
+                attachedObject.object.mesh_poses.push_back(poseOfMesh);
+
+                // publish message
+                moveit_msgs::PlanningScene planningScene;
+                planningScene.is_diff = true;
+                planningScene.robot_state.attached_collision_objects.push_back(attachedObject);
+                planningSceneDifferencePublisher.publish(planningScene);
+
+                infoOutput = "SUCCESSFULLY ATTACHED OBJECT " + objectName + " TO THE ROBOT AT LINK " + link + ".";
+                ROS_INFO (infoOutput.c_str());
+
+                return true;
+            }
+
+            errorOutput = "COULD'T ATTACH OBJECT " + objectName + " TO THE ROBOT, COULDN'T FIND MESH FOR OBJECT!";
+            ROS_ERROR (errorOutput.c_str());
+
+            return false;
+
+        }
+
+        errorOutput = "COULD'T ATTACH OBJECT " + objectName + " TO THE ROBOT, COULDN'T FIND FRAME FOR OBJECT!";
+        ROS_ERROR (errorOutput.c_str());
+
+        return false;
+    }
+
+    errorOutput = "CAN'T ATTACH OBJECT " + objectName + " TO THE ROBOT, BECAUSE DATA IS INVALID!";
+    ROS_ERROR(errorOutput.c_str());
+
+    return false;
 }
 
-bool PlanningSceneController::detachObject(const std::string objectName, const std::string link){
+bool PlanningSceneController::detachObject(const string objectName, const string link){
 
-    //detachFromLink
-    //re-introduce object to world
+    // for info on console
+    string infoOutput;
+    string errorOutput;
 
-    return true;
+    if(!objectName.empty() && !link.empty()) {
+        infoOutput = "DATA SEEMS VALID, START TO DETACH OBJECT " + objectName + " FROM LINK " + link + ".";
+        ROS_INFO (infoOutput.c_str());
+
+        //detach the object from the given link
+        moveit_msgs::AttachedCollisionObject detachObject;
+        detachObject.object.id = objectName;
+        detachObject.link_name = link;
+        detachObject.object.operation = detachObject.object.REMOVE;
+
+        moveit_msgs::PlanningScene planningScene;
+        planningScene.is_diff = true;
+        planningScene.robot_state.attached_collision_objects.push_back(detachObject);
+        planningSceneDifferencePublisher.publish(planningScene);
+
+        // re-introduce object to world
+
+        // get frame name of object
+        map<string, string>::iterator iterator;
+        iterator = object_frames.find(objectName);
+
+        if(iterator != object_frames.end()) {
+            knowledge_msgs::PerceivedObjectBoundingBox reintroduceObject;
+            reintroduceObject.pose.header.frame_id = "base_footprint";
+            reintroduceObject.pose.header.stamp = ros::Time::now();
+            reintroduceObject.pose.header.seq++;
+            reintroduceObject.pose.pose = transformer.lookupTransformPose("base_footprint", iterator->second, ros::Time(0));
+
+            reintroduceObject.object_label = objectName;
+
+            // get the mesh for the object
+            iterator = object_meshes.find(objectName);
+
+            if (iterator != object_meshes.end()) {
+                reintroduceObject.mesh_path = iterator->second;
+
+                addPerceivedObjectToEnvironment(&reintroduceObject);
+
+                infoOutput = "SUCCESSFULLY DETACHED OBJECT " + objectName + " FROM LINK " + link + ".";
+                ROS_INFO (infoOutput.c_str());
+
+                return true;
+            }
+        }
+    }
+
+    errorOutput = "COULDN'T DETACH OBJECT " + objectName + " FROM LINK " + link + ", BECAUSE OF INVALID DATA.";
+    ROS_ERROR (errorOutput.c_str());
+
+    return false;
+}
+
+bool PlanningSceneController::setAllowCollision(const string objectName, const bool allowed){
+
+    // for info on console
+    string infoOutput;
+    string errorOutput;
+
+    if(!objectName.empty()){
+        collision_detection::AllowedCollisionMatrix allowedCollisionMatrix = planningScene.getAllowedCollisionMatrix();
+
+        allowedCollisionMatrix.setEntry(objectName, allowed);
+
+        infoOutput = "SUCCESSFULLY ALLOWED COLLISION FOR OBJECT " + objectName + ".";
+        ROS_INFO_STREAM(infoOutput.c_str());
+
+        return true;
+    }
+
+    errorOutput = "NAME OF OBJECT IS EMPTY, UNABLE TO ALLOW COLLISION!";
+    ROS_ERROR(errorOutput.c_str());
+
+    return false;
+}
+
+shape_msgs::Mesh getMeshFromResource(const string &meshPath){
+    shapes::Mesh* mesh = shapes::createMeshFromResource(meshPath);
+    shape_msgs::Mesh co_mesh;
+    shapes::ShapeMsg co_mesh_msg;
+    shapes::constructMsgFromShape(mesh,co_mesh_msg);
+    co_mesh = boost::get<shape_msgs::Mesh>(co_mesh_msg);
+
+    return co_mesh;
 }
