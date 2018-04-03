@@ -10,9 +10,9 @@
 #include "../include/visualization/visualization_marker.h"
 
 GroupController::GroupController(const PlanningSceneController &planningSceneController) :
-        gripperclient("gripper", true)
+        gripperclient("gripper", true),
+        planning_scene_controller (planningSceneController)
         {
-            planning_scene_controller = planningSceneController;
         }
 
 moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group) {

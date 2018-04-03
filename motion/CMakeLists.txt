@@ -3,6 +3,10 @@ project(motion)
 
 add_definitions(-std=c++11)
 
+# temprorary ignored warnings
+SET(CMAKE_CXX_FLAGS "-w")
+
+
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs

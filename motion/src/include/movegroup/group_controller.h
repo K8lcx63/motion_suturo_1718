@@ -10,6 +10,8 @@
 #include <motion_msgs/GripperAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include "../planningscene/planning_scene.h"
+#include <moveit_msgs/PlanningScene.h>
+#include <moveit/planning_scene/planning_scene.h>
 
 /**
  * Class to control movement of moveit MoveGroups.

@@ -1,11 +1,15 @@
-#include <moveit_msgs/CollisionObject.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <moveit/move_group_interface/move_group.h>
-#include <moveit/planning_scene_interface/planning_scene_interface.h>
-#include <moveit/collision_detection/collision_matrix.h>
-#include <moveit/robot_model_loader/robot_model_loader.h>
-#include <moveit/planning_scene/planning_scene.h>
 #include "../include/planningscene/planning_scene.h"
+
+PlanningSceneController::PlanningSceneController(const PlanningSceneController &oldObject) :
+        node_handle (oldObject.node_handle),
+        planningSceneDifferencePublisher (oldObject.planningSceneDifferencePublisher),
+        robotModelLoader("robot_description"),
+        planningScene(robotModelLoader.getModel()),
+        object_meshes (oldObject.object_meshes),
+        object_frames (oldObject.object_frames)
+{
+
+}
 
 PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
         node_handle(nh),
@@ -14,6 +18,16 @@ PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
 {
 
     planningSceneDifferencePublisher = node_handle.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
+}
+
+shape_msgs::Mesh PlanningSceneController::getMeshFromResource(const string meshPath){
+    shapes::Mesh* mesh = shapes::createMeshFromResource(meshPath);
+    shape_msgs::Mesh co_mesh;
+    shapes::ShapeMsg co_mesh_msg;
+    shapes::constructMsgFromShape(mesh,co_mesh_msg);
+    co_mesh = boost::get<shape_msgs::Mesh>(co_mesh_msg);
+
+    return co_mesh;
 }
 
 bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res,
@@ -284,7 +298,6 @@ bool PlanningSceneController::detachObject(const string objectName, const string
             knowledge_msgs::PerceivedObjectBoundingBox reintroduceObject;
             reintroduceObject.pose.header.frame_id = "base_footprint";
             reintroduceObject.pose.header.stamp = ros::Time::now();
-            reintroduceObject.pose.header.seq++;
             reintroduceObject.pose.pose = transformer.lookupTransformPose("base_footprint", iterator->second, ros::Time(0));
 
             reintroduceObject.object_label = objectName;
@@ -295,7 +308,8 @@ bool PlanningSceneController::detachObject(const string objectName, const string
             if (iterator != object_meshes.end()) {
                 reintroduceObject.mesh_path = iterator->second;
 
-                addPerceivedObjectToEnvironment(&reintroduceObject);
+                knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr reintroduceObjectPtr = knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr (&reintroduceObject);
+                addPerceivedObjectToEnvironment(reintroduceObjectPtr);
 
                 infoOutput = "SUCCESSFULLY DETACHED OBJECT " + objectName + " FROM LINK " + link + ".";
                 ROS_INFO (infoOutput.c_str());
@@ -332,14 +346,4 @@ bool PlanningSceneController::setAllowCollision(const string objectName, const b
     ROS_ERROR(errorOutput.c_str());
 
     return false;
-}
-
-shape_msgs::Mesh getMeshFromResource(const string &meshPath){
-    shapes::Mesh* mesh = shapes::createMeshFromResource(meshPath);
-    shape_msgs::Mesh co_mesh;
-    shapes::ShapeMsg co_mesh_msg;
-    shapes::constructMsgFromShape(mesh,co_mesh_msg);
-    co_mesh = boost::get<shape_msgs::Mesh>(co_mesh_msg);
-
-    return co_mesh;
 }

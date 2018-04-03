@@ -2,17 +2,23 @@
 #define SUTURO_MOTION_MAIN_PLANNING_SCENE_H
 
 
+#include <moveit_msgs/CollisionObject.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <moveit/move_group_interface/move_group.h>
+#include <moveit/collision_detection/collision_matrix.h>
 #include <knowledge_msgs/GetFixedKitchenObjects.h>
 #include <knowledge_msgs/PerceivedObjectBoundingBox.h>
 #include <ros/ros.h>
-#include "../transform/point_transformer.h"
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/PlanningScene.h>
+#include <moveit/planning_scene/planning_scene.h>
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <geometric_shapes/shapes.h>
 #include <geometric_shapes/mesh_operations.h>
 #include <geometric_shapes/shape_operations.h>
 #include <map>
 #include <moveit/robot_model_loader/robot_model_loader.h>
+#include "../transform/point_transformer.h"
 
 /**
  * Class to control the planningscene.
@@ -39,9 +45,15 @@ private:
      * Returns a Mesh object for the mesh-file at the given path.
      * @param meshPath the path to the mesh-file.
      */
-    shape_msgs::Mesh getMeshFromResource(const string &meshPath);
+    shape_msgs::Mesh getMeshFromResource(const string meshPath);
 
 public:
+
+    /**
+     * Copy-Constructor.
+     * @param oldObject the PlanningSceneController object to copy.
+     */
+    PlanningSceneController(const PlanningSceneController &oldObject);
 
     /**
      * Constructor.

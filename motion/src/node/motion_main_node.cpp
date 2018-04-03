@@ -29,6 +29,7 @@ int start_node(int argc, char **argv) {
 MotionNode::MotionNode(const ros::NodeHandle &nh) :
 node_handle(nh),
 planning_scene_controller(node_handle),
+group_controller(planning_scene_controller),
 right_arm_group("right_arm"),
 left_arm_group("left_arm"),
 both_arms("arms"),
