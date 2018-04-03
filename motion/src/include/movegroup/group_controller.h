@@ -9,6 +9,9 @@
 #include <eigen_conversions/eigen_msg.h>
 #include <motion_msgs/GripperAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <map>
+
+using namespace std;
 
 /**
  * Class to control movement of moveit MoveGroups.
@@ -27,11 +30,21 @@ private:
     VisualizationMarker visualizationMarker;
     actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
 
+    // Variables for saving the last joint-state messages
+    map<string, double> jointStates;
+
 public:
     /**
      * Constructor.
      */
     GroupController();
+
+    /**
+     * Function for saving the latest joint-state message to the map.
+     * @param jointStateNames the list of the names of joints.
+     * @param jointStateValues the list of joint-state values.
+     */
+    void saveJointStates(vector<string> jointStateNames, vector<double> jointStateValues);
 
     /** 
      * Moves the given {@link moveit::planning_interface::MoveGroup} 
@@ -88,7 +101,14 @@ public:
     moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
                                               const geometry_msgs::PoseStamped& object_grasp_pose, float effort, bool releaseObject,
                                                 ros::Publisher beliefstatePublisher, std::string objectLabel);
- 
+
+    /**
+     * Checks if the object was successfully grasped.
+     * @param gripperNum the number of the gripper to check.
+     * @return true if the gripper has something in the gripper given by gripperNum.
+     */
+    bool checkIfObjectGraspedSuccessfully(int gripperNum);
+
     /** 
      * Opens the gripper given by gripperName. 
      * @param gripperNum the number of the gripper to close.
