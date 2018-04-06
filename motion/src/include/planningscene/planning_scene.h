@@ -37,9 +37,9 @@ private:
     PointTransformer transformer;
 
     // to save the mesh-path's for the perceived objects
-    map<string, string> object_meshes;
+    map<string, string> *object_meshes;
     // to save the object-frames on tf
-    map<string, string> object_frames;
+    map<string, string> *object_frames;
 
     /**
      * Returns a Mesh object for the mesh-file at the given path.
@@ -51,9 +51,10 @@ public:
 
     /**
      * Copy-Constructor.
+     * @param nh Node Handle.
      * @param oldObject the PlanningSceneController object to copy.
      */
-    PlanningSceneController(const PlanningSceneController &oldObject);
+    PlanningSceneController(const ros::NodeHandle &nh, const PlanningSceneController &oldObject);
 
     /**
      * Constructor.

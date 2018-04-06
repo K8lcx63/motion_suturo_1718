@@ -1,14 +1,13 @@
 #include "../include/planningscene/planning_scene.h"
 
-PlanningSceneController::PlanningSceneController(const PlanningSceneController &oldObject) :
-        node_handle (oldObject.node_handle),
-        planningSceneDifferencePublisher (oldObject.planningSceneDifferencePublisher),
+PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh, const PlanningSceneController &oldObject) :
+        node_handle(nh),
         robotModelLoader("robot_description"),
-        planningScene(robotModelLoader.getModel()),
-        object_meshes (oldObject.object_meshes),
-        object_frames (oldObject.object_frames)
+        planningScene(robotModelLoader.getModel())
 {
-
+    object_meshes = oldObject.object_meshes;
+    object_frames = oldObject.object_frames;
+    planningSceneDifferencePublisher = node_handle.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
 }
 
 PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
@@ -16,7 +15,8 @@ PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
         robotModelLoader("robot_description"),
         planningScene(robotModelLoader.getModel())
 {
-
+    object_frames = new map<string, string> ();
+    object_meshes = new map<string, string> ();
     planningSceneDifferencePublisher = node_handle.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
 }
 
@@ -98,21 +98,21 @@ bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_ms
 
         // add mesh-path to map for later access to it
         pair<map<string, string>::iterator,bool> ret;
-        ret = object_meshes.insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->mesh_path));
+        ret = (*object_meshes).insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->mesh_path));
 
         // if mesh for object already in map, replace through new mesh-path
         if (ret.second==false) {
-            object_meshes.erase(newPerceivedObject->object_label);
-            object_meshes.insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->mesh_path));
+            (*object_meshes).erase(newPerceivedObject->object_label);
+            (*object_meshes).insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->mesh_path));
         }
 
         // add name of object-topic to map for later access to it
-        ret = object_frames.insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->pose.header.frame_id));
+        ret = (*object_frames).insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->pose.header.frame_id));
 
         // if topic name for object already in map, replace through new topic name
         if (ret.second==false) {
-            object_frames.erase(newPerceivedObject->object_label);
-            object_frames.insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->pose.header.frame_id));
+            (*object_frames).erase(newPerceivedObject->object_label);
+            (*object_frames).insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->pose.header.frame_id));
         }
 
         infoOutput = "DATA SEEMS VALID, CONTINUING.";
@@ -213,9 +213,9 @@ bool PlanningSceneController::attachObject(const string objectName, const string
 
         // get name of topic for this object
         map<string,string>::iterator iterator;
-        iterator = object_frames.find(objectName);
+        iterator = (*object_frames).find(objectName);
 
-        if(iterator != object_frames.end()) {
+        if(iterator != (*object_frames).end()) {
 
             attachedObject.object.header.frame_id = "base_footprint";
             // define name and define that this is an add-operation
@@ -226,9 +226,9 @@ bool PlanningSceneController::attachObject(const string objectName, const string
             geometry_msgs::Pose poseOfMesh = transformer.lookupTransformPose("base_footprint", iterator->second, ros::Time(0));
 
             // get the mesh for the object
-            iterator = object_meshes.find(objectName);
+            iterator = (*object_meshes).find(objectName);
 
-            if (iterator != object_meshes.end()) {
+            if (iterator != (*object_meshes).end()) {
                 // fill mesh-path in message to send
                 string meshPath = iterator->second;
                 shape_msgs::Mesh mesh = getMeshFromResource(meshPath);
@@ -292,9 +292,9 @@ bool PlanningSceneController::detachObject(const string objectName, const string
 
         // get frame name of object
         map<string, string>::iterator iterator;
-        iterator = object_frames.find(objectName);
+        iterator = (*object_frames).find(objectName);
 
-        if(iterator != object_frames.end()) {
+        if(iterator != (*object_frames).end()) {
             knowledge_msgs::PerceivedObjectBoundingBox reintroduceObject;
             reintroduceObject.pose.header.frame_id = "base_footprint";
             reintroduceObject.pose.header.stamp = ros::Time::now();
@@ -303,9 +303,9 @@ bool PlanningSceneController::detachObject(const string objectName, const string
             reintroduceObject.object_label = objectName;
 
             // get the mesh for the object
-            iterator = object_meshes.find(objectName);
+            iterator = (*object_meshes).find(objectName);
 
-            if (iterator != object_meshes.end()) {
+            if (iterator != (*object_meshes).end()) {
                 reintroduceObject.mesh_path = iterator->second;
 
                 knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr reintroduceObjectPtr = knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr (&reintroduceObject);

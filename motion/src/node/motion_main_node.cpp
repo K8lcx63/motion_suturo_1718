@@ -4,7 +4,6 @@
 int start_node(int argc, char **argv) {
     ros::init(argc, argv, "motion");
     ros::NodeHandle nh;
-    ROS_INFO ("STARTNODE_MOTION_MAIN_NODE_START");
     MotionNode motionNode(nh);
     //add kitchen models to collision detection matrix
     ros::ServiceClient kitchenObjectsClient = nh.serviceClient<knowledge_msgs::GetFixedKitchenObjects>("/kitchen_model_service/get_fixed_kitchen_objects");
@@ -21,7 +20,6 @@ int start_node(int argc, char **argv) {
         ROS_ERROR("Could not add kitchen to collision matrix, because knowledge service is not available.");
         return 1;
     }
-    ROS_INFO ("STARTNODE_MOTION_MAIN_NODE_END");
     ros::spin();
 
     return 0;
@@ -30,18 +28,16 @@ int start_node(int argc, char **argv) {
 MotionNode::MotionNode(const ros::NodeHandle &nh) :
 node_handle(nh),
 planning_scene_controller(node_handle),
-group_controller(planning_scene_controller),
+group_controller(node_handle, planning_scene_controller),
 right_arm_group("right_arm"),
 left_arm_group("left_arm"),
 both_arms("arms"),
 action_server(node_handle, "moving", boost::bind(&MotionNode::executeCommand, this, _1), false)
 {
-    ROS_INFO ("CONSTRUCTOR_MOTION_MAIN_NODE_START");
     perceivedObjectBoundingBoxSubscriber = node_handle.subscribe("perceived_object_bounding_box", 10, &MotionNode::perceivedObjectBoundingBoxCallback, this);
     beliefstatePublisherGrasp = node_handle.advertise<knowledge_msgs::GraspObject>("/beliefstate/grasp_action", 1000);
     beliefstatePublisherDrop = node_handle.advertise<knowledge_msgs::DropObject>("/beliefstate/drop_action", 1000);
     action_server.start();
-    ROS_INFO ("CONSTRUCTOR_MOTION_MAIN_NODE_END");
 }
 
 struct MotionNode::Private {

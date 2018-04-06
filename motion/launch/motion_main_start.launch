@@ -1,5 +1,4 @@
 <launch>
-
 	<include file="$(find vision_suturo)/launch/pr2_only_zero-position.launch"/>
 	<include file="$(find knowledge)/launch/knowledge_main.launch"/>
 	<include file="$(find pr2_moveit_generated)/launch/move_group.launch"/>
@@ -14,7 +13,7 @@
 	</node>
 
 	<node name="motion" pkg="motion" type="motion" output="screen"/>
-<!--
+
 	<node name="simple_gripper" pkg="motion_gripper" type="simple_gripper" output="screen" />
--->
+
 </launch>

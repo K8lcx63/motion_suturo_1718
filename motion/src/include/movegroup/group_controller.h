@@ -35,10 +35,13 @@ public:
 
     /**
      * Constructor.
+     * @param nh Node Handle.
+     * @param planningSceneController the PlanningSceneController to assign to own PlanningSceneController
+     * variable.
      */
-    GroupController(const PlanningSceneController &planningSceneController);
+    GroupController(const ros::NodeHandle &nh, const PlanningSceneController &planningSceneController);
 
-    /** 
+    /**
      * Moves the given {@link moveit::planning_interface::MoveGroup} 
      * to the desired pose provided in {@link geometry_msgs::PoseStamped}. 
      * 
