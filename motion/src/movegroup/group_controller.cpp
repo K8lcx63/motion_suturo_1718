@@ -293,16 +293,16 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                         } else{
                             closeGripper(motion_msgs::GripperGoal::RIGHT, effort);
 
-                            // publish message for beliefstate
-                            knowledge_msgs::GraspObject msg;
-                            msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
-                            msg.object_label = objectLabel;
-                            msg.grasp_pose = object_grasp_pose;
-                            beliefstatePublisher.publish(msg);
-
                             if(!checkIfObjectGraspedSuccessfully(motion_msgs::GripperGoal::RIGHT)){
                                 error_code.val = moveit_msgs::MoveItErrorCodes::FAILURE;
                                 return error_code;
+                            } else {
+                                // publish message for beliefstate
+                                knowledge_msgs::GraspObject msg;
+                                msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
+                                msg.object_label = objectLabel;
+                                msg.grasp_pose = object_grasp_pose;
+                                beliefstatePublisher.publish(msg);
                             }
 
                         }
@@ -318,16 +318,16 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                         } else{
                             closeGripper(motion_msgs::GripperGoal::LEFT, effort);
 
-                            // publish message for beliefstate
-                            knowledge_msgs::GraspObject msg;
-                            msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
-                            msg.object_label = objectLabel;
-                            msg.grasp_pose = object_grasp_pose;
-                            beliefstatePublisher.publish(msg);
-
                             if(!checkIfObjectGraspedSuccessfully(motion_msgs::GripperGoal::LEFT)){
                                 error_code.val = moveit_msgs::MoveItErrorCodes::FAILURE;
                                 return error_code;
+                            } else {
+                                // publish message for beliefstate
+                                knowledge_msgs::GraspObject msg;
+                                msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
+                                msg.object_label = objectLabel;
+                                msg.grasp_pose = object_grasp_pose;
+                                beliefstatePublisher.publish(msg);
                             }
                         }
 
