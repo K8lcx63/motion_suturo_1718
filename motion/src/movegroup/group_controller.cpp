@@ -130,7 +130,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
             secondGoalPose.pose.position.x -= GRIPPER_LENGTH_LEFT - GRIPPER_LENGTH_RIGHT;
         }
  
-        secondGoalPose.pose.position.z += 0.02f;
+        secondGoalPose.pose.position.z += 0.2f;
  
         // plan again to check if second goal pose can be reached by group
         group.setPoseTarget(secondGoalPose);
