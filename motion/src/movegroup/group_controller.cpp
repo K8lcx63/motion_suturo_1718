@@ -9,9 +9,9 @@
 #include "../include/movegroup/group_controller.h"
 #include "../include/visualization/visualization_marker.h"
 
-GroupController::GroupController(const ros::NodeHandle &nh, const PlanningSceneController &planningSceneController) :
+GroupController::GroupController(const ros::NodeHandle &nh) :
         gripperclient("gripper", true),
-        planning_scene_controller (nh, planningSceneController)
+        planning_scene_controller (nh)
         {
         }
 

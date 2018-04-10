@@ -1,22 +1,10 @@
 #include "../include/planningscene/planning_scene.h"
 
-PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh, const PlanningSceneController &oldObject) :
-        node_handle(nh),
-        robotModelLoader("robot_description"),
-        planningScene(robotModelLoader.getModel())
-{
-    object_meshes = oldObject.object_meshes;
-    object_frames = oldObject.object_frames;
-    planningSceneDifferencePublisher = node_handle.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
-}
-
 PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
         node_handle(nh),
         robotModelLoader("robot_description"),
         planningScene(robotModelLoader.getModel())
 {
-    object_frames = new map<string, string> ();
-    object_meshes = new map<string, string> ();
     planningSceneDifferencePublisher = node_handle.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
 }
 
@@ -96,25 +84,6 @@ bool PlanningSceneController::addPerceivedObjectToEnvironment(const knowledge_ms
     if(!newPerceivedObject->object_label.empty() && !newPerceivedObject->pose.header.frame_id.empty() &&
             !newPerceivedObject->mesh_path.empty()) {
 
-        // add mesh-path to map for later access to it
-        pair<map<string, string>::iterator,bool> ret;
-        ret = (*object_meshes).insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->mesh_path));
-
-        // if mesh for object already in map, replace through new mesh-path
-        if (ret.second==false) {
-            (*object_meshes).erase(newPerceivedObject->object_label);
-            (*object_meshes).insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->mesh_path));
-        }
-
-        // add name of object-topic to map for later access to it
-        ret = (*object_frames).insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->pose.header.frame_id));
-
-        // if topic name for object already in map, replace through new topic name
-        if (ret.second==false) {
-            (*object_frames).erase(newPerceivedObject->object_label);
-            (*object_frames).insert(pair<string, string> (newPerceivedObject->object_label, newPerceivedObject->pose.header.frame_id));
-        }
-
         infoOutput = "DATA SEEMS VALID, CONTINUING.";
         ROS_INFO (infoOutput.c_str());
 
@@ -178,7 +147,7 @@ bool PlanningSceneController::removeObjectFromEnvironment(const string objectNam
     // create CollisionObject-message for defining the object to remove
     moveit_msgs::CollisionObject objectToRemove;
     objectToRemove.id = objectName;
-    objectToRemove.header.frame_id = "odom_combined";
+    objectToRemove.header.frame_id = objectName;
     objectToRemove.operation = objectToRemove.REMOVE;
 
     // publish to apply removing the object
@@ -211,54 +180,34 @@ bool PlanningSceneController::attachObject(const string objectName, const string
         moveit_msgs::AttachedCollisionObject attachedObject;
         attachedObject.link_name = link;
 
-        // get name of topic for this object
-        map<string,string>::iterator iterator;
-        iterator = (*object_frames).find(objectName);
+        attachedObject.object.header.frame_id = objectName;
+        // define name and define that this is an add-operation
+        attachedObject.object.id = objectName;
+        attachedObject.object.operation = attachedObject.object.ADD;
 
-        if(iterator != (*object_frames).end()) {
+        // set pose of object to zero position and identity orientation because the
+        // header's frame id contains the frame of the object
+        geometry_msgs::Pose poseOfMesh;
+        poseOfMesh.orientation.w = 1.0;
 
-            attachedObject.object.header.frame_id = "base_footprint";
-            // define name and define that this is an add-operation
-            attachedObject.object.id = objectName;
-            attachedObject.object.operation = attachedObject.object.ADD;
+        // fill mesh-path in message to send
+        string meshPath = meshPathPrefix + objectName + "/" + objectName + ".dae";
+        shape_msgs::Mesh mesh = getMeshFromResource(meshPath);
 
-            // get pose of object
-            geometry_msgs::Pose poseOfMesh = transformer.lookupTransformPose("base_footprint", iterator->second, ros::Time(0));
+        attachedObject.object.meshes.push_back(mesh);
+        attachedObject.object.mesh_poses.push_back(poseOfMesh);
 
-            // get the mesh for the object
-            iterator = (*object_meshes).find(objectName);
+        // publish message
+        moveit_msgs::PlanningScene planningScene;
+        planningScene.is_diff = true;
+        planningScene.robot_state.is_diff = true;
+        planningScene.robot_state.attached_collision_objects.push_back(attachedObject);
+        planningSceneDifferencePublisher.publish(planningScene);
 
-            if (iterator != (*object_meshes).end()) {
-                // fill mesh-path in message to send
-                string meshPath = iterator->second;
-                shape_msgs::Mesh mesh = getMeshFromResource(meshPath);
+        infoOutput = "SUCCESSFULLY ATTACHED OBJECT " + objectName + " TO THE ROBOT AT LINK " + link + ".";
+        ROS_INFO (infoOutput.c_str());
 
-                attachedObject.object.meshes.push_back(mesh);
-                attachedObject.object.mesh_poses.push_back(poseOfMesh);
-
-                // publish message
-                moveit_msgs::PlanningScene planningScene;
-                planningScene.is_diff = true;
-                planningScene.robot_state.attached_collision_objects.push_back(attachedObject);
-                planningSceneDifferencePublisher.publish(planningScene);
-
-                infoOutput = "SUCCESSFULLY ATTACHED OBJECT " + objectName + " TO THE ROBOT AT LINK " + link + ".";
-                ROS_INFO (infoOutput.c_str());
-
-                return true;
-            }
-
-            errorOutput = "COULD'T ATTACH OBJECT " + objectName + " TO THE ROBOT, COULDN'T FIND MESH FOR OBJECT!";
-            ROS_ERROR (errorOutput.c_str());
-
-            return false;
-
-        }
-
-        errorOutput = "COULD'T ATTACH OBJECT " + objectName + " TO THE ROBOT, COULDN'T FIND FRAME FOR OBJECT!";
-        ROS_ERROR (errorOutput.c_str());
-
-        return false;
+        return true;
     }
 
     errorOutput = "CAN'T ATTACH OBJECT " + objectName + " TO THE ROBOT, BECAUSE DATA IS INVALID!";
@@ -285,38 +234,31 @@ bool PlanningSceneController::detachObject(const string objectName, const string
 
         moveit_msgs::PlanningScene planningScene;
         planningScene.is_diff = true;
+        planningScene.robot_state.is_diff = true;
         planningScene.robot_state.attached_collision_objects.push_back(detachObject);
         planningSceneDifferencePublisher.publish(planningScene);
 
         // re-introduce object to world
 
-        // get frame name of object
-        map<string, string>::iterator iterator;
-        iterator = (*object_frames).find(objectName);
+        knowledge_msgs::PerceivedObjectBoundingBox reintroduceObject;
+        reintroduceObject.pose.header.frame_id = objectName;
+        reintroduceObject.pose.header.stamp = ros::Time::now();
 
-        if(iterator != (*object_frames).end()) {
-            knowledge_msgs::PerceivedObjectBoundingBox reintroduceObject;
-            reintroduceObject.pose.header.frame_id = "base_footprint";
-            reintroduceObject.pose.header.stamp = ros::Time::now();
-            reintroduceObject.pose.pose = transformer.lookupTransformPose("base_footprint", iterator->second, ros::Time(0));
+        geometry_msgs::Pose poseOfObject;
+        poseOfObject.orientation.w = 1.0;
 
-            reintroduceObject.object_label = objectName;
+        reintroduceObject.pose.pose = poseOfObject;
+        reintroduceObject.object_label = objectName;
+        reintroduceObject.mesh_path = meshPathPrefix + objectName + "/" + objectName + ".dae";
 
-            // get the mesh for the object
-            iterator = (*object_meshes).find(objectName);
+        knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr reintroduceObjectPtr = knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr(
+                &reintroduceObject);
+        addPerceivedObjectToEnvironment(reintroduceObjectPtr);
 
-            if (iterator != (*object_meshes).end()) {
-                reintroduceObject.mesh_path = iterator->second;
+        infoOutput = "SUCCESSFULLY DETACHED OBJECT " + objectName + " FROM LINK " + link + ".";
+        ROS_INFO (infoOutput.c_str());
 
-                knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr reintroduceObjectPtr = knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr (&reintroduceObject);
-                addPerceivedObjectToEnvironment(reintroduceObjectPtr);
-
-                infoOutput = "SUCCESSFULLY DETACHED OBJECT " + objectName + " FROM LINK " + link + ".";
-                ROS_INFO (infoOutput.c_str());
-
-                return true;
-            }
-        }
+        return true;
     }
 
     errorOutput = "COULDN'T DETACH OBJECT " + objectName + " FROM LINK " + link + ", BECAUSE OF INVALID DATA.";

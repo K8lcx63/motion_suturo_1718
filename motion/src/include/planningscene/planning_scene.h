@@ -36,10 +36,7 @@ private:
     planning_scene::PlanningScene planningScene;
     PointTransformer transformer;
 
-    // to save the mesh-path's for the perceived objects
-    map<string, string> *object_meshes;
-    // to save the object-frames on tf
-    map<string, string> *object_frames;
+    const string meshPathPrefix = "package://knowledge_common/meshes/";
 
     /**
      * Returns a Mesh object for the mesh-file at the given path.
@@ -48,13 +45,6 @@ private:
     shape_msgs::Mesh getMeshFromResource(const string meshPath);
 
 public:
-
-    /**
-     * Copy-Constructor.
-     * @param nh Node Handle.
-     * @param oldObject the PlanningSceneController object to copy.
-     */
-    PlanningSceneController(const ros::NodeHandle &nh, const PlanningSceneController &oldObject);
 
     /**
      * Constructor.
@@ -122,6 +112,7 @@ public:
      */
     bool
     detachObject(const string objectName, const string link);
+
 };
 
 
