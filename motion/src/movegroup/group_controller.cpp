@@ -361,7 +361,7 @@ void GroupController::openGripper(int gripperNum){
     if (gripperclient.isServerConnected()) {
         motion_msgs::GripperGoal goal;
         goal.position = 0.09;
-        goal.effort = -1;
+        goal.force = -1;
         goal.gripper = gripperNum;
         gripperclient.sendGoalAndWait(goal);
     } else {
@@ -374,9 +374,9 @@ void GroupController::closeGripper(int gripperNum, float& effort){
         motion_msgs::GripperGoal goal;
         goal.position = 0.00;
         if (isnanf(effort)) {
-            goal.effort = motion_msgs::MovingCommandGoal::FORCE_DEFAULT;
+            goal.force = motion_msgs::MovingCommandGoal::FORCE_DEFAULT;
         } else {
-            goal.effort = effort;
+            goal.force = effort;
         }
         goal.gripper = gripperNum;
         gripperclient.sendGoalAndWait(goal);
