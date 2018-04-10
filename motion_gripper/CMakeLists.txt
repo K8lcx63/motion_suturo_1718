@@ -24,5 +24,5 @@ include_directories(
 )
 
 #create executables
-add_executable(simple_gripper src/Gripper.cpp src/gripper_action_server.cpp)
+add_executable(simple_gripper src/Gripper.cpp src/gripper_action_server.cpp include/Gripper.h)
 target_link_libraries(simple_gripper ${catkin_LIBRARIES})

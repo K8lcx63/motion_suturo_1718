@@ -2,11 +2,10 @@
 #include <pr2_controllers_msgs/Pr2GripperCommandAction.h>
 #include <actionlib/client/simple_action_client.h>
 
-typedef actionlib::SimpleActionClient <pr2_controllers_msgs::Pr2GripperCommandAction> GripperClient;
 
-class Gripper {
-private:
-    GripperClient *gripper_client_;
+
+
+
 public:
     Gripper(const std::string actionName) {
         gripper_client_ = new GripperClient(actionName, true);
