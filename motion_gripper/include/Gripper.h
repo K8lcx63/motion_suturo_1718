@@ -13,12 +13,27 @@ public:
      */
     Gripper(const std::string actionName);
 
+    /**
+     * Destructor.
+     */
     ~Gripper();
 
+    /**
+     * Move Gripper to the given position with the given effort.
+     * @param position Position to move Gripper to.
+     * @param effort  Effort when closing gripper.
+     * @return  SimpleClientGoalState (sucess, failed).
+     */
     actionlib::SimpleClientGoalState moveGripper(float position, float effort);
 
+    /**
+     * Opens the gripper.
+     */
     void open();
 
+    /**
+     * Closes the gripper with maximum effort.
+     */
     void close();
 
 };
