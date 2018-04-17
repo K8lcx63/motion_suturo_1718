@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS
        system
 )
-
+find_package(rostest REQUIRED)
 
 #if(CATKIN_ENABLE_TESTING)
 #    find_package(rostest REQUIRED)
@@ -43,7 +43,8 @@ set(TEST_SRCS
         test/gripper_test.cpp
         test/main.cpp
 )
-catkin_add_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
+#catkin_add_gtest()
+    add_rostest_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
 if(TARGET ${PROJECT_NAME}-test)
     target_link_libraries(${PROJECT_NAME}-test
     ${catkin_LIBRARIES})
