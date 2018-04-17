@@ -15,7 +15,7 @@ find_package(Boost REQUIRED COMPONENTS
 if(CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
     add_rostest_gtest(tests_gripper test/gripper.test src/test/test_gripper.cpp)
-    target_link_libraries(tests_gripper ${catkin_LIBRARIES})
+    target_link_libraries(tests_gripper ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
 endif()
 
 catkin_package(
