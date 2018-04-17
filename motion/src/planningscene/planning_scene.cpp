@@ -312,12 +312,15 @@ bool PlanningSceneController::detachObject(const string objectName, const string
 }
 
 bool PlanningSceneController::isInCollisionWorld(const string objectName) {
+
     //check if object was successfully added to the planning scene by getting the scene actually used
     //by the movegroup
     planning_scene_monitor::PlanningSceneMonitorPtr planningSceneMonitor(new planning_scene_monitor::PlanningSceneMonitor("robot_description", tf));
     planningSceneMonitor->requestPlanningSceneState(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_SERVICE);
+
     planning_scene_monitor::LockedPlanningSceneRW planningSceneRW(planningSceneMonitor);
     planningSceneRW.operator->()->getCurrentStateNonConst().update();
+
     planning_scene::PlanningScenePtr scene = planningSceneRW.operator->()->diff();
     collision_detection::WorldConstPtr world = scene->getCollisionWorld()->getWorld();
 
@@ -326,13 +329,16 @@ bool PlanningSceneController::isInCollisionWorld(const string objectName) {
 }
 
 bool PlanningSceneController::isAttached(const string objectName, const string link) {
+
     //check if object was successfully attached to the link by getting the scene actually used
     //by the movegroup
     planning_scene_monitor::PlanningSceneMonitorPtr planningSceneMonitor(new planning_scene_monitor::PlanningSceneMonitor("robot_description", tf));
     planningSceneMonitor->requestPlanningSceneState(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_SERVICE);
+
     planning_scene_monitor::LockedPlanningSceneRW planningSceneRW(planningSceneMonitor);
     planningSceneRW.operator->()->getCurrentStateNonConst().update();
     planning_scene::PlanningScenePtr scene = planningSceneRW.operator->()->diff();
+
     moveit_msgs::PlanningScene sceneMsgs;
     scene->getPlanningSceneMsg(sceneMsgs);
 
@@ -358,10 +364,3 @@ shape_msgs::Mesh PlanningSceneController::getMeshFromResource(const string meshP
 
     return co_mesh;
 }
-
-/*
- * allowedcollisionmatrix -> küche als mesh
- * richtige testdaten + testen
- * code aufräumen
- * hochladen + mergen
- */
