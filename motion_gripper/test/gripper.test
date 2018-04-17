@@ -1,4 +1,4 @@
 <launch>
   <node name="simple_gripper" pkg="motion_gripper" type="simple_gripper" />
-  <test test-name="test_mynode" pkg="mypkg" type="test_mynode" />
+  <test test-name="tests_gripper" pkg="motion_gripper" type="tests_gripper" />
 </launch>
