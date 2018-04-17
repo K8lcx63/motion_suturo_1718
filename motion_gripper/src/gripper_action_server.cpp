@@ -36,7 +36,7 @@ public:
     void executeCommand(const motion_msgs::GripperGoalConstPtr &goal) {
         boost::optional<Gripper &> gripper = determineGripper(goal->gripper);
         if (gripper.is_initialized()) {
-            actionlib::SimpleClientGoalState resultState = gripper.get().moveGripper(goal->position, goal->effort);
+            actionlib::SimpleClientGoalState resultState = gripper.get().moveGripper(goal->position, goal->force);
             if (resultState == actionlib::SimpleClientGoalState::SUCCEEDED) {
                 ROS_INFO("OPENED/CLOSED Gripper to Goal!");
                 result.successful = true;

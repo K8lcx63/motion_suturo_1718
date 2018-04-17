@@ -9,9 +9,10 @@
 #include <eigen_conversions/eigen_msg.h>
 #include <motion_msgs/GripperAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <map>
 #include "../planningscene/planning_scene.h"
-#include <moveit_msgs/PlanningScene.h>
-#include <moveit/planning_scene/planning_scene.h>
+
+using namespace std;
 
 /**
  * Class to control movement of moveit MoveGroups.
@@ -31,6 +32,9 @@ private:
     actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
     PlanningSceneController planning_scene_controller;
 
+    // Variables for saving the last joint-state messages
+    map<string, double> jointStates;
+
 public:
 
     /**
@@ -40,6 +44,13 @@ public:
     GroupController(const ros::NodeHandle &nh);
 
     /**
+     * Function for saving the latest joint-state message to the map.
+     * @param jointStateNames the list of the names of joints.
+     * @param jointStateValues the list of joint-state values.
+     */
+    void saveJointStates(vector<string> jointStateNames, vector<double> jointStateValues);
+
+    /** 
      * Moves the given {@link moveit::planning_interface::MoveGroup} 
      * to the desired pose provided in {@link geometry_msgs::PoseStamped}. 
      * 
@@ -94,7 +105,14 @@ public:
     moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
                                               const geometry_msgs::PoseStamped& object_grasp_pose, float effort, bool releaseObject,
                                                 ros::Publisher beliefstatePublisher, std::string objectLabel);
- 
+
+    /**
+     * Checks if the object was successfully grasped.
+     * @param gripperNum the number of the gripper to check.
+     * @return true if the gripper has something in the gripper given by gripperNum.
+     */
+    bool checkIfObjectGraspedSuccessfully(int gripperNum);
+
     /** 
      * Opens the gripper given by gripperName. 
      * @param gripperNum the number of the gripper to close.

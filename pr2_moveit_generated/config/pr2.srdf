@@ -96,6 +96,24 @@
 		<joint name="r_wrist_flex_joint" value="-2.0" /> 
 		<joint name="r_wrist_roll_joint" value="1.0" /> 
     </group_state>
+    <group_state name="right_arm_carry_pose" group="right_arm">
+		<joint name="r_elbow_flex_joint" value="-1.8" /> 
+		<joint name="r_forearm_roll_joint" value="-0.9" /> 
+		<joint name="r_shoulder_lift_joint" value="-0.3536" /> 
+		<joint name="r_shoulder_pan_joint" value="-1.5" /> 
+		<joint name="r_upper_arm_roll_joint" value="0" /> 
+		<joint name="r_wrist_flex_joint" value="-2.0" /> 
+		<joint name="r_wrist_roll_joint" value="1.0" /> 
+    </group_state>
+    <group_state name="left_arm_carry_pose" group="left_arm">
+        <joint name="l_elbow_flex_joint" value="-1.8" /> 
+		<joint name="l_forearm_roll_joint" value="0.9" /> 
+		<joint name="l_shoulder_lift_joint" value="-0.3536" /> 
+		<joint name="l_shoulder_pan_joint" value="1.5" /> 
+		<joint name="l_upper_arm_roll_joint" value="0" /> 
+		<joint name="l_wrist_flex_joint" value="-2.0" /> 
+		<joint name="l_wrist_roll_joint" value="-1.0" /> 
+    </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="right_eef" parent_link="r_wrist_roll_link" group="right_gripper" />
     <end_effector name="left_eef" parent_link="l_wrist_roll_link" group="left_gripper" />

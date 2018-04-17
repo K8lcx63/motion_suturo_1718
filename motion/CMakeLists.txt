@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   marker_publisher
   pr2_controllers_msgs
   motion_gripper
+  sensor_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS
