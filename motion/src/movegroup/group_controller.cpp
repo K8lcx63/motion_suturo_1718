@@ -300,8 +300,9 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                                 msg.object_label = objectLabel;
                                 msg.grasp_pose = object_grasp_pose;
                                 beliefstatePublisher.publish(msg);
-                            // attach object to gripper in planningscene
-                            planning_scene_controller.attachObject(objectLabel, "r_gripper_tool_frame");
+
+                           	 	// attach object to gripper in planningscene
+                            	planning_scene_controller.attachObject(objectLabel, "r_gripper_tool_frame");
                             }
 
                         }
@@ -331,8 +332,9 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                                 msg.object_label = objectLabel;
                                 msg.grasp_pose = object_grasp_pose;
                                 beliefstatePublisher.publish(msg);
-                            // attach object to gripper in planningscene
-                            planning_scene_controller.attachObject(objectLabel, "l_gripper_tool_frame");
+
+                            	// attach object to gripper in planningscene
+                            	planning_scene_controller.attachObject(objectLabel, "l_gripper_tool_frame");
                             }
                         }
 
