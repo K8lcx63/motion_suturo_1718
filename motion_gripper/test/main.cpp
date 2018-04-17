@@ -1,10 +1,8 @@
 #include <gtest/gtest.h>
 
-TEST(DavidsTester, basicTest){
-    EXPECT_TRUE(true);
-}
-
 int main(int argc, char** argv){
     testing::InitGoogleTest(&argc, argv);
+//    ros::init(argc, argv, "gripper_test_node");
+//    ros::NodeHandle nh;
     return RUN_ALL_TESTS();
 }

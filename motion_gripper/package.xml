@@ -15,6 +15,7 @@
   <exec_depend>std_msgs</exec_depend>
   <depend>actionlib</depend>
   <depend>pr2_controllers_msgs</depend>
+  <test_depend>gtest</test_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
