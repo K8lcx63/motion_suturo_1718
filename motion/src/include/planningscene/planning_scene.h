@@ -75,13 +75,11 @@ public:
     /**
      * Adds the Objects from the knowledge response to the moveit planning scene.
      *
-     * @param res The knowledge response.
-     * @param planning_frame The planningframe of the planningscene.
-     * @param planning_scene_interface The planningscene interface.
+     * @param res The knowledge response containing information about the objects in the iai kitchen.
      * @return true/false whether the objects could be added or not.
      */
     bool
-    addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res, const string &planning_frame);
+    addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res);
 
     /**
      * Callback function.

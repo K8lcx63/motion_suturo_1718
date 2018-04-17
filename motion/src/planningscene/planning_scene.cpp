@@ -10,60 +10,52 @@ PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
     collisionObjectPublisher = node_handle.advertise<moveit_msgs::CollisionObject>("collision_object", 1);
 }
 
-bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res,
-                                                         const string& planning_frame) {
+bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
 
     int namesSize = res.names.size();
-    int posesSize = res.poses.size();
-    int boundingBoxesSize = res.bounding_boxes.size();
+    int meshesSize = res.meshes.size();
+    int framesSize = res.frames.size();
 
-    if((namesSize != posesSize) || (posesSize != boundingBoxesSize) || (namesSize != boundingBoxesSize)){
+    if((namesSize != meshesSize) || (meshesSize != framesSize) || (namesSize != framesSize)){
         ROS_ERROR("Kitchen objects received from knowledge are inconsistent. - Aborted.");
         return false;
     } else{
 
         //add objects to planning scene
         for(int i = 0; i < namesSize; i++){
-            string name(res.names[i]);
-            geometry_msgs::Pose pose = res.poses[i];
-            geometry_msgs::Vector3 boundingBox = res.bounding_boxes[i];
 
-            if(res.frame_id != planning_frame){
-               geometry_msgs::PoseStamped poseIn;
-               poseIn.header.frame_id = res.frame_id;
-               poseIn.pose = pose;
-               geometry_msgs::PoseStamped poseOut = transformer.transformPoseStamped(planning_frame, poseIn);
+            //hack to ignore the mesh for the dish washer door, because it's frame is not set at the correct position
+            if(res.names[i].compare("'http://knowrob.org/kb/IAI-kitchen.owl#iai_kitchen_sink_area_dish_washer_door'") != 0) {
 
-               pose.orientation = poseOut.pose.orientation;
-               pose.position = poseOut.pose.position;
-            }
+                moveit_msgs::CollisionObject kitchenObject;
 
-            moveit_msgs::CollisionObject kitchenObject;
-            kitchenObject.header.frame_id = planning_frame;
-            kitchenObject.id = name;
+                // fill header
+                kitchenObject.header.stamp = ros::Time::now();
+                kitchenObject.header.frame_id = res.frames[i];
+                kitchenObject.header.seq++;
 
-            shape_msgs::SolidPrimitive primitive;
-            primitive.type = primitive.BOX;
-            primitive.dimensions.resize(3);
-            primitive.dimensions[0] = boundingBox.z;
-            primitive.dimensions[1] = boundingBox.x;
-            primitive.dimensions[2] = boundingBox.y;
+                // fill in name
+                kitchenObject.id = res.names[i];
 
-            kitchenObject.primitives.push_back(primitive);
-            kitchenObject.primitive_poses.push_back(pose);
-            kitchenObject.operation = kitchenObject.ADD;
+                // get mesh to add to planning scene
+                shape_msgs::Mesh mesh = getMeshFromResource(res.meshes[i]);
 
-            //publish message to add object
-            collisionObjectPublisher.publish(kitchenObject);
-            //sleep for some miliseconds to wait until object applied to planning scene
-            sleep_t.sleep();
-        }
+                kitchenObject.meshes.push_back(mesh);
 
-        //check if the objects were successfully added
-        for(int i = 0; i < namesSize; i++){
-            if(!isInCollisionWorld(res.names[i])){
-                ROS_ERROR("NOT ALL KITCHEN COLLISION OBJECTS WERE SUCCESSFULLY ADDED TO THE PLANNINGSCENE!");
-                return false;
+                // fill in pose of mesh
+                // is at zero position, because the position is given in the object's frame
+                geometry_msgs::Pose poseOfMesh;
+                poseOfMesh.orientation.w = 1.0;
+
+                kitchenObject.mesh_poses.push_back(poseOfMesh);
+
+                // define as operation to add a mesh to the environment
+                kitchenObject.operation = kitchenObject.ADD;
+
+                //publish to apply adding new object
+                collisionObjectPublisher.publish(kitchenObject);
+                //sleep for some miliseconds to let changes take effect
+                sleep_t.sleep();
             }
         }
 

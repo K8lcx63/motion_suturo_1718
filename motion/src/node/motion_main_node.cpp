@@ -9,9 +9,9 @@ int start_node(int argc, char **argv) {
     ros::ServiceClient kitchenObjectsClient = nh.serviceClient<knowledge_msgs::GetFixedKitchenObjects>("/kitchen_model_service/get_fixed_kitchen_objects");
     knowledge_msgs::GetFixedKitchenObjects srv;
     if(kitchenObjectsClient.call(srv)){
-        ROS_INFO("\x1B[32m: Received kitchen objects from knowledge service, start to add objects to collision matrix.");
+        ROS_INFO("\x1B[32m: Received kitchen objects from knowledge service, start to add objects to planning scene.");
         if(motionNode.addKitchenCollisionObjects(srv.response)){
-            ROS_INFO("\x1B[32m: Successfully added kitchen objects to collision matrix.");
+            ROS_INFO("\x1B[32m: Successfully added kitchen objects to planning scene.");
         }else{
             ROS_ERROR("Could not add kitchen to collision matrix, because the data received from knowledge service was not correct.");
             return 1;
@@ -335,7 +335,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
 }
 
 bool MotionNode::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjects::Response &res) {
-    return planning_scene_controller.addKitchenCollisionObjects(res, both_arms.getPlanningFrame());
+    return planning_scene_controller.addKitchenCollisionObjects(res);
 }
 
 void MotionNode::perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr &msg) {
