@@ -32,9 +32,6 @@ private:
     actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
     PlanningSceneController planning_scene_controller;
 
-    // Variables for saving the last joint-state messages
-    map<string, double> jointStates;
-
 public:
 
     /**
@@ -42,13 +39,6 @@ public:
      * @param nh Node Handle.
      */
     GroupController(const ros::NodeHandle &nh);
-
-    /**
-     * Function for saving the latest joint-state message to the map.
-     * @param jointStateNames the list of the names of joints.
-     * @param jointStateValues the list of joint-state values.
-     */
-    void saveJointStates(vector<string> jointStateNames, vector<double> jointStateValues);
 
     /** 
      * Moves the given {@link moveit::planning_interface::MoveGroup} 

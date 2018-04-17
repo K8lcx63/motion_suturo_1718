@@ -40,6 +40,7 @@ private:
     ros::WallDuration sleep_t;
 
     boost::shared_ptr<tf::TransformListener> tf;
+    planning_scene_monitor::PlanningSceneMonitorPtr planningSceneMonitor;
 
 
     const string meshPathPrefix = "package://knowledge_common/meshes/";

@@ -15,24 +15,6 @@ GroupController::GroupController(const ros::NodeHandle &nh) :
         {
         }
 
-void GroupController::saveJointStates(vector<string> jointStateNames, vector<double> jointStateValues){
-    if(jointStateNames.size() == jointStateValues.size()) {
-        for (int i = 0; i < jointStateNames.size(); i++) {
-            // add new data to map
-            pair<map<string, double>::iterator, bool> ret;
-            ret = jointStates.insert(pair<string, double>(jointStateNames[i], jointStateValues[i]));
-
-            // replace old data by new ones
-            if (!ret.second) {
-                jointStates.erase(jointStateNames[i]);
-                jointStates.insert(
-                        pair<string, double>(jointStateNames[i], jointStateValues[i]));
-            }
-        }
-
-    }
-}
-
 moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group) {
     group.setNamedTarget("arms_drive_pose");
  
@@ -352,16 +334,33 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 }
 
 bool GroupController::checkIfObjectGraspedSuccessfully(int gripperNum){
-    string gripperJoint = (gripperNum == motion_msgs::GripperGoal::LEFT ) ? "l_gripper_joint" : "r_gripper_joint";
 
-    std::map<string,double>::iterator iterator = jointStates.find(gripperJoint);
+    // check for max 3.5 seconds, if gripper get's fully closed
+    // if this is the case, the object was not successfully grasped
+    ros::Time start_time = ros::Time::now();
+    ros::Duration timeout(3.5);
 
-    if(iterator != jointStates.end()){
-        if(iterator->second >= 0.005 && iterator->second <= 0.08)
-            return true;
+    while(ros::Time::now() - start_time < timeout) {
+        //get actual jointstate message
+        sensor_msgs::JointState jointState = *(ros::topic::waitForMessage<sensor_msgs::JointState>("joint_states",ros::Duration(1)));
+
+        string gripperJoint = (gripperNum == motion_msgs::GripperGoal::LEFT ) ? "l_gripper_joint" : "r_gripper_joint";
+
+        //find position of the right/left gripper joint to check if an object is inside
+        int pos = find(jointState.name.begin(), jointState.name.end(), gripperJoint) - jointState.name.begin();
+
+        if(pos < jointState.name.size()){
+            string info = "GRIPPER JOINT VALUE : ";
+            ROS_INFO(info.c_str());
+            cout << jointState.position[pos] << endl;
+            // if the joint value is not between these two values, the gripper didn't grasp an object
+            if(!((jointState.position[pos] >= 0.005) && (jointState.position[pos] <= 0.08))){
+                return false;
+            }
+        }
     }
 
-    return false;
+    return true;
 }
 
 void GroupController::openGripper(int gripperNum){
@@ -387,6 +386,7 @@ void GroupController::closeGripper(int gripperNum, float& effort){
         }
         goal.gripper = gripperNum;
         gripperclient.sendGoalAndWait(goal);
+
     } else {
         ROS_ERROR("GRIPPER SERVER NOT CONNECTED - ABORTED");
     }

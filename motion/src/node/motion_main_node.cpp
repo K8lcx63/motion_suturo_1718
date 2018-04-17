@@ -34,7 +34,6 @@ left_arm_group("left_arm"),
 both_arms("arms"),
 action_server(node_handle, "moving", boost::bind(&MotionNode::executeCommand, this, _1), false)
 {
-    jointStateSubscriber = node_handle.subscribe("joint_states", 1000, &MotionNode::jointStateCallback, this);
     perceivedObjectBoundingBoxSubscriber = node_handle.subscribe("perceived_object_bounding_box", 10, &MotionNode::perceivedObjectBoundingBoxCallback, this);
     beliefstatePublisherGrasp = node_handle.advertise<knowledge_msgs::GraspObject>("/beliefstate/grasp_action", 1000);
     beliefstatePublisherDrop = node_handle.advertise<knowledge_msgs::DropObject>("/beliefstate/drop_action", 1000);
@@ -341,8 +340,4 @@ bool MotionNode::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjec
 
 void MotionNode::perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr &msg) {
     planning_scene_controller.addPerceivedObjectToEnvironment(msg);
-}
-
-void MotionNode::jointStateCallback(const sensor_msgs::JointState::ConstPtr &msg) {
-    group_controller.saveJointStates(msg->name, msg->position);
 }

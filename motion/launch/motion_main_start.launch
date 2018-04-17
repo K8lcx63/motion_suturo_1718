@@ -16,4 +16,6 @@
 
 	<node name="simple_gripper" pkg="motion_gripper" type="simple_gripper" output="screen" />
 
+	<node name="rviz" pkg="rviz" type="rviz" output="screen" />
+
 </launch>

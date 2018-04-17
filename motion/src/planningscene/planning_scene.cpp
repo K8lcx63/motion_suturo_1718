@@ -3,7 +3,8 @@
 PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
         node_handle(nh),
         sleep_t(0.005f),
-        tf(new tf::TransformListener(ros::Duration(2.0)))
+        tf(new tf::TransformListener(ros::Duration(2.0))),
+        planningSceneMonitor(new planning_scene_monitor::PlanningSceneMonitor("robot_description", tf))
 {
     attachObjectPublisher = node_handle.advertise<moveit_msgs::AttachedCollisionObject>("attached_collision_object", 1);
     collisionObjectPublisher = node_handle.advertise<moveit_msgs::CollisionObject>("collision_object", 1);
@@ -315,7 +316,6 @@ bool PlanningSceneController::isInCollisionWorld(const string objectName) {
 
     //check if object was successfully added to the planning scene by getting the scene actually used
     //by the movegroup
-    planning_scene_monitor::PlanningSceneMonitorPtr planningSceneMonitor(new planning_scene_monitor::PlanningSceneMonitor("robot_description", tf));
     planningSceneMonitor->requestPlanningSceneState(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_SERVICE);
 
     planning_scene_monitor::LockedPlanningSceneRW planningSceneRW(planningSceneMonitor);
@@ -332,7 +332,6 @@ bool PlanningSceneController::isAttached(const string objectName, const string l
 
     //check if object was successfully attached to the link by getting the scene actually used
     //by the movegroup
-    planning_scene_monitor::PlanningSceneMonitorPtr planningSceneMonitor(new planning_scene_monitor::PlanningSceneMonitor("robot_description", tf));
     planningSceneMonitor->requestPlanningSceneState(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_SERVICE);
 
     planning_scene_monitor::LockedPlanningSceneRW planningSceneRW(planningSceneMonitor);

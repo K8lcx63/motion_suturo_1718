@@ -26,7 +26,6 @@ private:
     ros::Publisher beliefstatePublisherGrasp;
     ros::Publisher beliefstatePublisherDrop;
     ros::Subscriber perceivedObjectBoundingBoxSubscriber;
-    ros::Subscriber jointStateSubscriber;
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
@@ -65,13 +64,6 @@ public:
      * @param msg The message containing the name, pose and bounding box of the perceived object.
      */
     void perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr &msg);
-
-    /**
-     * Callback function getting called when a new joint-state message is published.
-     *
-     * @param msg The message containing the states of the robot-joints.
-     */
-    void jointStateCallback(const sensor_msgs::JointState::ConstPtr &msg);
 };
 
 /**
