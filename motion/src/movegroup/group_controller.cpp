@@ -9,11 +9,11 @@
 #include "../include/movegroup/group_controller.h"
 #include "../include/visualization/visualization_marker.h"
 
-GroupController::GroupController() :
+GroupController::GroupController(const ros::NodeHandle &nh) :
         gripperclient("gripper", true),
-        jointStates()
-{
-}
+        planning_scene_controller (nh)
+        {
+        }
 
 void GroupController::saveJointStates(vector<string> jointStateNames, vector<double> jointStateValues){
     if(jointStateNames.size() == jointStateValues.size()) {
@@ -68,15 +68,6 @@ moveit_msgs::MoveItErrorCodes GroupController::moveGroupToCarryingObjectPose(mov
 
 moveit_msgs::MoveItErrorCodes
 GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup& group, const geometry_msgs::PoseStamped& goal_pose) {
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
-    ROS_INFO("PLANNING FROM REFACTORED CODE");
 
     geometry_msgs::PointStamped toVisualize;
     toVisualize.header.frame_id = goal_pose.header.frame_id;
@@ -85,7 +76,9 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup& group, c
 
     geometry_msgs::PoseStamped goalPoseInPlanningFrame = point_transformer.transformPoseStamped(group.getPlanningFrame(), goal_pose);
     group.setPoseTarget(goalPoseInPlanningFrame);
-    group.setGoalTolerance(0.005);
+    group.setGoalOrientationTolerance(0.1);
+    group.setGoalPositionTolerance(0.05);
+    group.setStartStateToCurrentState();
  
     moveit::planning_interface::MoveItErrorCode error_code = group.plan(execution_plan);
  
@@ -290,6 +283,10 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             knowledge_msgs::DropObject msg;
                             msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
                             beliefstatePublisher.publish(msg);
+
+                            // detach object from gripper in planningscene
+                            planning_scene_controller.detachObject(objectLabel, "r_gripper_tool_frame");
+
                         } else{
                             closeGripper(motion_msgs::GripperGoal::RIGHT, effort);
 
@@ -303,6 +300,9 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                                 msg.object_label = objectLabel;
                                 msg.grasp_pose = object_grasp_pose;
                                 beliefstatePublisher.publish(msg);
+
+                           	 	// attach object to gripper in planningscene
+                            	planning_scene_controller.attachObject(objectLabel, "r_gripper_tool_frame");
                             }
 
                         }
@@ -315,6 +315,10 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             knowledge_msgs::DropObject msg;
                             msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
                             beliefstatePublisher.publish(msg);
+
+                            // detach object from gripper in planningscene
+                            planning_scene_controller.detachObject(objectLabel, "l_gripper_tool_frame");
+
                         } else{
                             closeGripper(motion_msgs::GripperGoal::LEFT, effort);
 
@@ -328,6 +332,9 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                                 msg.object_label = objectLabel;
                                 msg.grasp_pose = object_grasp_pose;
                                 beliefstatePublisher.publish(msg);
+
+                            	// attach object to gripper in planningscene
+                            	planning_scene_controller.attachObject(objectLabel, "l_gripper_tool_frame");
                             }
                         }
 

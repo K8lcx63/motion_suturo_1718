@@ -3,6 +3,10 @@ project(motion)
 
 add_definitions(-std=c++11)
 
+# temprorary ignored warnings
+SET(CMAKE_CXX_FLAGS "-w")
+
+
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
@@ -15,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning_interface
   roscpp
   std_msgs
+  geometric_shapes
   tf
   visualization_msgs
   marker_publisher

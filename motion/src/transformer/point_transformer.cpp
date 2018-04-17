@@ -18,6 +18,25 @@ PointTransformer::lookupTransform(const std::string& target_frame, const std::st
     return toReturn; 
 }
 
+geometry_msgs::Pose
+PointTransformer::lookupTransformPose(const std::string& target_frame, const std::string& source_frame, const ros::Time& time){
+    tf::StampedTransform result;
+    geometry_msgs::Pose toReturn;
+
+    listener.lookupTransform (target_frame, source_frame, time, result);
+
+    // create geometry_msgs::Pose from tf::StampedTransform
+    toReturn.position.x = result.getOrigin().x();
+    toReturn.position.y = result.getOrigin().y();
+    toReturn.position.z = result.getOrigin().z();
+    toReturn.orientation.x = result.getRotation().x();
+    toReturn.orientation.y = result.getRotation().y();
+    toReturn.orientation.z = result.getRotation().z();
+    toReturn.orientation.w = result.getRotation().w();
+
+    return toReturn;
+}
+
 geometry_msgs::PointStamped
 PointTransformer::transformPointStamped(moveit::planning_interface::MoveGroup &group,
                                         const geometry_msgs::PointStamped &point) {

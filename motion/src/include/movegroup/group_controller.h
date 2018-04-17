@@ -10,6 +10,7 @@
 #include <motion_msgs/GripperAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <map>
+#include "../planningscene/planning_scene.h"
 
 using namespace std;
 
@@ -29,15 +30,18 @@ private:
     PointTransformer point_transformer;
     VisualizationMarker visualizationMarker;
     actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
+    PlanningSceneController planning_scene_controller;
 
     // Variables for saving the last joint-state messages
     map<string, double> jointStates;
 
 public:
+
     /**
      * Constructor.
+     * @param nh Node Handle.
      */
-    GroupController();
+    GroupController(const ros::NodeHandle &nh);
 
     /**
      * Function for saving the latest joint-state message to the map.
