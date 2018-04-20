@@ -13,7 +13,6 @@
 class PointTransformer {
 private:
     tf::TransformListener listener;
-    VisualizationMarker visualizationMarker;
 public:
     /** Looks up a given target frame in a given source frame at a given {@link ros::Time}. 
      * 
