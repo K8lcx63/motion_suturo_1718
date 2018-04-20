@@ -23,8 +23,6 @@ private:
     struct Private;
     ros::NodeHandle node_handle;
     actionlib::SimpleActionServer<motion_msgs::MovingCommandAction> action_server;
-    ros::Publisher beliefstatePublisherGrasp;
-    ros::Publisher beliefstatePublisherDrop;
     ros::Subscriber perceivedObjectBoundingBoxSubscriber;
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     moveit::planning_interface::MoveGroup right_arm_group;

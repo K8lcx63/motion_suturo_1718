@@ -24,7 +24,13 @@ private:
     const float DISTANCE_BEFORE_POKING = 0.03f; 
     const float TABLE_HEIGHT = 0.84f;
     const float MAXIMUM_OBJECT_HEIGHT = 0.30f;
-    const float DISTANCE_BEFORE_GRASPING = 0.03f; 
+    const float DISTANCE_BEFORE_GRASPING = 0.03f;
+
+    const string PATH_TO_GRIPPER_MESH = "package://knowledge_common/meshes/Gripper/Gripper.stl";
+
+    ros::NodeHandle nodeHandle;
+    ros::Publisher beliefstatePublisherGrasp;
+    ros::Publisher beliefstatePublisherDrop;
 
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     PointTransformer point_transformer;
@@ -79,22 +85,34 @@ public:
                                              const geometry_msgs::PoseStamped& object_middle);
  
     /** 
-     * Uses the given {@link moveit::planning_interface::MoveGroup} to grasp/drop the object, of which
-     * the pose to grasp/drop is given by {@link geometry_msgs::PoseStamped}.
-     * The bool states out, whether to releaseObject. If false, object get's grasped.
-     * The {@link ros::Publisher} is for publishing a message to a topic after grasping/
-     * releasing an object. This is needed for the beliefstate.
-     * The string contains the label of the object to grasp/release.
+     * Uses the given {@link moveit::planning_interface::MoveGroup} to grasp the object with the given grasp pose in
+     * {@link geometry_msgs::PoseStamped}.
+     * The {@link ros::Publisher} is for publishing a message to a topic after grasping
+     * the object. This is needed for the beliefstate.
+     * The string contains the label of the object to grasp.
      * @param group The group to take. 
-     * @param object_grasp_pose The pose how to grasp the object.
-     * @param releaseObject True, if object shell be released. False if it shell be grasped.
-     * @param beliefstatePublisher Publisher to publish message for beliefstatetopic.
-     * @param objectLabel The name of the object to grasp/release.
+     * @param object_grasp_poses The poses how the object may be grasped.
+     * @param poseDescription describes the direction of the grasp pose for each pose given in object_grasp_poses
+     * @param objectLabel The name of the object to grasp.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the grasping action. 
      */ 
     moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
-                                              const geometry_msgs::PoseStamped& object_grasp_pose, float effort, bool releaseObject,
-                                                ros::Publisher beliefstatePublisher, std::string objectLabel);
+                                              const geometry_msgs::PoseArray& object_grasp_poses, vector<string> poseDescription,
+                                              double effort,
+                                              std::string objectLabel);
+
+    /**
+     * Uses the given {@link moveit::planning_interface::MoveGroup} to drop the object with the given drop pose in
+     * {@link geometry_msgs::PoseStamped}.
+     * The {@link ros::Publisher} is for publishing a message to a topic after droping
+     * the object. This is needed for the beliefstate.
+     * The string contains the label of the object to drop.
+     * @param group The group to take.
+     * @param object_grasp_pose The pose how to drop the object.
+     * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the droping action.
+     */
+    moveit_msgs::MoveItErrorCodes dropObject(moveit::planning_interface::MoveGroup& group,
+                                              const geometry_msgs::PoseStamped& object_drop_pose);
 
     /**
      * Checks if the object was successfully grasped.

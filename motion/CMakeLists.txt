@@ -67,6 +67,11 @@ add_executable(
 	src/movebase/move_base.cpp
 )
 
+add_executable(
+  test_client
+  src/test_client.cpp
+)
+
 target_link_libraries(
     motion
     ${catkin_LIBRARIES}
@@ -74,5 +79,10 @@ target_link_libraries(
 
 target_link_libraries(
     move_base
+    ${catkin_LIBRARIES}
+)
+
+target_link_libraries(
+    test_client
     ${catkin_LIBRARIES}
 )

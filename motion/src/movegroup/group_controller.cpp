@@ -10,9 +10,13 @@
 #include "../include/visualization/visualization_marker.h"
 
 GroupController::GroupController(const ros::NodeHandle &nh) :
+        nodeHandle (nh),
         gripperclient("gripper", true),
-        planning_scene_controller (nh)
+        planning_scene_controller (nh),
+        visualizationMarker (nh)
         {
+            beliefstatePublisherGrasp = nodeHandle.advertise<knowledge_msgs::GraspObject>("/beliefstate/grasp_action", 10);
+            beliefstatePublisherDrop = nodeHandle.advertise<knowledge_msgs::DropObject>("/beliefstate/drop_action", 10);
         }
 
 moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group) {
@@ -161,115 +165,29 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
             }
         }
     }
- 
+
     return error_code;
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup& group,
-                                          const geometry_msgs::PoseStamped& object_grasp_pose, float effort, bool releaseObject,
-                                            ros::Publisher beliefstatePublisher, std::string objectLabel) {
+                                          const geometry_msgs::PoseArray& object_grasp_poses, vector<string> poseDescription, double effort,
+                                          std::string objectLabel) {
 
-    /* Move arm to height which is up above all objects on table, so that collision is avoided */
+    //remove old grasp-pose-meshes
+    visualizationMarker.removeOldMeshes();
 
-    // create pose goal for moving group up above all objects
-    float height;
-    geometry_msgs::PoseStamped heightGoal;
-    geometry_msgs::PointStamped actualPosition;
- 
-    if(group.getName() == "right_arm"){
-        height = GroupController::TABLE_HEIGHT + MAXIMUM_OBJECT_HEIGHT + GRIPPER_LENGTH_RIGHT + DISTANCE_BEFORE_GRASPING;
-        actualPosition = point_transformer.lookupTransform("base_footprint", "r_wrist_roll_link", ros::Time(0));
-    } else{
-        height = TABLE_HEIGHT + MAXIMUM_OBJECT_HEIGHT + GRIPPER_LENGTH_LEFT + DISTANCE_BEFORE_GRASPING;
-        actualPosition = point_transformer.lookupTransform("base_footprint", "l_wrist_roll_link", ros::Time(0));
-    }
+    //visualize possible grasp poses
+    visualizationMarker.publishMeshes(object_grasp_poses, PATH_TO_GRIPPER_MESH);
 
-    heightGoal.header.frame_id = actualPosition.header.frame_id;
-    heightGoal.pose.position = actualPosition.point;
-    heightGoal.pose.position.x = 0.3;
 
-    if(group.getName() == "right_arm"){
-        heightGoal.pose.position.y = -0.3;
-    }else{
-        heightGoal.pose.position.y = 0.3;
-    }
 
-    heightGoal.pose.position.z = height;
-    heightGoal.pose.orientation.x = 0;
-    heightGoal.pose.orientation.y = 0;
-    heightGoal.pose.orientation.z = 0;
-    heightGoal.pose.orientation.w = 1.0;
 
-    moveit_msgs::MoveItErrorCodes error_code = moveGroupToPose(group, heightGoal);
- 
- 
-    /* If successful, move arm above object, keeping the actual height */
- 
-    if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-        geometry_msgs::PoseStamped aboveObjectGoal = point_transformer.transformPoseStamped("base_footprint", object_grasp_pose);
-
-        // change orientation
-        aboveObjectGoal.pose.orientation.x = 0;
-        aboveObjectGoal.pose.orientation.y = 0;
-        aboveObjectGoal.pose.orientation.z = 0;
-        aboveObjectGoal.pose.orientation.w = 1.0;
-        // ignore height of goal and leave arm at it's actual height.
-        aboveObjectGoal.pose.position.z = height;
-
-        error_code = moveGroupToPose(group, aboveObjectGoal);
- 
-        /* If successful, set pose of arm to pose in 'object_grasp_pose' */
- 
-        if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-            aboveObjectGoal.pose.orientation = object_grasp_pose.pose.orientation;
-
-            error_code = moveGroupToPose(group, aboveObjectGoal);
- 
-            /* If successful, open/close left or right gripper, depending on which group is active and if releaseObject
-             * is true or false. */
- 
-            if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-                if(group.getName() == "right_arm"){
-                    if(!releaseObject){
-                        openGripper(motion_msgs::GripperGoal::RIGHT);
-                    }
-
-                } else{
-                    if(!releaseObject){
-                        openGripper(motion_msgs::GripperGoal::LEFT);
-                    }
-                }
-
-                /* move to point from where gripper is able to grasp object */
- 
-                geometry_msgs::PoseStamped graspGoal = point_transformer.transformPoseStamped("base_footprint", object_grasp_pose);
-                graspGoal.pose.orientation = aboveObjectGoal.pose.orientation;
-
-                if(group.getName() == "right_arm"){
-                    graspGoal.pose.position.z += GRIPPER_LENGTH_RIGHT;
-                } else{
-                    graspGoal.pose.position.z += GRIPPER_LENGTH_LEFT;
-                }
- 
-                error_code = moveGroupToPose(group, graspGoal);
- 
-                /* If successful, close gripper to grasp object or open gripper to release object, depending on
-                 * the value of releaseObject. */
- 
+    //pose selektieren etc..
+    //ausführen
+    /*
                 if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
                     if(group.getName() == "right_arm"){
-                        if(releaseObject){
-                            openGripper(motion_msgs::GripperGoal::RIGHT);
 
-                            // publish message for beliefstate
-                            knowledge_msgs::DropObject msg;
-                            msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
-                            beliefstatePublisher.publish(msg);
-
-                            // detach object from gripper in planningscene
-                            planning_scene_controller.detachObject(objectLabel, "r_gripper_tool_frame");
-
-                        } else{
                             closeGripper(motion_msgs::GripperGoal::RIGHT, effort);
 
                             if(!checkIfObjectGraspedSuccessfully(motion_msgs::GripperGoal::RIGHT)){
@@ -287,21 +205,9 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             	planning_scene_controller.attachObject(objectLabel, "r_gripper_tool_frame");
                             }
 
-                        }
+
 
                     } else {
-                        if(releaseObject){
-                            openGripper(motion_msgs::GripperGoal::LEFT);
-
-                            // publish message for beliefstate
-                            knowledge_msgs::DropObject msg;
-                            msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
-                            beliefstatePublisher.publish(msg);
-
-                            // detach object from gripper in planningscene
-                            planning_scene_controller.detachObject(objectLabel, "l_gripper_tool_frame");
-
-                        } else{
                             closeGripper(motion_msgs::GripperGoal::LEFT, effort);
 
                             if(!checkIfObjectGraspedSuccessfully(motion_msgs::GripperGoal::LEFT)){
@@ -318,19 +224,60 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                             	// attach object to gripper in planningscene
                             	planning_scene_controller.attachObject(objectLabel, "l_gripper_tool_frame");
                             }
-                        }
+
 
                     }
  
-                    /* move arm again to height it had at the beginning to lift the object */
 
-                     error_code = moveGroupToPose(group, aboveObjectGoal);
                 }
             }
         }
     }
+    */
+    moveit_msgs::MoveItErrorCodes result;
+    result.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+    return result;
+}
 
-    return error_code;
+moveit_msgs::MoveItErrorCodes GroupController::dropObject(moveit::planning_interface::MoveGroup& group,
+                                         const geometry_msgs::PoseStamped& object_drop_pose) {
+
+
+    /*
+    if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+        if(group.getName() == "right_arm"){
+                openGripper(motion_msgs::GripperGoal::RIGHT);
+
+                // publish message for beliefstate
+                knowledge_msgs::DropObject msg;
+                msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
+                beliefstatePublisher.publish(msg);
+
+                // detach object from gripper in planningscene
+                planning_scene_controller.detachObject(objectLabel, "r_gripper_tool_frame");
+
+
+
+        } else {
+                openGripper(motion_msgs::GripperGoal::LEFT);
+
+                // publish message for beliefstate
+                knowledge_msgs::DropObject msg;
+                msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
+                beliefstatePublisher.publish(msg);
+
+                // detach object from gripper in planningscene
+                planning_scene_controller.detachObject(objectLabel, "l_gripper_tool_frame");
+
+
+
+        }
+
+
+    }*/
+    moveit_msgs::MoveItErrorCodes result;
+    result.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+    return result;
 }
 
 bool GroupController::checkIfObjectGraspedSuccessfully(int gripperNum){
