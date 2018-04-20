@@ -27,12 +27,12 @@ catkin_package(
 )
 
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 #create executables
-add_executable(simple_gripper src/Gripper.cpp src/gripper_action_server.cpp)
+add_executable(simple_gripper src/Gripper.cpp src/gripper_action_server.cpp include/Gripper.h)
 target_link_libraries(simple_gripper ${catkin_LIBRARIES})
 
 #############
@@ -43,8 +43,8 @@ set(TEST_SRCS
         test/gripper_test.cpp
         test/main.cpp
 )
-#catkin_add_gtest()
-    add_rostest_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
+#add_rostest_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
+catkin_add_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
 if(TARGET ${PROJECT_NAME}-test)
     target_link_libraries(${PROJECT_NAME}-test
     ${catkin_LIBRARIES})
