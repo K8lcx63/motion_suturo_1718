@@ -26,6 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
   pr2_controllers_msgs
   motion_gripper
   sensor_msgs
+  tf_conversions
 )
 
 find_package(Boost REQUIRED COMPONENTS

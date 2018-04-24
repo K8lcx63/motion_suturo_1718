@@ -32,14 +32,14 @@ void VisualizationMarker::publishMeshes(const geometry_msgs::PoseArray &poses, s
 
         marker.pose = poses.poses[i];
 
-        marker.scale.x = 1.0;
-        marker.scale.y = 1.0;
-        marker.scale.z = 1.0;
+        marker.scale.x = 0.8;
+        marker.scale.y = 0.8;
+        marker.scale.z = 0.8;
 
-        marker.color.a = 0.8;
-        marker.color.r = 1.0;
-        marker.color.g = 0.8;
-        marker.color.b = 0.8;
+        marker.color.a = 1.0;
+        marker.color.r = 0.5;
+        marker.color.g = 0.5;
+        marker.color.b = 0.5;
 
         marker.mesh_resource = path;
 

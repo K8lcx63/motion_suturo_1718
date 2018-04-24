@@ -53,6 +53,7 @@
   <depend>pr2_controllers_msgs</depend> 
   <depend>motion_gripper</depend>
   <depend>sensor_msgs</depend>
+  <depend>tf_conversions</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
