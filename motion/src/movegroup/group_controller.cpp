@@ -15,6 +15,8 @@ GroupController::GroupController(const ros::NodeHandle &nh) :
         planning_scene_controller (nh),
         visualizationMarker (nh)
         {
+            robotStatePublisher = nodeHandle.advertise<moveit_msgs::DisplayRobotState> ("robot_state_at_ik_solution", 5);
+            ikServiceClient = nodeHandle.serviceClient<moveit_msgs::GetPositionIK> ("compute_ik");
             beliefstatePublisherGrasp = nodeHandle.advertise<knowledge_msgs::GraspObject>("/beliefstate/grasp_action", 10);
             beliefstatePublisherDrop = nodeHandle.advertise<knowledge_msgs::DropObject>("/beliefstate/drop_action", 10);
         }
@@ -170,16 +172,140 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup& group,
-                                          const geometry_msgs::PoseArray& object_grasp_poses, vector<string> poseDescription, double effort,
+                                          const geometry_msgs::PoseArray& objectGraspPoses, vector<string> poseDescription, double effort,
                                           std::string objectLabel) {
+
+    //open gripper
+    openGripper(motion_msgs::GripperGoal::LEFT);
+    sleep(5);
 
     //remove old grasp-pose-meshes
     visualizationMarker.removeOldMeshes();
 
     //visualize possible grasp poses
-    visualizationMarker.publishMeshes(object_grasp_poses, PATH_TO_GRIPPER_MESH);
+    visualizationMarker.publishMeshes(objectGraspPoses, PATH_TO_GRIPPER_MESH);
+
+    bool solutionFound = false;
+    int i = 0;
+
+    while (i < objectGraspPoses.poses.size() && !solutionFound) {
+        moveit_msgs::GetPositionIK::Request ikRequest;
+        if (group.getName() == "right_arm") {
+            ikRequest.ik_request.group_name = "right_arm";
+        } else {
+            ikRequest.ik_request.group_name = "left_arm";
+        }
+
+        ikRequest.ik_request.pose_stamped.header.frame_id = objectGraspPoses.header.frame_id;
+
+        ikRequest.ik_request.pose_stamped.pose = objectGraspPoses.poses[i];
+
+        ikRequest.ik_request.avoid_collisions = false;
+
+        moveit_msgs::GetPositionIK::Response ikResponse;
+
+        ikServiceClient.call(ikRequest, ikResponse);
 
 
+        if (ikResponse.error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+
+            /* Load the robot model */
+            robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+            /* Get a shared pointer to the model */
+            robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
+            /* Create a kinematic state - this represents the configuration for the robot represented by kinematic_model */
+
+            robot_state::RobotState robotState(kinematic_model);
+            moveit::core::robotStateMsgToRobotState(ikResponse.solution, robotState);
+
+            robot_state::RobotStatePtr kinematic_state(new robot_state::RobotState(robotState));
+
+            Eigen::Affine3d wristTransform;
+            Eigen::Affine3d toolTransform;
+
+            if(group.getName() == "right_arm"){
+                wristTransform = kinematic_state->getFrameTransform("r_wrist_roll_link");
+                toolTransform = kinematic_state->getFrameTransform("r_gripper_tool_frame");
+            } else {
+                wristTransform = kinematic_state->getFrameTransform("l_wrist_roll_link");
+                toolTransform = kinematic_state->getFrameTransform("l_gripper_tool_frame");
+            }
+
+            tf::Pose wristTransformPose;
+            tf::Pose toolTransformPose;
+            tf::poseEigenToTF (wristTransform, wristTransformPose);
+            tf::poseEigenToTF (toolTransform, toolTransformPose);
+
+            tf::Vector3 directionToolToWristTransform;
+
+            directionToolToWristTransform.setX(wristTransformPose.getOrigin().getX() - toolTransformPose.getOrigin().getX());
+            directionToolToWristTransform.setY(wristTransformPose.getOrigin().getY() - toolTransformPose.getOrigin().getY());
+            directionToolToWristTransform.setZ(wristTransformPose.getOrigin().getZ() - toolTransformPose.getOrigin().getZ());
+
+
+            moveit_msgs::GetPositionIK::Request ikRequest;
+            if (group.getName() == "right_arm") {
+                ikRequest.ik_request.group_name = "right_arm";
+            } else {
+                ikRequest.ik_request.group_name = "left_arm";
+            }
+
+
+            geometry_msgs::PoseStamped goalPose;
+            goalPose.header.frame_id = objectGraspPoses.header.frame_id;
+            goalPose.header.stamp = ros::Time(0);
+
+            goalPose.pose = objectGraspPoses.poses[i];
+
+            geometry_msgs::PoseStamped goalInMapFrame = point_transformer.transformPoseStamped("map", goalPose);
+
+
+            ikRequest.ik_request.pose_stamped.header.frame_id = goalInMapFrame.header.frame_id;
+            ikRequest.ik_request.pose_stamped.pose.orientation = goalInMapFrame.pose.orientation;
+            ikRequest.ik_request.pose_stamped.pose.position.x = goalInMapFrame.pose.position.x + directionToolToWristTransform.getX();
+            ikRequest.ik_request.pose_stamped.pose.position.y = goalInMapFrame.pose.position.y + directionToolToWristTransform.getY();
+            ikRequest.ik_request.pose_stamped.pose.position.z = goalInMapFrame.pose.position.z + directionToolToWristTransform.getZ();
+
+            ikRequest.ik_request.avoid_collisions = false;
+
+            moveit_msgs::GetPositionIK::Response ikResponse;
+
+            ikServiceClient.call(ikRequest, ikResponse);
+
+
+            if (ikResponse.error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+
+                moveit::core::robotStateMsgToRobotState(ikResponse.solution, robotState);
+
+                robot_state::RobotStatePtr kinematic_state(new robot_state::RobotState(robotState));
+
+                moveit_msgs::DisplayRobotState msg;
+                robot_state::robotStateToRobotStateMsg(*kinematic_state, msg.state);
+
+                robotStatePublisher.publish(msg);
+                ros::spinOnce();
+
+                sleep (2);
+
+                group.setJointValueTarget(*kinematic_state);
+
+                group.plan(execution_plan);
+
+                if((group.plan(execution_plan)).val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+                    group.setGoalOrientationTolerance(0.1);
+                    group.setGoalPositionTolerance(0.05);
+                    if(group.move().val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                        solutionFound = true;
+                }
+            }
+
+
+        } else {
+            ROS_ERROR("NO SOLUTION FOUND FOR THIS GRASP POSE!");
+        }
+
+        i++;
+    }
 
 
     //pose selektieren etc..

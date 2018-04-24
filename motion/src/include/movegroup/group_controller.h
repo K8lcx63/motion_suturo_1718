@@ -2,6 +2,11 @@
 #define SUTURO_MOTION_MAIN_GROUP_CONTROLLER_H
 
 #include <geometry_msgs/PointStamped.h>
+#include <moveit_msgs/DisplayRobotState.h>
+#include <moveit/robot_state/conversions.h>
+#include <tf_conversions/tf_eigen.h>
+#include <tf/transform_datatypes.h>
+#include <moveit_msgs/GetPositionIK.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
 #include "../transform/point_transformer.h"
@@ -29,6 +34,8 @@ private:
     const string PATH_TO_GRIPPER_MESH = "package://knowledge_common/meshes/Gripper/Gripper.stl";
 
     ros::NodeHandle nodeHandle;
+    ros::Publisher robotStatePublisher;
+    ros::ServiceClient ikServiceClient;
     ros::Publisher beliefstatePublisherGrasp;
     ros::Publisher beliefstatePublisherDrop;
 
@@ -91,13 +98,13 @@ public:
      * the object. This is needed for the beliefstate.
      * The string contains the label of the object to grasp.
      * @param group The group to take. 
-     * @param object_grasp_poses The poses how the object may be grasped.
+     * @param objectGraspPoses The poses how the object may be grasped.
      * @param poseDescription describes the direction of the grasp pose for each pose given in object_grasp_poses
      * @param objectLabel The name of the object to grasp.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the grasping action. 
      */ 
     moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
-                                              const geometry_msgs::PoseArray& object_grasp_poses, vector<string> poseDescription,
+                                              const geometry_msgs::PoseArray& objectGraspPoses, vector<string> poseDescription,
                                               double effort,
                                               std::string objectLabel);
 
