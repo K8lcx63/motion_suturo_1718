@@ -13,7 +13,10 @@ int main(int argc, char **argv)
      ros::ServiceClient client = n.serviceClient<knowledge_msgs::GraspIndividual>("/knowledge_grasp/knowledge_grasp");
 
      knowledge_msgs::GraspIndividual srv;
-     srv.request.object_label = "JaMilch";
+    std::string objectLabel;
+    n.getParam("objectLabel", objectLabel);
+
+     srv.request.object_label = objectLabel;
 
     ROS_INFO_STREAM ("TRY TO CALL GRASP SERVICE.");
 
@@ -31,7 +34,7 @@ int main(int argc, char **argv)
          goal.command = motion_msgs::MovingCommandGoal::GRASP_LEFT_ARM;
          goal.goal_poses = srv.response.grasp_pose_array;
          goal.direction_key = srv.response.direction_key;
-         goal.grasped_object_label = "JaMilch";
+         goal.grasped_object_label = objectLabel;
          goal.force = -1;
 
          ac.sendGoal(goal);
