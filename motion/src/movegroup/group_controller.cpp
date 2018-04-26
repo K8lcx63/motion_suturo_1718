@@ -216,7 +216,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
             moveit::core::robotStateMsgToRobotState(ikResponse.solution, robotState);
 
             robot_state::RobotStatePtr kinematic_state(new robot_state::RobotState(robotState));
-/*
+
             Eigen::Affine3d wristTransform;
             Eigen::Affine3d toolTransform;
 
@@ -275,7 +275,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                 moveit::core::robotStateMsgToRobotState(ikResponse.solution, robotState);
 
                 robot_state::RobotStatePtr kinematic_state(new robot_state::RobotState(robotState));
-*/
+
                 moveit_msgs::DisplayRobotState msg;
                 robot_state::robotStateToRobotStateMsg(*kinematic_state, msg.state);
 
@@ -283,18 +283,18 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                 ros::spinOnce();
 
                 sleep (2);
-/*
+
                 group.setJointValueTarget(*kinematic_state);
 
                 group.plan(execution_plan);
 
                 if((group.plan(execution_plan)).val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-                    group.setGoalOrientationTolerance(0.8);
-                    group.setGoalPositionTolerance(0.3);
-                    if(group.move().val == moveit_msgs::MoveItErrorCodes::SUCCESS)
-                        solutionFound = true;
+                    //group.setGoalOrientationTolerance(0.8);
+                    //group.setGoalPositionTolerance(0.3);
+                    //if(group.move().val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                        //solutionFound = true;
                 }
-            //}*/
+            }
 
 
         } else {
