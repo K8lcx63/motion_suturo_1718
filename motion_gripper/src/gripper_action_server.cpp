@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <motion_msgs/GripperAction.h>
 #include <actionlib/server/simple_action_server.h>
-#include "Gripper.cpp"
+#include <Gripper.h>
 
 const std::string right_gripper_controller_name = "r_gripper_controller/gripper_action";
 const std::string left_gripper_controller_name = "l_gripper_controller/gripper_action";
