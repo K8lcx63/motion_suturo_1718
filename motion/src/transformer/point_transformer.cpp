@@ -1,6 +1,6 @@
 #include <point_transformer.h>
 
-geometry_msgs::PointStamped 
+geometry_msgs::PointStamped
 PointTransformer::lookupTransform(const std::string& target_frame, const std::string& source_frame, const ros::Time& time){ 
     tf::StampedTransform result; 
     geometry_msgs::PointStamped toReturn; 
@@ -21,18 +21,11 @@ PointTransformer::lookupTransform(const std::string& target_frame, const std::st
 geometry_msgs::Pose
 PointTransformer::lookupTransformPose(const std::string& target_frame, const std::string& source_frame, const ros::Time& time){
     tf::StampedTransform result;
-    geometry_msgs::Pose toReturn;
-
-    listener.lookupTransform (target_frame, source_frame, time, result);
+    listener.lookupTransform(target_frame, source_frame, time, result);
 
     // create geometry_msgs::Pose from tf::StampedTransform
-    toReturn.position.x = result.getOrigin().x();
-    toReturn.position.y = result.getOrigin().y();
-    toReturn.position.z = result.getOrigin().z();
-    toReturn.orientation.x = result.getRotation().x();
-    toReturn.orientation.y = result.getRotation().y();
-    toReturn.orientation.z = result.getRotation().z();
-    toReturn.orientation.w = result.getRotation().w();
+    geometry_msgs::Pose toReturn;
+    copyStampedTransformToPose(result, toReturn);
 
     return toReturn;
 }

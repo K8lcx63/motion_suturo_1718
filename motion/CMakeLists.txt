@@ -34,6 +34,7 @@ find_package(Boost REQUIRED COMPONENTS
 )
 
 catkin_package(
+	INCLUDE_DIRS include
     CATKIN_DEPENDS
     message_runtime
     std_msgs
@@ -43,8 +44,8 @@ catkin_package(
 )
 
 include_directories(
-  ${catkin_INCLUDE_DIRS}
   include
+  ${catkin_INCLUDE_DIRS}
 )
 
 #create executables
@@ -88,7 +89,8 @@ target_link_libraries(
 #############
 
 set(TEST_SRCS
-	test/main_test.cpp
+		test/main_test.cpp
+		test/point_transformer_test.cpp
 )
 #add_rostest_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
 catkin_add_gtest(${PROJECT_NAME}-test ${TEST_SRCS})

@@ -5,7 +5,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
-#include "visualization_marker.h"
+#include <visualization_marker.h>
 
 /**
  * Class for transforming PointStampeds and PoseStampeds.
@@ -14,6 +14,7 @@ class PointTransformer {
 private:
     tf::TransformListener listener;
 public:
+
     /** Looks up a given target frame in a given source frame at a given {@link ros::Time}. 
      * 
      * @param target_frame the frame to be looked up. 
@@ -64,6 +65,17 @@ public:
      */
     geometry_msgs::PoseStamped
     transformPoseStamped(const std::string &target_frame, const geometry_msgs::PoseStamped &pose);
+
+    static void
+    copyStampedTransformToPose(tf::StampedTransform &toTransform, geometry_msgs::Pose &result) {
+        result.position.x = toTransform.getOrigin().x();
+        result.position.y = toTransform.getOrigin().y();
+        result.position.z = toTransform.getOrigin().z();
+        result.orientation.x = toTransform.getRotation().x();
+        result.orientation.y = toTransform.getRotation().y();
+        result.orientation.z = toTransform.getRotation().z();
+        result.orientation.w = toTransform.getRotation().w();
+    }
 };
 
 
