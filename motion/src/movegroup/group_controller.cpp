@@ -6,8 +6,8 @@
 #include <knowledge_msgs/DropObject.h>
 #include <knowledge_msgs/Gripper.h>
 #include <motion_msgs/MovingCommandAction.h>
-#include "../include/movegroup/group_controller.h"
-#include "../include/visualization/visualization_marker.h"
+#include <group_controller.h>
+#include <visualization_marker.h>
 
 GroupController::GroupController(const ros::NodeHandle &nh) :
         nodeHandle (nh),

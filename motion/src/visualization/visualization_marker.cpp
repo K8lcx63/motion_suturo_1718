@@ -1,4 +1,5 @@
-#include "../include/visualization/visualization_marker.h"
+#include <visualization_marker.h>
+
 
 VisualizationMarker::VisualizationMarker(const ros::NodeHandle &nh) :
         nodeHandle(nh),

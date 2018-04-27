@@ -1,4 +1,4 @@
-#include "../include/planningscene/planning_scene.h"
+#include <planning_scene.h>
 
 PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
         node_handle(nh),

@@ -52,15 +52,10 @@ add_executable(
     motion
     src/main.cpp
     src/visualization/visualization_marker.cpp
-    src/include/visualization/visualization_marker.h
     src/transformer/point_transformer.cpp
-    src/include/transform/point_transformer.h
     src/planningscene/planning_scene.cpp
-    src/include/planningscene/planning_scene.h
     src/node/motion_main_node.cpp
-    src/include/node/motion_main_node.h
     src/movegroup/group_controller.cpp
-    src/include/movegroup/group_controller.h
 )
 
 add_executable(
@@ -87,3 +82,17 @@ target_link_libraries(
     test_client
     ${catkin_LIBRARIES}
 )
+
+#############
+## Testing ##
+#############
+
+set(TEST_SRCS
+	test/main_test.cpp
+)
+#add_rostest_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
+catkin_add_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
+if(TARGET ${PROJECT_NAME}-test)
+	target_link_libraries(${PROJECT_NAME}-test
+			${catkin_LIBRARIES})
+endif()

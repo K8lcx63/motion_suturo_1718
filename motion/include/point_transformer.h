@@ -5,7 +5,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
-#include "../visualization/visualization_marker.h"
+#include "visualization_marker.h"
 
 /**
  * Class for transforming PointStampeds and PoseStampeds.
