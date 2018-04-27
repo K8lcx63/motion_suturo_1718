@@ -64,6 +64,21 @@ public:
      */
     geometry_msgs::PoseStamped
     transformPoseStamped(const std::string &target_frame, const geometry_msgs::PoseStamped &pose);
+
+    /**
+     * Transforms a {@link geometry_msgs::Pose} goal, given for the end effector frame ('r_gripper_tool_frame' or
+     * 'l_gripper_tool_frame') to a goal pose for the wrist frame ('r_wrist_roll_link' or 'l_wrist_roll_link'), depending on the
+     * {@link moveit::planning_interface::MoveGroup}.
+     * This function is required, because the {@link moveit::planning_interface::MoveGroup} we use plans the motion
+     * with the wrist link, but the grasp poses are given for the end effector link.
+     *
+     * @param poseForEndEffector the pose the end effector shall be moved to.
+     * @param group the group of which the end effector shall be moved to poseForEndEffector.
+     * @return the pose the wrist frame of the group has to be moved to, to reach the pose poseForEndEffector for the
+     *         end effector frame.
+     */
+    geometry_msgs::PoseStamped transformPoseFromEndEffectorToWristFrame (const geometry_msgs::PoseStamped& poseForEndEffector,
+                                                                         moveit::planning_interface::MoveGroup& group);
 };
 
 

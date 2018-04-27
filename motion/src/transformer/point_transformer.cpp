@@ -68,3 +68,45 @@ PointTransformer::transformPoseStamped(const std::string &target_frame, const ge
 
     return pose_out;
 }
+
+geometry_msgs::PoseStamped
+PointTransformer::transformPoseFromEndEffectorToWristFrame (const geometry_msgs::PoseStamped& poseForEndEffector,
+                                                            moveit::planning_interface::MoveGroup& group)
+{
+
+    // create pose from 'poseForEndEffector' by transform it into map space
+    geometry_msgs::PoseStamped poseStampedForEndEffectorInWorld;
+    listener.transformPose("map", poseForEndEffector, poseStampedForEndEffectorInWorld);
+
+    geometry_msgs::Pose poseForEndEffectorInWorld = poseStampedForEndEffectorInWorld.pose;
+
+    
+    //get the tool and wrist frame depending on used group
+    std::string toolFrame = (group.getName() == "right_arm") ? "r_gripper_tool_frame" : "l_gripper_tool_frame";
+    std::string wristFrame = group.getEndEffectorLink();
+
+    tf::Transform worldToWristTF, worldToToolTF;
+    tf::StampedTransform toolToWristTFStamped;
+    geometry_msgs::Pose worldToWrist;
+
+    // lookup transform from tool frame to wrist frame
+    listener.lookupTransform(toolFrame, wristFrame, ros::Time(0), toolToWristTFStamped);
+    tf::Transform toolToWristTF (toolToWristTFStamped.getRotation(), toolToWristTFStamped.getOrigin());
+
+    // convert to TF data type, so math operations can be applied
+    tf::poseMsgToTF(poseForEndEffectorInWorld, worldToToolTF);
+
+    // transform from tool to wrist and save result in 'worldToWrist'
+    worldToWristTF = worldToToolTF * toolToWristTF;
+
+    // convert TF data type back to geometry_msgs type
+    tf::poseTFToMsg(worldToWristTF, worldToWrist);
+
+    // create PoseStamped object to return
+    geometry_msgs::PoseStamped toReturn;
+    toReturn.header.frame_id = "map";
+    toReturn.header.stamp = ros::Time(0);
+    toReturn.pose = worldToWrist;
+
+    return toReturn;
+}

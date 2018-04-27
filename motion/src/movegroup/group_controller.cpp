@@ -189,121 +189,68 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     int i = 0;
 
     while (i < objectGraspPoses.poses.size() && !solutionFound) {
+
+        //calculate goal for wrist frame from given goal for tool frame
+        geometry_msgs::PoseStamped goalPose;
+        goalPose.header.frame_id = objectGraspPoses.header.frame_id;
+        goalPose.header.stamp = ros::Time(0);
+        goalPose.pose = objectGraspPoses.poses[i];
+
+        geometry_msgs::PoseStamped goalForWrist = point_transformer.transformPoseFromEndEffectorToWristFrame(goalPose, group);
+
+
+        //create ik request
         moveit_msgs::GetPositionIK::Request ikRequest;
-        ikRequest.ik_request.group_name = group.getName();
-
-
-        ikRequest.ik_request.pose_stamped.header.frame_id = objectGraspPoses.header.frame_id;
-
-        ikRequest.ik_request.pose_stamped.pose = objectGraspPoses.poses[i];
-
-        ikRequest.ik_request.avoid_collisions = false;
-
         moveit_msgs::GetPositionIK::Response ikResponse;
 
-        ikServiceClient.call(ikRequest, ikResponse);
+        ikRequest.ik_request.group_name = group.getName();
+        ikRequest.ik_request.pose_stamped = goalForWrist;
+        ikRequest.ik_request.avoid_collisions = false;
 
+        //send ik request
+        bool success = ikServiceClient.call(ikRequest, ikResponse);
 
-        if (ikResponse.error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-
-            /* Load the robot model */
-            robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
-            /* Get a shared pointer to the model */
-            robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
-            /* Create a kinematic state - this represents the configuration for the robot represented by kinematic_model */
-
-            robot_state::RobotState robotState(kinematic_model);
-            moveit::core::robotStateMsgToRobotState(ikResponse.solution, robotState);
-
-            robot_state::RobotStatePtr kinematic_state(new robot_state::RobotState(robotState));
-
-            Eigen::Affine3d wristTransform;
-            Eigen::Affine3d toolTransform;
-
-            if(group.getName() == "right_arm"){
-                wristTransform = kinematic_state->getFrameTransform("r_wrist_roll_link");
-                toolTransform = kinematic_state->getFrameTransform("r_gripper_tool_frame");
-            } else {
-                wristTransform = kinematic_state->getFrameTransform("l_wrist_roll_link");
-                toolTransform = kinematic_state->getFrameTransform("l_gripper_tool_frame");
-            }
-
-            tf::Pose wristTransformPose;
-            tf::Pose toolTransformPose;
-            tf::poseEigenToTF (wristTransform, wristTransformPose);
-            tf::poseEigenToTF (toolTransform, toolTransformPose);
-
-            tf::Vector3 directionToolToWristTransform;
-
-            directionToolToWristTransform.setX(wristTransformPose.getOrigin().getX() - toolTransformPose.getOrigin().getX());
-            directionToolToWristTransform.setY(wristTransformPose.getOrigin().getY() - toolTransformPose.getOrigin().getY());
-            directionToolToWristTransform.setZ(wristTransformPose.getOrigin().getZ() - toolTransformPose.getOrigin().getZ());
-
-
-            moveit_msgs::GetPositionIK::Request ikRequest;
-            if (group.getName() == "right_arm") {
-                ikRequest.ik_request.group_name = "right_arm";
-            } else {
-                ikRequest.ik_request.group_name = "left_arm";
-            }
-
-
-            geometry_msgs::PoseStamped goalPose;
-            goalPose.header.frame_id = objectGraspPoses.header.frame_id;
-            goalPose.header.stamp = ros::Time(0);
-
-            goalPose.pose = objectGraspPoses.poses[i];
-
-            geometry_msgs::PoseStamped goalInMapFrame = point_transformer.transformPoseStamped("map", goalPose);
-
-
-            ikRequest.ik_request.pose_stamped.header.frame_id = goalInMapFrame.header.frame_id;
-            ikRequest.ik_request.pose_stamped.pose.orientation = goalInMapFrame.pose.orientation;
-            ikRequest.ik_request.pose_stamped.pose.position.x = goalInMapFrame.pose.position.x + directionToolToWristTransform.getX()*1.05f;
-            ikRequest.ik_request.pose_stamped.pose.position.y = goalInMapFrame.pose.position.y + directionToolToWristTransform.getY()*1.05f;
-            ikRequest.ik_request.pose_stamped.pose.position.z = goalInMapFrame.pose.position.z + directionToolToWristTransform.getZ()*1.05f;
-
-            ikRequest.ik_request.avoid_collisions = false;
-
-            moveit_msgs::GetPositionIK::Response ikResponse;
-
-            ikServiceClient.call(ikRequest, ikResponse);
-
-
+        if(success){
             if (ikResponse.error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
-                moveit::core::robotStateMsgToRobotState(ikResponse.solution, robotState);
+                //get robot model
+                robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+                robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
 
+                //create robot state for calculated ik solution
+                robot_state::RobotState robotState(kinematic_model);
+                moveit::core::robotStateMsgToRobotState(ikResponse.solution, robotState);
                 robot_state::RobotStatePtr kinematic_state(new robot_state::RobotState(robotState));
 
+                //create and publish message with this robot state to visualize it in rviz
                 moveit_msgs::DisplayRobotState msg;
                 robot_state::robotStateToRobotStateMsg(*kinematic_state, msg.state);
 
                 robotStatePublisher.publish(msg);
                 ros::spinOnce();
+                sleep(2);
 
-                sleep (2);
-
+                //execute the calculated ik solution
                 group.setJointValueTarget(*kinematic_state);
 
                 group.plan(execution_plan);
 
                 if((group.plan(execution_plan)).val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-                    //group.setGoalOrientationTolerance(0.8);
-                    //group.setGoalPositionTolerance(0.3);
+                    group.setGoalOrientationTolerance(0.1);
+                    group.setGoalPositionTolerance(0.05);
+
+                    group.move();
                     //if(group.move().val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                         //solutionFound = true;
                 }
+
+            } else {
+                ROS_ERROR_STREAM("NO SOLUTION FOUND FOR GRASP POSE " + to_string(i) + "!");
             }
-
-
-        } else {
-            ROS_ERROR("NO SOLUTION FOUND FOR THIS GRASP POSE!");
         }
 
         i++;
     }
-
 
     //pose selektieren etc..
     //ausführen
