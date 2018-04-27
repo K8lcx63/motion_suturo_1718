@@ -8,8 +8,8 @@
 #include <knowledge_msgs/DropObject.h>
 #include <knowledge_msgs/Gripper.h>
 #include <knowledge_msgs/PerceivedObjectBoundingBox.h>
-#include "../movegroup/group_controller.h"
-#include "../planningscene/planning_scene.h"
+#include "group_controller.h"
+#include "planning_scene.h"
 
 #ifndef SUTURO_MOTION_MAIN_MOTION_MAIN_NODE_H
 #define SUTURO_MOTION_MAIN_MOTION_MAIN_NODE_H

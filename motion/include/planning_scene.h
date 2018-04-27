@@ -22,7 +22,7 @@
 #include <moveit_msgs/CollisionObject.h>
 
 
-#include "../transform/point_transformer.h"
+#include "point_transformer.h"
 
 /**
  * Class to control the planningscene.

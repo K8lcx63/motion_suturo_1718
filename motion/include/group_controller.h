@@ -9,13 +9,13 @@
 #include <moveit_msgs/GetPositionIK.h>
 #include <moveit/move_group_interface/move_group.h>
 #include <tf/transform_listener.h>
-#include "../transform/point_transformer.h"
-#include "../visualization/visualization_marker.h"
+#include "point_transformer.h"
+#include "visualization_marker.h"
 #include <eigen_conversions/eigen_msg.h>
 #include <motion_msgs/GripperAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <map>
-#include "../planningscene/planning_scene.h"
+#include "planning_scene.h"
 
 using namespace std;
 

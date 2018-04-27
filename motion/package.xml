@@ -54,6 +54,8 @@
   <depend>motion_gripper</depend>
   <depend>sensor_msgs</depend>
   <depend>tf_conversions</depend>
+  <test_depend>gtest</test_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
