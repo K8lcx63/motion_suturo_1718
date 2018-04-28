@@ -205,7 +205,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
         ikRequest.ik_request.group_name = group.getName();
         ikRequest.ik_request.pose_stamped = goalForWrist;
-        ikRequest.ik_request.avoid_collisions = false;
+        ikRequest.ik_request.avoid_collisions = true;
 
         //send ik request
         bool success = ikServiceClient.call(ikRequest, ikResponse);
