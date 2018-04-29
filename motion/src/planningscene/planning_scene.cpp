@@ -30,7 +30,7 @@ bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixe
                 moveit_msgs::CollisionObject kitchenObject;
 
                 // fill header
-                kitchenObject.header.stamp = ros::Time::now();
+                kitchenObject.header.stamp = ros::Time(0);
                 kitchenObject.header.frame_id = res.frames[i];
                 kitchenObject.header.seq++;
 
