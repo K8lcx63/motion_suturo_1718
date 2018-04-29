@@ -4,10 +4,10 @@
 
 TEST(PointTransformerTest, TestCopyToPose) {
     tf::Quaternion rotation;
-    rotation.setX(11.4);
-    rotation.setY(12.3);
-    rotation.setZ(13.2);
-    rotation.setW(14.3);
+    rotation.setX(0.3);
+    rotation.setY(0.4);
+    rotation.setZ(0.5);
+    rotation.setW(0.6);
     tf::Vector3 origin;
     origin.setX(2.2);
     origin.setY(1.5);
@@ -20,11 +20,11 @@ TEST(PointTransformerTest, TestCopyToPose) {
 
     PointTransformer::copyStampedTransformToPose(in, result);
 
-    ASSERT_EQ(result.orientation.x, 11.4);
-    ASSERT_EQ(result.orientation.y, 12.3);
-    ASSERT_EQ(result.orientation.z, 13.2);
-    ASSERT_EQ(result.orientation.w, 14.3);
-    ASSERT_EQ(result.position.x, 2.2);
-    ASSERT_EQ(result.position.y, 1.5);
-    ASSERT_EQ(result.position.z, 4.1);
+    EXPECT_FLOAT_EQ(result.orientation.x, in.getRotation().getX());
+    EXPECT_FLOAT_EQ(result.orientation.y, in.getRotation().getY());
+    EXPECT_FLOAT_EQ(result.orientation.z, in.getRotation().getZ());
+    EXPECT_FLOAT_EQ(result.orientation.w, in.getRotation().getW());
+    EXPECT_FLOAT_EQ(result.position.x, 2.2);
+    EXPECT_FLOAT_EQ(result.position.y, 1.5);
+    EXPECT_FLOAT_EQ(result.position.z, 4.1);
 }
