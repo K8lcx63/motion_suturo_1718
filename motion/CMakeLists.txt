@@ -52,10 +52,15 @@ include_directories(
 add_executable(
     motion
     src/main.cpp
+	include/visualization_marker.h
     src/visualization/visualization_marker.cpp
+	include/point_transformer.h
     src/transformer/point_transformer.cpp
+	include/planning_scene.h
     src/planningscene/planning_scene.cpp
+		include/motion_main_node.h
     src/node/motion_main_node.cpp
+		include/group_controller.h
     src/movegroup/group_controller.cpp
 )
 
