@@ -51,6 +51,11 @@ void VisualizationMarker::publishMeshes(const geometry_msgs::PoseArray &poses, s
     visualizationMarkerPub.publish( visualizedPoses );
 }
 
+void VisualizationMarker::publishMeshWithColor(const geometry_msgs::Pose &pose, const std::string frameId, const int id, std::string path,
+                                                std_msgs::ColorRGBA &color, ros::Duration &lifetime){
+//check lifetime für 0
+}
+
 void VisualizationMarker::removeOldMeshes (){
     visualization_msgs::MarkerArray removePoses;
 

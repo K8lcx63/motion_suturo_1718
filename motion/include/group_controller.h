@@ -124,6 +124,37 @@ public:
                                               const geometry_msgs::PoseStamped& object_drop_pose);
 
     /**
+     * Takes the request and tries up to two times to find an collision free ik solution for this request. If any solution is found,
+     * 'ikResponse' is set to the resulting solution and true is returned. Otherwise, false is returned.
+     *
+     * @param ikRequest the ik request to solve, containing the goal pose for the wrist.
+     * @param ikResponse the solution, if any found.
+     * @return true, if a solution was found, else false is returned.
+     */
+    bool getIkSolution(const moveit_msgs::GetPositionIK::Request &ikRequest, moveit_msgs::GetPositionIK::Response &ikResponse);
+
+    /**
+     * Visualizes the ik solution in rviz and returns the robot state of the ik solution.
+     *
+     * @param solution the ik solution to visualize.
+     * @return the state of the robot as given in the ik solution.
+     */
+    moveit::core::RobotStatePtr visualizeIkSolution(const moveit_msgs::GetPositionIK::Response &solution);
+
+    /**
+     * Ranks the given ik solutions by two criteria:
+     *      - distance of goal robot state to next collision (factor 0.65)
+     *      - distance of current robot state to goal robot state (factor 0.35)
+     *
+     * The two lists are sorted in the order they get ranked, starting at index 0 with the best rated goal pose.
+     *
+     * @param indices the indices of the grasp poses in the original list of all grasp poses, the ik solution in the second
+     *                list at the same index belongs to.
+     * @param solutions the ik solution for the grasp pose at the index given in the first list.
+     */
+    void rankGraspPoses(vector<int> &indices, vector<moveit_msgs::GetPositionIK::Response> &solutions);
+
+    /**
      * Allows object to collide with all objects it actually is colliding with.
      * Used after closing the gripper when grasping an object.
      * Because then, the gripper and the table, the object actually is placed on, collide with the grasped object and the

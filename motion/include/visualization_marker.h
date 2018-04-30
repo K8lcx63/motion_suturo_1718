@@ -51,6 +51,19 @@ public:
     void publishMeshes(const geometry_msgs::PoseArray& pose, std::string path);
 
     /**
+     * Publishes a mesh with the given pose and the given color.
+     *
+     * @param pose the pose of the mesh.
+     * @param frameId the frame the pose is given in.
+     * @param id the id the mesh shall get.
+     * @param path the path of the mesh.
+     * @param color the color the mesh shall have.
+     * @param lifetime the lifetime the mesh shall have. If set to zero, lifetime is set to unlimited.
+     */
+    void publishMeshWithColor(const geometry_msgs::Pose &pose, const std::string frameId, const int id, std::string path,
+                                                   std_msgs::ColorRGBA &color, ros::Duration &lifetime);
+
+    /**
     * Removes all previously published meshes.
     */
     void removeOldMeshes ();
