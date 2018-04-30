@@ -16,6 +16,7 @@
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/PlanningScene.h>
 #include <moveit_msgs/AllowedCollisionMatrix.h>
+#include <moveit_msgs/AllowedCollisionEntry.h>
 #include <moveit_msgs/GetPlanningScene.h>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit_msgs/DisplayTrajectory.h>
@@ -35,6 +36,8 @@ class PlanningSceneController {
 private:
     ros::NodeHandle node_handle;
     PointTransformer transformer;
+    ros::Publisher planningScenePublisher;
+    ros::ServiceClient getPlanningSceneClient;
     ros::Publisher attachObjectPublisher;
     ros::Publisher collisionObjectPublisher;
     ros::WallDuration sleep_t;
@@ -132,6 +135,32 @@ public:
     bool
     detachObject(const string objectName, const string link);
 
+    /**
+     * Add the object to collision matrix. The permission to collide with this object
+     * is given in the second parameter.
+     * If the object is not already part of the collision matrix, it get's added.
+     *
+     * @param objectName the name of the object to add to planning scenes collision matrix.
+     * @param allowed states out whether the collision shall be allowed or not.
+     */
+    void addObjectToCollisionMatrix(const string objectName, bool allowed);
+
+    /**
+     * Allows collision for the object 'object' with the objects in 'objectNames'. Collision with all other objects
+     * is set to not allowed.
+     *
+     * @param object the object to allow collision for.
+     * @param objectNames the objects to allow collision with.
+     * @return whether the operation was successful or not.
+     */
+    bool allowCollisionForSetOfObjects(const string object, const vector<string> objectNames);
+
+    /**
+     * Checks for collision for the actual state of the planning scene and the robot and returns the result.
+     *
+     * @return the result of the collision checking.
+     */
+    collision_detection::CollisionResult checkForCollision();
 };
 
 

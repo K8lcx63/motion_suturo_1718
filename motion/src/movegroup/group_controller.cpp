@@ -188,6 +188,8 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     bool solutionFound = false;
     int i = 0;
 
+    moveit_msgs::MoveItErrorCodes result;
+
     while (i < objectGraspPoses.poses.size() && !solutionFound) {
 
         //calculate goal for wrist frame from given goal for tool frame
@@ -239,9 +241,97 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                     group.setGoalOrientationTolerance(0.1);
                     group.setGoalPositionTolerance(0.05);
 
-                    group.move();
-                    //if(group.move().val == moveit_msgs::MoveItErrorCodes::SUCCESS)
-                        //solutionFound = true;
+                    if(group.move().val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+
+                        if(group.getName() == "right_arm"){
+
+                            closeGripper(motion_msgs::GripperGoal::RIGHT, effort);
+
+                            if(!checkIfObjectGraspedSuccessfully(motion_msgs::GripperGoal::RIGHT)){
+                                result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+                                return result;
+                            } else {
+                                // publish message for beliefstate
+                                knowledge_msgs::GraspObject msg;
+                                msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
+                                msg.object_label = objectLabel;
+                                msg.grasp_pose = goalForWrist;
+                                beliefstatePublisherGrasp.publish(msg);
+
+                                // attach object to gripper in planningscene
+                                planning_scene_controller.attachObject(objectLabel, "r_gripper_tool_frame");
+
+                                //temporarily allow collision for grasped object with actually colliding object (e.g. table)
+                                //until moved object away from table
+                                if(allowCollisionWithCollidingObjects(objectLabel, knowledge_msgs::Gripper::RIGHT_GRIPPER)){
+                                    //move up for some cm's to get out of the collision
+                                    geometry_msgs::PoseStamped liftGoal = goalForWrist;
+                                    liftGoal.pose.position.z += LIFTING_AFTER_GRASPING;
+                                    if(!moveGroupToPose(group, liftGoal).val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+                                        result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+                                        return result;
+                                    }
+
+                                    //now the grasped object is not colliding with table anymore.
+                                    //in future, only allow the object to collide with gripper holding it
+                                    allowCollisionForGrasping(objectLabel, knowledge_msgs::Gripper::RIGHT_GRIPPER);
+
+                                    solutionFound = true;
+                                } else{
+                                    ROS_ERROR("COULD NOT TEMPORARILY ALLOW COLLISION WITH COLLIDING OBJECTS, ABORTING.");
+                                    result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+                                    return result;
+                                }
+
+                            }
+
+
+
+                        } else {
+
+                            closeGripper(motion_msgs::GripperGoal::LEFT, effort);
+
+                            if(!checkIfObjectGraspedSuccessfully(motion_msgs::GripperGoal::LEFT)){
+                                result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+                                return result;
+                            } else {
+                                // publish message for beliefstate
+                                knowledge_msgs::GraspObject msg;
+                                msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
+                                msg.object_label = objectLabel;
+                                msg.grasp_pose = goalForWrist;
+                                beliefstatePublisherGrasp.publish(msg);
+
+                                // attach object to gripper in planningscene
+                                planning_scene_controller.attachObject(objectLabel, "l_gripper_tool_frame");
+
+                                //temporarily allow collision for grasped object with actually colliding object (e.g. table)
+                                //until moved object away from table
+                                if(allowCollisionWithCollidingObjects(objectLabel, knowledge_msgs::Gripper::LEFT_GRIPPER)){
+                                    //move up for some cm's to get out of the collision
+                                    geometry_msgs::PoseStamped liftGoal = goalForWrist;
+                                    liftGoal.pose.position.z += LIFTING_AFTER_GRASPING;
+                                    if(!moveGroupToPose(group, liftGoal).val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+                                        result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+                                        return result;
+                                    }
+
+                                    //now the grasped object is not colliding with table anymore.
+                                    //in future, only allow the object to collide with gripper holding it
+                                    allowCollisionForGrasping(objectLabel, knowledge_msgs::Gripper::LEFT_GRIPPER);
+
+                                    solutionFound = true;
+                                } else{
+                                    ROS_ERROR("COULD NOT TEMPORARILY ALLOW COLLISION WITH COLLIDING OBJECTS, ABORTING.");
+                                    result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+                                    return result;
+                                }
+
+                            }
+
+
+                        }
+                    }
                 }
 
             } else {
@@ -252,60 +342,13 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
         i++;
     }
 
-    //pose selektieren etc..
-    //ausführen
-    /*
-                if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-                    if(group.getName() == "right_arm"){
 
-                            closeGripper(motion_msgs::GripperGoal::RIGHT, effort);
-
-                            if(!checkIfObjectGraspedSuccessfully(motion_msgs::GripperGoal::RIGHT)){
-                                error_code.val = moveit_msgs::MoveItErrorCodes::FAILURE;
-                                return error_code;
-                            } else {
-                                // publish message for beliefstate
-                                knowledge_msgs::GraspObject msg;
-                                msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
-                                msg.object_label = objectLabel;
-                                msg.grasp_pose = object_grasp_pose;
-                                beliefstatePublisher.publish(msg);
-
-                           	 	// attach object to gripper in planningscene
-                            	planning_scene_controller.attachObject(objectLabel, "r_gripper_tool_frame");
-                            }
-
-
-
-                    } else {
-                            closeGripper(motion_msgs::GripperGoal::LEFT, effort);
-
-                            if(!checkIfObjectGraspedSuccessfully(motion_msgs::GripperGoal::LEFT)){
-                                error_code.val = moveit_msgs::MoveItErrorCodes::FAILURE;
-                                return error_code;
-                            } else {
-                                // publish message for beliefstate
-                                knowledge_msgs::GraspObject msg;
-                                msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
-                                msg.object_label = objectLabel;
-                                msg.grasp_pose = object_grasp_pose;
-                                beliefstatePublisher.publish(msg);
-
-                            	// attach object to gripper in planningscene
-                            	planning_scene_controller.attachObject(objectLabel, "l_gripper_tool_frame");
-                            }
-
-
-                    }
- 
-
-                }
-            }
-        }
+    if(solutionFound){
+        result.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+    } else {
+        result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
     }
-    */
-    moveit_msgs::MoveItErrorCodes result;
-    result.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+
     return result;
 }
 
@@ -314,6 +357,9 @@ moveit_msgs::MoveItErrorCodes GroupController::dropObject(moveit::planning_inter
 
 
     /*
+     * //kollision mit gripper nach dem abstellen wieder verbieten
+     * planning_scene_controller.addObjectToCollisionMatrix(objectLabel, false);
+     *
     if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
         if(group.getName() == "right_arm"){
                 openGripper(motion_msgs::GripperGoal::RIGHT);
@@ -348,6 +394,50 @@ moveit_msgs::MoveItErrorCodes GroupController::dropObject(moveit::planning_inter
     moveit_msgs::MoveItErrorCodes result;
     result.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
     return result;
+}
+
+bool GroupController::allowCollisionWithCollidingObjects(const string objectLabel, int gripper){
+    collision_detection::CollisionResult collision = planning_scene_controller.checkForCollision();
+
+    vector<string> toAllowCollisionWith;
+
+    collision_detection::CollisionResult::ContactMap::const_iterator it;
+    for (it = collision.contacts.begin(); it != collision.contacts.end(); ++it)
+    {
+        ROS_INFO("Contact between: %s and %s", it->first.first.c_str(), it->first.second.c_str());
+
+        //collect object names, grasped object is colliding with
+        if(it->first.first.compare(objectLabel) == 0){
+            toAllowCollisionWith.push_back(it->first.second);
+        } else if(it->first.second.compare(objectLabel) == 0){
+            toAllowCollisionWith.push_back(it->first.first);
+        }
+    }
+
+    //also add all links of gripper
+
+    vector<string> gripperLinks = getGripperLinks(gripper);
+
+    vector<string>::iterator linkIt;
+    for(int i = 0; i < gripperLinks.size(); i++){
+        linkIt = find(toAllowCollisionWith.begin(), toAllowCollisionWith.end(), gripperLinks[i]);
+
+        //if not already in list, add it
+        if (linkIt == toAllowCollisionWith.end())
+            toAllowCollisionWith.push_back(gripperLinks[i]);
+    }
+
+    //apply allowing collision
+    return planning_scene_controller.allowCollisionForSetOfObjects(objectLabel, toAllowCollisionWith);
+}
+
+bool GroupController::allowCollisionForGrasping(const string objectName, int gripper){
+    //allow collision with all links of gripper holding the object at the moment
+
+    vector<string> gripperLinks = getGripperLinks(gripper);
+
+    //apply allowing collision
+    return planning_scene_controller.allowCollisionForSetOfObjects(objectName, gripperLinks);
 }
 
 bool GroupController::checkIfObjectGraspedSuccessfully(int gripperNum){
@@ -392,7 +482,7 @@ void GroupController::openGripper(int gripperNum){
     }
 }
 
-void GroupController::closeGripper(int gripperNum, float& effort){
+void GroupController::closeGripper(int gripperNum, double& effort){
     if (gripperclient.isServerConnected()) {
         motion_msgs::GripperGoal goal;
         goal.position = 0.00;
@@ -407,4 +497,26 @@ void GroupController::closeGripper(int gripperNum, float& effort){
     } else {
         ROS_ERROR("GRIPPER SERVER NOT CONNECTED - ABORTED");
     }
+}
+
+vector<string> GroupController::getGripperLinks(int gripper){
+    vector<string> result;
+
+    if(gripper == knowledge_msgs::Gripper::RIGHT_GRIPPER){
+        result.push_back("r_gripper_l_finger_link");
+        result.push_back("r_gripper_l_finger_tip_link");
+        result.push_back("r_gripper_motor_accelerometer_link");
+        result.push_back("r_gripper_palm_link");
+        result.push_back("r_gripper_r_finger_link");
+        result.push_back("r_gripper_r_finger_tip_link");
+    }else{
+        result.push_back("l_gripper_l_finger_link");
+        result.push_back("l_gripper_l_finger_tip_link");
+        result.push_back("l_gripper_motor_accelerometer_link");
+        result.push_back("l_gripper_palm_link");
+        result.push_back("l_gripper_r_finger_link");
+        result.push_back("l_gripper_r_finger_tip_link");
+    }
+
+    return result;
 }

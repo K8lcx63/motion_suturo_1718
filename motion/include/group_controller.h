@@ -29,7 +29,7 @@ private:
     const float DISTANCE_BEFORE_POKING = 0.03f; 
     const float TABLE_HEIGHT = 0.84f;
     const float MAXIMUM_OBJECT_HEIGHT = 0.30f;
-    const float DISTANCE_BEFORE_GRASPING = 0.03f;
+    const float LIFTING_AFTER_GRASPING = 0.06f;
 
     const string PATH_TO_GRIPPER_MESH = "package://knowledge_common/meshes/Gripper/Gripper.stl";
 
@@ -44,6 +44,8 @@ private:
     VisualizationMarker visualizationMarker;
     actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
     PlanningSceneController planning_scene_controller;
+
+    vector<string> getGripperLinks(int gripper);
 
 public:
 
@@ -122,6 +124,33 @@ public:
                                               const geometry_msgs::PoseStamped& object_drop_pose);
 
     /**
+     * Allows object to collide with all objects it actually is colliding with.
+     * Used after closing the gripper when grasping an object.
+     * Because then, the gripper and the table, the object actually is placed on, collide with the grasped object and the
+     * robot can not move anymore, because his start state is in collision.
+     * This collisions get allowed for a short moment. Then, the grasped object is lifted for some cm to get it out
+     * of the colliding state. At that point of time, the function 'allowCollisionForGrasping' is called, what causes
+     * the collision allowed in this function getting forbidden again. Then, only the collision with the gripper holding
+     * the object is allowed.
+     *
+     * @param objectLabel the object to grasp. Allow collision for this with colliding objects, like table
+     *                    and gripper. Allowing collision with everything else than the gripper gets disabled again after
+     *                    a short time.
+     * @param gripper the gripper to allow collision with.
+     * @return true if the collision was successfully allowed
+     */
+    bool allowCollisionWithCollidingObjects(const string objectLabel, int gripper);
+
+    /**
+     * Allows the collision for the given object with the given gripper.
+     *
+     * @param objectName the name of the object which is allowed to collide with the gripper.
+     * @param gripper the gripper the object is allowed to collide with.
+     * @return true if the collision was successfully allowed
+     */
+    bool allowCollisionForGrasping(const string objectName, int gripper);
+
+    /**
      * Checks if the object was successfully grasped.
      * @param gripperNum the number of the gripper to check.
      * @return true if the gripper has something in the gripper given by gripperNum.
@@ -138,7 +167,7 @@ public:
      * Closes the gripper given by gripperName.
      * @param gripperNum the number of the gripper to close.
      */
-    void closeGripper(int gripperNum, float& effort);
+    void closeGripper(int gripperNum, double& effort);
 };
 
 

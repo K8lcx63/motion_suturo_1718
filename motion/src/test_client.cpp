@@ -29,7 +29,8 @@ int main(int argc, char **argv)
          ROS_INFO_STREAM("WAITING FOR THE ACTION SERVER TO START.");
          ac.waitForServer();
 
-         ROS_INFO_STREAM("SENDING ACTION GOAL.");
+         // Sending goal for grasping object with left arm
+         ROS_INFO_STREAM("SENDING ACTION GRASP GOAL.");
          motion_msgs::MovingCommandGoal goal;
          goal.command = motion_msgs::MovingCommandGoal::GRASP_LEFT_ARM;
          goal.goal_poses = srv.response.grasp_pose_array;
@@ -49,6 +50,26 @@ int main(int argc, char **argv)
          }
          else
              ROS_INFO("ACTION DID NOT FINISH BEFORE TIMEOUT.");
+
+
+         // Sending goal for move to grasped-object-home-pos with left arm
+         ROS_INFO_STREAM("SENDING MOVE TO GRASPED OBJECT HOME POSITION.");
+         motion_msgs::MovingCommandGoal goalCarryPos;
+         goalCarryPos.command = motion_msgs::MovingCommandGoal::MOVE_CARRY_POSE_LEFT;
+
+         ac.sendGoal(goalCarryPos);
+
+         ROS_INFO_STREAM("WAIT FOR THE ACTION TO RETURN.");
+         finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
+
+         if (finished_before_timeout)
+         {
+             actionlib::SimpleClientGoalState state = ac.getState();
+             ROS_INFO ("ACTION FINISHED: %s",state.toString().c_str());
+         }
+         else
+             ROS_INFO("ACTION DID NOT FINISH BEFORE TIMEOUT.");
+
 
      } else{
         ROS_ERROR("COULDN'T CALL GRASP SERVICE, ABORTING!");
