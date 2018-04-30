@@ -30,6 +30,7 @@ private:
     const float TABLE_HEIGHT = 0.84f;
     const float MAXIMUM_OBJECT_HEIGHT = 0.30f;
     const float LIFTING_AFTER_GRASPING = 0.06f;
+    const int MAX_ATTEMPTS_TO_GET_IK_SOLUTION = 2;
 
     const string PATH_TO_GRIPPER_MESH = "package://knowledge_common/meshes/Gripper/Gripper.stl";
 
@@ -151,8 +152,23 @@ public:
      * @param indices the indices of the grasp poses in the original list of all grasp poses, the ik solution in the second
      *                list at the same index belongs to.
      * @param solutions the ik solution for the grasp pose at the index given in the first list.
+     * @param currentRobotState the current state of the robot
+     * @param objectLabel the label of the object currently shall be grasped.
+     * @param gripper the gripper to grasp the object with. Constants for the grippers are defined in motion_msgs::GripperGoal.
      */
-    void rankGraspPoses(vector<int> &indices, vector<moveit_msgs::GetPositionIK::Response> &solutions);
+    void rankGraspPoses(vector<int> &indices, vector<moveit_msgs::GetPositionIK::Response> &solutions, const robot_state::RobotStatePtr &currentState,
+                        const string objectLabel, int gripper);
+
+    /**
+     * Calculates and returns the distance between the robot state given in currentState and solutionState.
+     *
+     * @param currentState the current state of the robot.
+     * @param robotInitialState the initial kinematic model of the robot.
+     * @param solutionState the state to which the distance shall be calculated.
+     * @return the distance between the two states.
+     */
+    double getStateDistance(const robot_state::RobotStatePtr &currentState, robot_state::RobotState &robotInitialState,
+                                             const moveit_msgs::RobotState &solutionState);
 
     /**
      * Allows object to collide with all objects it actually is colliding with.
@@ -167,7 +183,7 @@ public:
      * @param objectLabel the object to grasp. Allow collision for this with colliding objects, like table
      *                    and gripper. Allowing collision with everything else than the gripper gets disabled again after
      *                    a short time.
-     * @param gripper the gripper to allow collision with.
+     * @param gripper the gripper to allow collision with. Constants for the grippers are defined in motion_msgs::GripperGoal.
      * @return true if the collision was successfully allowed
      */
     bool allowCollisionWithCollidingObjects(const string objectLabel, int gripper);
@@ -176,7 +192,7 @@ public:
      * Allows the collision for the given object with the given gripper.
      *
      * @param objectName the name of the object which is allowed to collide with the gripper.
-     * @param gripper the gripper the object is allowed to collide with.
+     * @param gripper the gripper the object is allowed to collide with. Constants for the grippers are defined in motion_msgs::GripperGoal.
      * @return true if the collision was successfully allowed
      */
     bool allowCollisionForGrasping(const string objectName, int gripper);
@@ -184,19 +200,19 @@ public:
     /**
      * Checks if the object was successfully grasped.
      * @param gripperNum the number of the gripper to check.
-     * @return true if the gripper has something in the gripper given by gripperNum.
+     * @return true if the gripper has something in the gripper given by gripperNum. Constants for the grippers are defined in motion_msgs::GripperGoal.
      */
     bool checkIfObjectGraspedSuccessfully(int gripperNum);
 
     /** 
      * Opens the gripper given by gripperName. 
-     * @param gripperNum the number of the gripper to close.
+     * @param gripperNum the number of the gripper to close. Constants for the grippers are defined in motion_msgs::GripperGoal.
      */
     void openGripper(int gripperNum);
 
     /**
      * Closes the gripper given by gripperName.
-     * @param gripperNum the number of the gripper to close.
+     * @param gripperNum the number of the gripper to close. Constants for the grippers are defined in motion_msgs::GripperGoal.
      */
     void closeGripper(int gripperNum, double& effort);
 };

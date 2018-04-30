@@ -53,7 +53,33 @@ void VisualizationMarker::publishMeshes(const geometry_msgs::PoseArray &poses, s
 
 void VisualizationMarker::publishMeshWithColor(const geometry_msgs::Pose &pose, const std::string frameId, const int id, std::string path,
                                                 std_msgs::ColorRGBA &color, ros::Duration &lifetime){
-//check lifetime für 0
+
+    visualization_msgs::Marker marker;
+
+    marker.header.frame_id = frameId;
+    marker.header.stamp = ros::Time(0);
+    marker.ns = "possible_grasp_poses";
+    marker.id = id;
+    marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+    marker.action = visualization_msgs::Marker::ADD;
+
+    marker.pose = pose;
+
+    marker.scale.x = 0.8;
+    marker.scale.y = 0.8;
+    marker.scale.z = 0.8;
+
+    marker.color = color;
+
+    marker.mesh_resource = path;
+
+    if(lifetime.sec > 0)
+        marker.lifetime = lifetime;
+
+    visualization_msgs::MarkerArray newMesh;
+    newMesh.markers.push_back(marker);
+    visualizationMarkerPub.publish(newMesh);
+
 }
 
 void VisualizationMarker::removeOldMeshes (){

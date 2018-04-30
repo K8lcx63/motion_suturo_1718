@@ -12,6 +12,7 @@
 
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit/move_group_interface/move_group.h>
+#include <moveit/robot_state/conversions.h>
 #include <moveit/collision_detection/collision_matrix.h>
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/PlanningScene.h>
@@ -161,6 +162,16 @@ public:
      * @return the result of the collision checking.
      */
     collision_detection::CollisionResult checkForCollision();
+
+    /**
+     * Calculates the shortest distance of the robot state to a collision with objects in the planning scene and
+     * returns it.
+     *
+     * @param robotState the state to calculate the distance to a collision for.
+     * @return the distance to the next collision.
+     */
+    double distanceToCollision(robot_state::RobotState &robotInitialState,
+                               const moveit_msgs::RobotState &solutionState);
 };
 
 

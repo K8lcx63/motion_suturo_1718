@@ -266,7 +266,11 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     //the grasp poses an ik solution was found for now get ranked by
     // -> distance of the ik solution robot state to the next collision -> factor 0.65
     // -> distance of current robot state to robot state in ik solution -> factor 0.35
-    rankGraspPoses(previousIndicesOfGraspPoses, ikSolutions);
+    motion_msgs::GripperGoal::_gripper_type gripper = (group.getName() == "right_arm") ? motion_msgs::GripperGoal::RIGHT : motion_msgs::GripperGoal::LEFT;
+    robot_state::RobotStatePtr currentState = group.getCurrentState();
+
+    rankGraspPoses(previousIndicesOfGraspPoses, ikSolutions, currentState, objectLabel, gripper);
+
 
     //color the meshes corresponding to their ranked order, starting with green and getting closer to red
     std_msgs::ColorRGBA color;
@@ -323,6 +327,9 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
         result = group.move();
 
         if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+
+            //remove mesh for visualizing goal pose
+            visualizationMarker.removeOldMeshes();
 
             //set some values depending on the used arm
             motion_msgs::GripperGoal gripperGoal;
@@ -440,8 +447,16 @@ moveit_msgs::MoveItErrorCodes GroupController::dropObject(moveit::planning_inter
 
 bool GroupController::getIkSolution(const moveit_msgs::GetPositionIK::Request &ikRequest,
                                     moveit_msgs::GetPositionIK::Response &ikResponse) {
-    //bis zu zwei mal
-    return true;
+
+    //try max. MAX_ATTEMPTS_TO_GET_IK_SOLUTION times to get an ik solution
+    for(int i = 0; i < MAX_ATTEMPTS_TO_GET_IK_SOLUTION; i++){
+        if(ikServiceClient.call(ikRequest, ikResponse)){
+            if(ikResponse.error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                return true;
+        }
+    }
+
+    return false;
 }
 
 moveit::core::RobotStatePtr GroupController::visualizeIkSolution(const moveit_msgs::GetPositionIK::Response &solution) {
@@ -463,9 +478,92 @@ moveit::core::RobotStatePtr GroupController::visualizeIkSolution(const moveit_ms
     return kinematic_state;
 }
 
-void GroupController::rankGraspPoses(vector<int> &indices, vector <moveit_msgs::GetPositionIK::Response> &solutions) {
-    //falls nur eine direkt returnen
-    //0.65, 0.35
+void GroupController::rankGraspPoses(vector<int> &indices, vector <moveit_msgs::GetPositionIK::Response> &solutions,
+                                     const robot_state::RobotStatePtr &currentState, const string objectLabel, const int gripper) {
+
+    if(indices.size() <= 1)
+        return;
+
+    //for storing the distances between the current state and the solution states
+    vector<double> stateDistances;
+    //for storing the distances of the solution states to the nearest collision (ignoring self collision)
+    vector<double> distancesToCollision;
+
+    //get robot model and initial state
+    robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+    moveit::core::RobotModelPtr kinematic_model = robot_model_loader.getModel();
+
+    moveit::core::RobotState robotState(kinematic_model);
+
+    //calculate distances between states and the distance to the closest collision
+
+    //for calculating the distance to collision, the collision with the gripper to grasp the object with gets
+    //allowed for a short time, because otherwise the distance to collision would be nearly the same for every
+    //grasp pose (distance of grasped object to gripper it get's grasped with)
+    allowCollisionForGrasping(objectLabel, gripper);
+
+    for(int i = 0; i < solutions.size(); i++){
+        stateDistances.push_back(getStateDistance(currentState, robotState, solutions[i].solution));
+        distancesToCollision.push_back(planning_scene_controller.distanceToCollision(robotState, solutions[i].solution));
+    }
+
+    //the collision of the object with the gripper/robot in general get's forbidden again
+    planning_scene_controller.addObjectToCollisionMatrix(objectLabel, false);
+
+    //calculate the overall values
+    //the state distance gets weighted with 0.35 and the distance to collision with 0.65
+    vector<double> overall;
+
+    for(int i = 0; i < solutions.size(); i++){
+        //the overall value is calculated as follows:
+        //  overallValue = stateDistance*0.35 - distanceToCollision*0.65
+        //the distanceToCollision value is substracted and not added, because a higher distance to a collision
+        //is better than a lower distance to a collision and in the end, the grasp pose with the lowest overall value
+        //is ranked as the best grasp pose
+        double overallValue = stateDistances[i]*0.35 - distancesToCollision[i]*0.65;
+        overall.push_back(overallValue);
+    }
+
+    //rank grasp poses by evaluating the overall values
+    //a small value is ranked better than a high value
+
+    //bubble sort the three lists 'overall', 'indices' and 'solutions'
+    int i, j,tmpOverall, tmpIndices;
+    moveit_msgs::GetPositionIK::Response tmpSolutions;
+
+
+    for (i = 0; i < overall.size() ; i++) {
+        for (j = i; j < overall.size() ; j++) {
+
+            if (overall[i] > overall[j]) {
+
+                tmpOverall = overall[i];
+                tmpIndices = indices[i];
+                tmpSolutions = solutions[i];
+
+                overall[i] = overall[j];
+                indices[i] = indices[j];
+                solutions[i] = solutions[j];
+
+                overall[j] = tmpOverall;
+                indices[j] = tmpIndices;
+                solutions[j] = tmpSolutions;
+            }
+        }
+    }
+}
+
+double GroupController::getStateDistance(const robot_state::RobotStatePtr &currentState, robot_state::RobotState &robotInitialState,
+                                         const moveit_msgs::RobotState &solutionState){
+
+    robotStateMsgToRobotState(solutionState, robotInitialState);
+    const moveit::core::RobotStatePtr kinematic_state(new moveit::core::RobotState(robotInitialState));
+
+    double distance;
+
+    distance = currentState->distance(*kinematic_state);
+
+    return distance;
 }
 
 bool GroupController::allowCollisionWithCollidingObjects(const string objectLabel, int gripper) {

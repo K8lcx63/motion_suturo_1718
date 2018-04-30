@@ -578,6 +578,36 @@ collision_detection::CollisionResult PlanningSceneController::checkForCollision(
     return result;
 }
 
+double PlanningSceneController::distanceToCollision(robot_state::RobotState &robotInitialState,
+                                                    const moveit_msgs::RobotState &solutionState){
+
+    //create robot state object of solution given in form of a message
+    robotStateMsgToRobotState(solutionState, robotInitialState);
+    const moveit::core::RobotStatePtr kinematic_state(new moveit::core::RobotState(robotInitialState));
+
+    //get state of planning scene
+    planningSceneMonitor->requestPlanningSceneState(
+            planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_SERVICE);
+
+    planning_scene_monitor::LockedPlanningSceneRW planningSceneRW(planningSceneMonitor);
+    planningSceneRW.operator->()->getCurrentStateNonConst().update();
+
+
+    planning_scene::PlanningScenePtr scene = planningSceneRW.operator->()->diff();
+
+    //get the actual state of the allowed collision matrix
+    collision_detection::AllowedCollisionMatrix acm = scene->getAllowedCollisionMatrix();
+
+    double distance;
+
+    //call planning scene function to compute minimum collision distance to objects
+    //it is not allowed to collide with
+    distance = scene->distanceToCollision(*kinematic_state, acm);
+
+    //return the result
+    return distance;
+}
+
 bool PlanningSceneController::isInCollisionWorld(const string objectName) {
 
     //check if object was successfully added to the planning scene by getting the scene actually used
