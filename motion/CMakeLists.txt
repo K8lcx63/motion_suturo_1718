@@ -117,10 +117,13 @@ target_link_libraries(
 set(TEST_SRCS
 		test/main_test.cpp
 		test/point_transformer_test.cpp
+		include/point_transformer.h
+		src/transformer/point_transformer.cpp
 )
 #add_rostest_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
+#add_executable(${PROJECT_NAME}-test ${TEST_SRCS})
 catkin_add_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
-if(TARGET ${PROJECT_NAME}-test)
+#if(TARGET ${PROJECT_NAME}-test)
 	target_link_libraries(${PROJECT_NAME}-test
 			${catkin_LIBRARIES})
-endif()
+#endif()

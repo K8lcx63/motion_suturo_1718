@@ -80,6 +80,8 @@ public:
      */
     geometry_msgs::PoseStamped transformPoseFromEndEffectorToWristFrame (const geometry_msgs::PoseStamped& poseForEndEffector,
                                                                          moveit::planning_interface::MoveGroup& group);
+
+    void copyStampedTransformToPose(tf::StampedTransform &toTransform, geometry_msgs::Pose &result);
 };
 
 
