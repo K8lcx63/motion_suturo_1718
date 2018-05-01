@@ -81,16 +81,7 @@ public:
     geometry_msgs::PoseStamped transformPoseFromEndEffectorToWristFrame (const geometry_msgs::PoseStamped& poseForEndEffector,
                                                                          moveit::planning_interface::MoveGroup& group);
 
-    static void
-    copyStampedTransformToPose(tf::StampedTransform &toTransform, geometry_msgs::Pose &result) {
-        result.position.x = toTransform.getOrigin().x();
-        result.position.y = toTransform.getOrigin().y();
-        result.position.z = toTransform.getOrigin().z();
-        result.orientation.x = toTransform.getRotation().x();
-        result.orientation.y = toTransform.getRotation().y();
-        result.orientation.z = toTransform.getRotation().z();
-        result.orientation.w = toTransform.getRotation().w();
-    }
+    void copyStampedTransformToPose(tf::StampedTransform &toTransform, geometry_msgs::Pose &result);
 };
 
 

@@ -17,8 +17,8 @@ TEST(PointTransformerTest, TestCopyToPose) {
     in.setRotation(rotation);
 
     geometry_msgs::Pose result;
-
-    PointTransformer::copyStampedTransformToPose(in, result);
+    PointTransformer pointTrans;
+    pointTrans.copyStampedTransformToPose(in, result);
 
     EXPECT_FLOAT_EQ(result.orientation.x, in.getRotation().getX());
     EXPECT_FLOAT_EQ(result.orientation.y, in.getRotation().getY());
