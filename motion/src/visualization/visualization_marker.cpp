@@ -51,34 +51,41 @@ void VisualizationMarker::publishMeshes(const geometry_msgs::PoseArray &poses, s
     visualizationMarkerPub.publish( visualizedPoses );
 }
 
-void VisualizationMarker::publishMeshWithColor(const geometry_msgs::Pose &pose, const std::string frameId, const int id, std::string path,
-                                                std_msgs::ColorRGBA &color, ros::Duration &lifetime){
+void VisualizationMarker::publishMeshesWithColor(const std::vector<geometry_msgs::Pose> &poses, const std::string frameId, const std::vector<int> ids, std::string path,
+                                               std::vector<std_msgs::ColorRGBA> &colors, std::vector<ros::Duration> &lifetimes){
 
-    visualization_msgs::Marker marker;
+    visualization_msgs::MarkerArray newMeshes;
 
-    marker.header.frame_id = frameId;
-    marker.header.stamp = ros::Time(0);
-    marker.ns = "possible_grasp_poses";
-    marker.id = id;
-    marker.type = visualization_msgs::Marker::MESH_RESOURCE;
-    marker.action = visualization_msgs::Marker::ADD;
+    for(int i = 0; i < poses.size(); i++){
 
-    marker.pose = pose;
+        visualization_msgs::Marker marker;
 
-    marker.scale.x = 0.8;
-    marker.scale.y = 0.8;
-    marker.scale.z = 0.8;
+        marker.header.frame_id = frameId;
+        marker.header.stamp = ros::Time(0);
+        marker.ns = "possible_grasp_poses";
+        marker.id = ids[i];
+        marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+        marker.action = visualization_msgs::Marker::ADD;
 
-    marker.color = color;
+        marker.pose = poses[i];
 
-    marker.mesh_resource = path;
+        marker.scale.x = 0.8;
+        marker.scale.y = 0.8;
+        marker.scale.z = 0.8;
 
-    if(lifetime.sec > 0)
-        marker.lifetime = lifetime;
+        marker.color = colors[i];
 
-    visualization_msgs::MarkerArray newMesh;
-    newMesh.markers.push_back(marker);
-    visualizationMarkerPub.publish(newMesh);
+        marker.mesh_resource = path;
+
+        if(lifetimes[i].sec > 0)
+            marker.lifetime = lifetimes[i];
+
+
+        newMeshes.markers.push_back(marker);
+    }
+
+
+    visualizationMarkerPub.publish(newMeshes);
 
 }
 

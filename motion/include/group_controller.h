@@ -29,7 +29,7 @@ private:
     const float DISTANCE_BEFORE_POKING = 0.03f; 
     const float TABLE_HEIGHT = 0.84f;
     const float MAXIMUM_OBJECT_HEIGHT = 0.30f;
-    const float LIFTING_AFTER_GRASPING = 0.06f;
+    const float LIFTING_AFTER_GRASPING = 0.08f;
     const int MAX_ATTEMPTS_TO_GET_IK_SOLUTION = 2;
 
     const string PATH_TO_GRIPPER_MESH = "package://knowledge_common/meshes/Gripper/Gripper.stl";

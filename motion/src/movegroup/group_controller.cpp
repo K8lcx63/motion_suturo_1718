@@ -209,6 +209,12 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
     /* FILTERING GRASP POSES */
 
+    //for visualizing meshes
+    vector<geometry_msgs::Pose> poses;
+    vector<int> ids;
+    vector<std_msgs::ColorRGBA> colors;
+    vector<ros::Duration> lifetimes;
+
     //remove the grasp poses no ik solution is found for
     for (int i = 0; i < objectGraspPoses.poses.size(); i++) {
         //calculate goal for wrist frame from given goal for tool frame
@@ -229,36 +235,61 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
         ikRequest.ik_request.pose_stamped = goalForWrist;
         ikRequest.ik_request.avoid_collisions = true;
 
-        std_msgs::ColorRGBA color;
-        ros::Duration lifetime;
-
         //call function for finding the ik solution
         if (getIkSolution(ikRequest, ikResponse)) {
             previousIndicesOfGraspPoses.push_back(i);
             ikSolutions.push_back(ikResponse);
 
             //color grasp pose an ik solution was found for green
+            poses.push_back(objectGraspPoses.poses[i]);
+            ids.push_back(i);
+
+            std_msgs::ColorRGBA color;
             color.a = 1.0;
             color.b = 0;
             color.r = 0;
             color.g = 1.0;
 
-            lifetime = ros::Duration(0);
+            colors.push_back(color);
+
+            ros::Duration lifetime = ros::Duration(0);
+
+            lifetimes.push_back(lifetime);
+
         } else {
 
             //color grasp pose no ik solution was found for red
+            poses.push_back(objectGraspPoses.poses[i]);
+            ids.push_back(i);
+
+            std_msgs::ColorRGBA color;
             color.a = 1.0;
             color.b = 0;
             color.r = 1.0;
             color.g = 0;
 
-            lifetime = ros::Duration(3);
-        }
+            colors.push_back(color);
 
-        visualizationMarker.publishMeshWithColor(objectGraspPoses.poses[i], objectGraspPoses.header.frame_id, i,
-                                                 PATH_TO_GRIPPER_MESH, color, lifetime);
+            ros::Duration lifetime = ros::Duration(2);
+
+            lifetimes.push_back(lifetime);
+        }
     }
 
+
+    visualizationMarker.publishMeshesWithColor(poses, objectGraspPoses.header.frame_id, ids,
+                                             PATH_TO_GRIPPER_MESH, colors, lifetimes);
+
+
+    //continue only, if an ik solution was found
+    if(ikSolutions.size() == 0){
+        ROS_ERROR("NO IK SOLUTION FOUND FOR THE GIVEN GRASP POSES. CAN NOT GRASP THE OBJECT!");
+
+        visualizationMarker.removeOldMeshes();
+
+        result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+        return result;
+    }
 
 
     /* RANKING GRASP POSES */
@@ -273,6 +304,15 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
 
     //color the meshes corresponding to their ranked order, starting with green and getting closer to red
+    poses.clear();
+    ids.clear();
+    colors.clear();
+    lifetimes.clear();
+
+    //the factor the color has to shifted from green to red, so that the worst solution gets red and the
+    //solutions between the best and worst solution get shifted equally from green to red
+    int shiftFactor = (previousIndicesOfGraspPoses.size() == 1) ? 0 : 1 / (previousIndicesOfGraspPoses.size()-1);
+
     std_msgs::ColorRGBA color;
     color.a = 1.0;
     color.g = 1.0;
@@ -281,21 +321,28 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
     ros::Duration lifetime;
 
-    for (int j = 0; j < previousIndicesOfGraspPoses.size(); j++) {
-        color.r += 0.1 * j;
-        color.g -= 0.1 * j;
+    std::cout << "RANKING OF GRASP POSES: " << std::endl;
 
-        lifetime = ros::Duration(5);
+    for (int j = 0; j < previousIndicesOfGraspPoses.size(); j++) {
+        std::cout << previousIndicesOfGraspPoses[j] << std::endl;
+
+        color.r += shiftFactor * j;
+        color.g -= shiftFactor * j;
+
+        lifetime = ros::Duration(2);
 
         if(j == 0){
             lifetime = ros::Duration(0);
         }
 
-        visualizationMarker.publishMeshWithColor(objectGraspPoses.poses[previousIndicesOfGraspPoses[j]],
-                                                 objectGraspPoses.header.frame_id,
-                                                 previousIndicesOfGraspPoses[j], PATH_TO_GRIPPER_MESH, color, lifetime);
+        poses.push_back(objectGraspPoses.poses[previousIndicesOfGraspPoses[j]]);
+        ids.push_back(previousIndicesOfGraspPoses[j]);
+        colors.push_back(color);
+        lifetimes.push_back(lifetime);
     }
 
+    //visualize ranking
+    visualizationMarker.publishMeshesWithColor(poses, objectGraspPoses.header.frame_id, ids, PATH_TO_GRIPPER_MESH, colors, lifetimes);
 
 
     /* EXECUTE BEST SOLUTION GRASP POSE*/
@@ -376,7 +423,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
                     result = moveGroupToPose(group, liftGoal);
 
-                    if (!result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+                    if (!(result.val == moveit_msgs::MoveItErrorCodes::SUCCESS)) {
                         result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
                         return result;
                     }
@@ -392,11 +439,53 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                 }
 
             }
-        }
-    }
+        } else {
 
-    //remove left over grasp pose meshes
-    visualizationMarker.removeOldMeshes();
+            //if moving to grasp pose was not successful, color mesh red and let it disappear after some seconds
+            poses.clear();
+            ids.clear();
+            colors.clear();
+            lifetimes.clear();
+
+            poses.push_back(objectGraspPoses.poses[indexOfTakenSolution]);
+            ids.push_back(indexOfTakenSolution);
+
+            std_msgs::ColorRGBA red;
+            red.a = 1.0;
+            red.b = 0;
+            red.r = 1.0;
+            red.g = 0;
+
+            colors.push_back(red);
+
+            lifetimes.push_back(ros::Duration(3));
+
+            visualizationMarker.publishMeshesWithColor(poses, objectGraspPoses.header.frame_id, ids, PATH_TO_GRIPPER_MESH, colors, lifetimes);
+
+        }
+    } else {
+
+        //if planning to move to grasp pose was not successful, color mesh red and let it disappear after some seconds
+        poses.clear();
+        ids.clear();
+        colors.clear();
+        lifetimes.clear();
+
+        poses.push_back(objectGraspPoses.poses[indexOfTakenSolution]);
+        ids.push_back(indexOfTakenSolution);
+
+        std_msgs::ColorRGBA red;
+        red.a = 1.0;
+        red.b = 0;
+        red.r = 1.0;
+        red.g = 0;
+
+        colors.push_back(red);
+
+        lifetimes.push_back(ros::Duration(3));
+
+        visualizationMarker.publishMeshesWithColor(poses, objectGraspPoses.header.frame_id, ids, PATH_TO_GRIPPER_MESH, colors, lifetimes);
+    }
 
     return result;
 }
@@ -457,6 +546,7 @@ bool GroupController::getIkSolution(const moveit_msgs::GetPositionIK::Request &i
     }
 
     return false;
+
 }
 
 moveit::core::RobotStatePtr GroupController::visualizeIkSolution(const moveit_msgs::GetPositionIK::Response &solution) {
@@ -505,6 +595,10 @@ void GroupController::rankGraspPoses(vector<int> &indices, vector <moveit_msgs::
     for(int i = 0; i < solutions.size(); i++){
         stateDistances.push_back(getStateDistance(currentState, robotState, solutions[i].solution));
         distancesToCollision.push_back(planning_scene_controller.distanceToCollision(robotState, solutions[i].solution));
+
+        std::cout << "STATE DISTANCE AND DISTANCE TO COLLISION  FOR GRASP POSE AT INDEX " << indices[i] << ": " << std::endl;
+        std::cout << stateDistances[i] << std::endl;
+        std::cout << distancesToCollision[i] << std::endl;
     }
 
     //the collision of the object with the gripper/robot in general get's forbidden again
@@ -522,6 +616,7 @@ void GroupController::rankGraspPoses(vector<int> &indices, vector <moveit_msgs::
         //is ranked as the best grasp pose
         double overallValue = stateDistances[i]*0.35 - distancesToCollision[i]*0.65;
         overall.push_back(overallValue);
+
     }
 
     //rank grasp poses by evaluating the overall values
