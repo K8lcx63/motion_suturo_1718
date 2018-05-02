@@ -34,7 +34,6 @@ int main(int argc, char **argv)
          motion_msgs::MovingCommandGoal goal;
          goal.command = motion_msgs::MovingCommandGoal::GRASP_LEFT_ARM;
          goal.goal_poses = srv.response.grasp_pose_array;
-         goal.direction_key = srv.response.direction_key;
          goal.grasped_object_label = objectLabel;
          goal.force = -1;
 
