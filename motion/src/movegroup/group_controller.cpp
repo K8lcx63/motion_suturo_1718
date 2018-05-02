@@ -80,10 +80,7 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
 
 moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_interface::MoveGroup &group,
                                                           const geometry_msgs::PoseStamped &goalPose, const string objectLabel) {
-
-    //open gripper to have a better chance to move poked object straight
-    if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
-    if(group.getName() == "left_arm") openGripper(motion_msgs::GripperGoal::LEFT);
+    
 
     /* First calculate pose to move group to front-direction of object to poke */
     // get the goal pose for the wrist from the goal pose for the end effector
