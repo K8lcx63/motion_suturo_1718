@@ -126,7 +126,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 
         // plan again to check if second goal pose can be reached by group
         group.setPoseTarget(secondGoalPoseWrist);
-        group.setGoalOrientationTolerance(0.5);
+        group.setGoalOrientationTolerance(0.1);
         group.setGoalPositionTolerance(0.05);
         error_code = group.plan(execution_plan);
 
@@ -189,7 +189,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 
             // set the calculated waypoints as goal-trajectory for group
             group.setPoseReferenceFrame("base_footprint");
-            group.setGoalOrientationTolerance(0.5);
+            group.setGoalOrientationTolerance(0.1);
             group.setGoalPositionTolerance(0.05);
 
             moveit_msgs::RobotTrajectory robotTrajectory;
