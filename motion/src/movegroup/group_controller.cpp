@@ -79,57 +79,47 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_interface::MoveGroup &group,
-                                                          const geometry_msgs::PoseStamped &object_middle) {
+                                                          const geometry_msgs::PoseStamped &goalPose, const string objectLabel) {
+
+    //open gripper to have a better chance to move poked object straight
+    if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
+    if(group.getName() == "left_arm") openGripper(motion_msgs::GripperGoal::LEFT);
+
     /* First calculate pose to move group to front-direction of object to poke */
-    // plan to move group in front of object
-    geometry_msgs::PoseStamped firstGoalPose = point_transformer.transformPoseStamped("base_footprint", object_middle);
+    // get the goal pose for the wrist from the goal pose for the end effector
+    geometry_msgs::PoseStamped goalForWrist = point_transformer.transformPoseFromEndEffectorToWristFrame(goalPose, group);
+    geometry_msgs::PoseStamped firstGoalPoseWrist = point_transformer.transformPoseStamped("base_footprint", goalForWrist);
 
-    // calculate position in front of object, so that the gripper tip link is DISTANCE_BEFORE_POKING away from object
-    if (group.getName() == "right_arm") {
-        firstGoalPose.pose.position.x -= GRIPPER_LENGTH_RIGHT;
-    } else {
-        firstGoalPose.pose.position.x -= GRIPPER_LENGTH_LEFT;
-    }
-
-    firstGoalPose.pose.position.x -= DISTANCE_BEFORE_POKING;
+    // calculate position in front of object, so that the gripper tip link is DISTANCE_BEFORE_POKING away from the object
+    firstGoalPoseWrist.pose.position.x -= DISTANCE_BEFORE_POKING;
 
     // move to first goal point
-    moveit_msgs::MoveItErrorCodes error_code = moveGroupToPose(group, firstGoalPose);
+    moveit_msgs::MoveItErrorCodes error_code = moveGroupToPose(group, firstGoalPoseWrist);
 
     /* If first movement was successful, calculate path to poke the object */
     if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
-        geometry_msgs::PoseStamped secondGoalPose = point_transformer.transformPoseStamped("base_footprint",
-                                                                                           object_middle);
+        geometry_msgs::PoseStamped secondGoalPoseWrist = firstGoalPoseWrist;
 
-        // put the second goal point some cm above the object's center
-        // so that the object is most likely to be tilted
-        // the robot will move his wrist to this goal point(the object to poke), and
-        // the gripper is orientated to forward direction, so the robot will poke the
-        // object with his gripper (will move 'thorugh' the object with his complete gripper)
-        if (group.getName() == "left_arm_group") {
-            // move the goalpoint for the 'longer' arm closer to the robot (with an amount of
-            // the difference between the two arm-length's) so that objects get poked
-            // with right and left arm the same way (gripper through object)
-            secondGoalPose.pose.position.x -= GRIPPER_LENGTH_LEFT - GRIPPER_LENGTH_RIGHT;
-        }
-
-        secondGoalPose.pose.position.z += 0.2f;
+        //poke with the half of the length of the gripper through the object
+        if(group.getName() == "right_arm") secondGoalPoseWrist.pose.position.x += DISTANCE_BEFORE_POKING + (GRIPPER_LENGTH_RIGHT/2);
+        if(group.getName() == "left_arm") secondGoalPoseWrist.pose.position.x += DISTANCE_BEFORE_POKING + (GRIPPER_LENGTH_LEFT/2);
 
         // plan again to check if second goal pose can be reached by group
-        group.setPoseTarget(secondGoalPose);
-        group.setGoalTolerance(0.03);
+        group.setPoseTarget(secondGoalPoseWrist);
+        group.setGoalOrientationTolerance(0.1);
+        group.setGoalPositionTolerance(0.05);
         error_code = group.plan(execution_plan);
 
         // if point can be reached, calculate trajectory to point
-        // so it is guaranteed that the robot moves his arm straight to the object following the trajectory
+        // so it is guaranteed that the robot moves his arm straight through the object following the trajectory
         if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
             // calculate direction for trajectory
             geometry_msgs::Vector3 directionVector;
-            directionVector.x = secondGoalPose.pose.position.x - firstGoalPose.pose.position.x;
-            directionVector.y = secondGoalPose.pose.position.y - firstGoalPose.pose.position.y;
-            directionVector.z = secondGoalPose.pose.position.z - firstGoalPose.pose.position.z;
+            directionVector.x = secondGoalPoseWrist.pose.position.x - firstGoalPoseWrist.pose.position.x;
+            directionVector.y = secondGoalPoseWrist.pose.position.y - firstGoalPoseWrist.pose.position.y;
+            directionVector.z = secondGoalPoseWrist.pose.position.z - firstGoalPoseWrist.pose.position.z;
 
             // calculate the 10 sampled waypoints
             std::vector <geometry_msgs::Pose> waypoints;
@@ -142,11 +132,11 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
                 step.y = directionVector.y * (i / 10.0);
                 step.z = directionVector.z * (i / 10.0);
 
-                waypoint.position.x = firstGoalPose.pose.position.x + step.x;
-                waypoint.position.y = firstGoalPose.pose.position.y + step.y;
-                waypoint.position.z = firstGoalPose.pose.position.z + step.z;
+                waypoint.position.x = firstGoalPoseWrist.pose.position.x + step.x;
+                waypoint.position.y = firstGoalPoseWrist.pose.position.y + step.y;
+                waypoint.position.z = firstGoalPoseWrist.pose.position.z + step.z;
 
-                waypoint.orientation = secondGoalPose.pose.orientation;
+                waypoint.orientation = secondGoalPoseWrist.pose.orientation;
 
                 waypoints.push_back(waypoint);
 
@@ -154,12 +144,16 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 
             // set the calculated waypoints as goal-trajectory for group
             group.setPoseReferenceFrame("base_footprint");
+            group.setGoalOrientationTolerance(0.5);
+            group.setGoalPositionTolerance(0.05);
 
             moveit_msgs::RobotTrajectory robotTrajectory;
-            double fraction = group.computeCartesianPath(waypoints, 0.01, 0.0, robotTrajectory);
+            double fraction = group.computeCartesianPath(waypoints, 0.01, 0.0, robotTrajectory, false);
 
             // if computation was successful, execute the movement following the trajectory
             if (fraction != -1) {
+                planning_scene_controller.removeObjectFromEnvironment(objectLabel);
+
                 robot_trajectory::RobotTrajectory rt(group.getCurrentState()->getRobotModel(), group.getName());
                 rt.setRobotTrajectoryMsg(*group.getCurrentState(), robotTrajectory);
 

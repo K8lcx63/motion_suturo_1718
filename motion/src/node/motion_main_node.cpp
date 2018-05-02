@@ -273,7 +273,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
          case motion_msgs::MovingCommandGoal::POKE_RIGHT_ARM:
             ROS_INFO("Planning to poke object with right arm at: ");
-            error_code = group_controller.pokeObject(right_arm_group, goal->goal_pose);
+            error_code = group_controller.pokeObject(right_arm_group, goal->goal_pose, goal->grasped_object_label);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32m: Successfully poked object with right arm.");
@@ -281,7 +281,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
             break;
         case motion_msgs::MovingCommandGoal::POKE_LEFT_ARM:
             ROS_INFO("Planning to poke object with left arm at: ");
-            error_code = group_controller.pokeObject(left_arm_group, goal->goal_pose);
+            error_code = group_controller.pokeObject(left_arm_group, goal->goal_pose, goal->grasped_object_label);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32m: Successfully poked object with left arm.");

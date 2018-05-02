@@ -85,14 +85,15 @@ public:
      */
     moveit_msgs::MoveItErrorCodes moveGroupToCarryingObjectPose(moveit::planning_interface::MoveGroup &group);
 
-    /** Uses the given {@link moveit::planning_interface::MoveGroup} to poke the object, of which 
-     * the center is given by {@link geometry_msgs::PointStamped}. 
+    /** Uses the given {@link moveit::planning_interface::MoveGroup} to poke at the point and with the orientation
+     * as given in {@link geometry_msgs::PointStamped}.
      * @param group The group to take. 
-     * @param object_middle The point at the center of the object to poke. 
+     * @param goalPose The point to poke and the orientation the gripper shall have.
+     * @param objectLabel the label of the object that get's poked.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the poking action. 
      */ 
     moveit_msgs::MoveItErrorCodes pokeObject(moveit::planning_interface::MoveGroup& group,
-                                             const geometry_msgs::PoseStamped& object_middle);
+                                             const geometry_msgs::PoseStamped& goalPose, const string objectLabel);
  
     /** 
      * Uses the given {@link moveit::planning_interface::MoveGroup} to grasp the object with the given grasp pose in
