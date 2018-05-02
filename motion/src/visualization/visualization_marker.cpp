@@ -26,7 +26,7 @@ void VisualizationMarker::publishMeshes(const geometry_msgs::PoseArray &poses, s
 
         marker.header.frame_id = poses.header.frame_id;
         marker.header.stamp = ros::Time(0);
-        marker.ns = "possible_grasp_poses";
+        marker.ns = "gripper_meshes";
         marker.id = i;
         marker.type = visualization_msgs::Marker::MESH_RESOURCE;
         marker.action = visualization_msgs::Marker::ADD;
@@ -62,7 +62,7 @@ void VisualizationMarker::publishMeshesWithColor(const std::vector<geometry_msgs
 
         marker.header.frame_id = frameId;
         marker.header.stamp = ros::Time(0);
-        marker.ns = "possible_grasp_poses";
+        marker.ns = "gripper_meshes";
         marker.id = ids[i];
         marker.type = visualization_msgs::Marker::MESH_RESOURCE;
         marker.action = visualization_msgs::Marker::ADD;
@@ -94,7 +94,7 @@ void VisualizationMarker::removeOldMeshes (){
 
     visualization_msgs::Marker marker;
 
-    marker.ns = "possible_grasp_poses";
+    marker.ns = "gripper_meshes";
     marker.type = visualization_msgs::Marker::MESH_RESOURCE;
     marker.action = visualization_msgs::Marker::DELETE;
 

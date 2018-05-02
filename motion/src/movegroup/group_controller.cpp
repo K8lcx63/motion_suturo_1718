@@ -80,7 +80,7 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
 
 moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_interface::MoveGroup &group,
                                                           const geometry_msgs::PoseStamped &goalPose, const string objectLabel) {
-    
+
 
     /* First calculate pose to move group to front-direction of object to poke */
     // get the goal pose for the wrist from the goal pose for the end effector
@@ -89,6 +89,28 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 
     // calculate position in front of object, so that the gripper tip link is DISTANCE_BEFORE_POKING away from the object
     firstGoalPoseWrist.pose.position.x -= DISTANCE_BEFORE_POKING;
+
+    //visualize first goal point with mesh
+    vector<geometry_msgs::Pose> poses;
+    vector<int> ids;
+    vector<std_msgs::ColorRGBA> colors;
+    vector<ros::Duration> lifetimes;
+
+    geometry_msgs::PoseStamped goalForEndEffector = point_transformer.transformPoseStamped("base_footprint", goalPose);
+    goalForEndEffector.pose.position.x -= DISTANCE_BEFORE_POKING;
+    poses.push_back(goalForEndEffector.pose);
+    ids.push_back(0);
+
+    std_msgs::ColorRGBA color;
+    color.a = 1.0;
+    color.r = 0.5;
+    color.g = 0.5;
+    color.b = 0.5;
+
+    colors.push_back(color);
+    lifetimes.push_back(ros::Duration(10));
+
+    visualizationMarker.publishMeshesWithColor(poses, "base_footprint", ids, PATH_TO_GRIPPER_MESH, colors, lifetimes);
 
     // move to first goal point
     moveit_msgs::MoveItErrorCodes error_code = moveGroupToPose(group, firstGoalPoseWrist);
@@ -99,18 +121,29 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
         geometry_msgs::PoseStamped secondGoalPoseWrist = firstGoalPoseWrist;
 
         //poke with the half of the length of the gripper through the object
-        if(group.getName() == "right_arm") secondGoalPoseWrist.pose.position.x += DISTANCE_BEFORE_POKING + (GRIPPER_LENGTH_RIGHT/2);
-        if(group.getName() == "left_arm") secondGoalPoseWrist.pose.position.x += DISTANCE_BEFORE_POKING + (GRIPPER_LENGTH_LEFT/2);
+        if(group.getName() == "right_arm") secondGoalPoseWrist.pose.position.x += DISTANCE_BEFORE_POKING + GRIPPER_LENGTH_RIGHT;
+        if(group.getName() == "left_arm") secondGoalPoseWrist.pose.position.x += DISTANCE_BEFORE_POKING + GRIPPER_LENGTH_LEFT;
 
         // plan again to check if second goal pose can be reached by group
         group.setPoseTarget(secondGoalPoseWrist);
-        group.setGoalOrientationTolerance(0.1);
+        group.setGoalOrientationTolerance(0.5);
         group.setGoalPositionTolerance(0.05);
         error_code = group.plan(execution_plan);
 
         // if point can be reached, calculate trajectory to point
         // so it is guaranteed that the robot moves his arm straight through the object following the trajectory
         if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+
+            //clear variables for visualizing the trajectory with gripper meshes and calculate pose from wrist to end effector
+            poses.clear();
+            ids.clear();
+            colors.clear();
+            lifetimes.clear();
+            color.a = 0.7;
+
+            string endEffectorFrame = (group.getName() == "right_arm") ? "r_gripper_tool_frame" : "l_gripper_tool_frame";
+            string wristFrame = (group.getName() == "right_arm") ? "r_wrist_roll_link" : "l_wrist_roll_link";
+            geometry_msgs::PointStamped wristToEndEffector = point_transformer.lookupTransform(wristFrame, endEffectorFrame, ros::Time(0));
 
             // calculate direction for trajectory
             geometry_msgs::Vector3 directionVector;
@@ -137,7 +170,22 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 
                 waypoints.push_back(waypoint);
 
+
+                //visualize every second waypoint
+                if ((int) i % 2 == 0) {
+                    //calculate mesh position from waypoint
+                    geometry_msgs::Pose meshPose = waypoint;
+                    meshPose.position.x += wristToEndEffector.point.x;
+
+                    poses.push_back(meshPose);
+                    ids.push_back((int) i);
+                    colors.push_back(color);
+                    lifetimes.push_back(ros::Duration(8));
+                }
             }
+
+            //visualize path
+            visualizationMarker.publishMeshesWithColor(poses, "base_footprint", ids, PATH_TO_GRIPPER_MESH, colors, lifetimes);
 
             // set the calculated waypoints as goal-trajectory for group
             group.setPoseReferenceFrame("base_footprint");
@@ -162,13 +210,15 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
         }
     }
 
+    //remove gripper meshes from rviz
+    visualizationMarker.removeOldMeshes();
+
     return error_code;
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup &group,
                                                            const geometry_msgs::PoseArray &objectGraspPoses,
-                                                           vector <string> poseDescription, double effort,
-                                                           std::string objectLabel) {
+                                                           double effort, std::string objectLabel) {
 
     //open gripper
     openGripper(motion_msgs::GripperGoal::LEFT);
@@ -481,8 +531,10 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     return result;
 }
 
-moveit_msgs::MoveItErrorCodes GroupController::dropObject(moveit::planning_interface::MoveGroup &group,
+moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_interface::MoveGroup &group,
                                                           const geometry_msgs::PoseStamped &object_drop_pose) {
+
+
 
 
     /*

@@ -103,12 +103,11 @@ public:
      * The string contains the label of the object to grasp.
      * @param group The group to take. 
      * @param objectGraspPoses The poses how the object may be grasped.
-     * @param poseDescription describes the direction of the grasp pose for each pose given in object_grasp_poses
      * @param objectLabel The name of the object to grasp.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the grasping action. 
      */ 
     moveit_msgs::MoveItErrorCodes graspObject(moveit::planning_interface::MoveGroup& group,
-                                              const geometry_msgs::PoseArray& objectGraspPoses, vector<string> poseDescription,
+                                              const geometry_msgs::PoseArray& objectGraspPoses,
                                               double effort,
                                               std::string objectLabel);
 
@@ -122,7 +121,7 @@ public:
      * @param object_grasp_pose The pose how to drop the object.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the droping action.
      */
-    moveit_msgs::MoveItErrorCodes dropObject(moveit::planning_interface::MoveGroup& group,
+    moveit_msgs::MoveItErrorCodes placeObject(moveit::planning_interface::MoveGroup& group,
                                               const geometry_msgs::PoseStamped& object_drop_pose);
 
     /**

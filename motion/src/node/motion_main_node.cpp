@@ -291,7 +291,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
 
             out = "Planning to grasp object " + goal->grasped_object_label + " with right arm. ";
             ROS_INFO(out.c_str());
-            error_code = group_controller.graspObject(right_arm_group, goal->goal_poses, goal->direction_key, goal->force,
+            error_code = group_controller.graspObject(right_arm_group, goal->goal_poses, goal->force,
                                                         goal->grasped_object_label);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -301,7 +301,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
         case motion_msgs::MovingCommandGoal::GRASP_LEFT_ARM:
             out = "Planning to grasp object " + goal->grasped_object_label + " with with left arm. ";
             ROS_INFO(out.c_str());
-            error_code = group_controller.graspObject(left_arm_group, goal->goal_poses, goal->direction_key, goal->force,
+            error_code = group_controller.graspObject(left_arm_group, goal->goal_poses, goal->force,
                                                       goal->grasped_object_label);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -311,7 +311,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
         case motion_msgs::MovingCommandGoal::PLACE_RIGHT_ARM:
             out = "Planning to place object " + goal->grasped_object_label + " with with right arm. ";
             ROS_INFO(out.c_str());
-            error_code = group_controller.dropObject(right_arm_group, goal->goal_pose);
+            error_code = group_controller.placeObject(right_arm_group, goal->goal_pose);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32m: Successfully placed object with right arm.");
@@ -320,7 +320,7 @@ void MotionNode::executeCommand(const motion_msgs::MovingCommandGoalConstPtr &go
         case motion_msgs::MovingCommandGoal::PLACE_LEFT_ARM:
             out = "Planning to place object " + goal->grasped_object_label + " with left arm. ";
             ROS_INFO(out.c_str());
-            error_code = group_controller.dropObject(left_arm_group, goal->goal_pose);
+            error_code = group_controller.placeObject(left_arm_group, goal->goal_pose);
 
             if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 ROS_INFO("\x1B[32m: Successfully placed object with left arm.");
