@@ -220,9 +220,6 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                                                            const geometry_msgs::PoseArray &objectGraspPoses,
                                                            double effort, std::string objectLabel) {
 
-    //open gripper
-    openGripper(motion_msgs::GripperGoal::LEFT);
-    sleep(2);
 
     //visualize possible grasp poses
     visualizationMarker.publishMeshes(objectGraspPoses, PATH_TO_GRIPPER_MESH);
@@ -388,6 +385,10 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
     /* EXECUTE BEST SOLUTION GRASP POSE*/
 
+    //open gripper
+    if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
+    if(group.getName() == "left_arm") openGripper(motion_msgs::GripperGoal::LEFT);
+
     //get all required information for executing
     int indexOfTakenSolution = previousIndicesOfGraspPoses[0];
     moveit_msgs::GetPositionIK::Response ikSolutionTaken = ikSolutions[0];
@@ -532,48 +533,69 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_interface::MoveGroup &group,
-                                                          const geometry_msgs::PoseStamped &object_drop_pose) {
+                                                          const geometry_msgs::PoseStamped &object_drop_pose, std::string objectLabel) {
 
+    //calculate goal for wrist frame from given goal for tool frame
+    geometry_msgs::PoseStamped goalForWrist = point_transformer.transformPoseFromEndEffectorToWristFrame(object_drop_pose, group);
 
-
-
-    /*
-     * //kollision mit gripper nach dem abstellen wieder verbieten
-     * planning_scene_controller.addObjectToCollisionMatrix(objectLabel, false);
-     *
-    if(error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
-        if(group.getName() == "right_arm"){
-                openGripper(motion_msgs::GripperGoal::RIGHT);
-
-                // publish message for beliefstate
-                knowledge_msgs::DropObject msg;
-                msg.gripper.gripper = knowledge_msgs::Gripper::RIGHT_GRIPPER;
-                beliefstatePublisher.publish(msg);
-
-                // detach object from gripper in planningscene
-                planning_scene_controller.detachObject(objectLabel, "r_gripper_tool_frame");
-
-
-
-        } else {
-                openGripper(motion_msgs::GripperGoal::LEFT);
-
-                // publish message for beliefstate
-                knowledge_msgs::DropObject msg;
-                msg.gripper.gripper = knowledge_msgs::Gripper::LEFT_GRIPPER;
-                beliefstatePublisher.publish(msg);
-
-                // detach object from gripper in planningscene
-                planning_scene_controller.detachObject(objectLabel, "l_gripper_tool_frame");
-
-
-
-        }
-
-
-    }*/
     moveit_msgs::MoveItErrorCodes result;
-    result.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+
+    //create ik request
+    moveit_msgs::GetPositionIK::Request ikRequest;
+    moveit_msgs::GetPositionIK::Response ikResponse;
+
+    ikRequest.ik_request.group_name = group.getName();
+    ikRequest.ik_request.pose_stamped = goalForWrist;
+    ikRequest.ik_request.avoid_collisions = true;
+
+    if (getIkSolution(ikRequest, ikResponse)) {
+        //visualize goal state of robot in rviz
+        moveit::core::RobotStatePtr robotStateInIkSolution = visualizeIkSolution(ikResponse);
+
+        //plan and execute the calculated ik solution
+        group.setJointValueTarget(*robotStateInIkSolution);
+
+        group.setGoalOrientationTolerance(0.05);
+        group.setGoalPositionTolerance(0.03);
+
+        result.val = group.plan(execution_plan);
+
+        if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+
+            result = group.move();
+
+            if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+
+                motion_msgs::GripperGoal gripper;
+                knowledge_msgs::Gripper dropGripper;
+                string endEffectorLink;
+
+                endEffectorLink = (group.getName() == "right_arm") ? "r_gripper_tool_frame" : "l_gripper_tool_frame";
+                gripper.gripper = (group.getName() == "right_arm") ? motion_msgs::GripperGoal::RIGHT
+                                                                   : motion_msgs::GripperGoal::LEFT;
+                dropGripper.gripper = (group.getName() == "right_arm") ? knowledge_msgs::Gripper::RIGHT_GRIPPER
+                                                                   : knowledge_msgs::Gripper::LEFT_GRIPPER;
+
+                //open gripper
+                openGripper(gripper.gripper);
+
+                //detach object from gripper
+                planning_scene_controller.detachObject(objectLabel, endEffectorLink);
+
+                //deny collision with this object in future
+                planning_scene_controller.addObjectToCollisionMatrix(objectLabel, false);
+
+                // publish message for beliefstate
+                knowledge_msgs::DropObject msg;
+                msg.gripper.gripper = dropGripper.gripper;
+                beliefstatePublisherDrop.publish(msg);
+
+                //move arm to home position
+                result = moveGroupToCarryingObjectPose(group);
+            }
+        }
+    }
+
     return result;
 }
 

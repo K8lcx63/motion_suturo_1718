@@ -119,10 +119,11 @@ public:
      * The string contains the label of the object to drop.
      * @param group The group to take.
      * @param object_grasp_pose The pose how to drop the object.
+     * @param objectLabel The name of the object to place.
      * @return {@link moveit_msgs::MoveItErrorCodes} with the result of the droping action.
      */
     moveit_msgs::MoveItErrorCodes placeObject(moveit::planning_interface::MoveGroup& group,
-                                              const geometry_msgs::PoseStamped& object_drop_pose);
+                                              const geometry_msgs::PoseStamped& object_drop_pose, std::string objectLabel);
 
     /**
      * Takes the request and tries up to two times to find an collision free ik solution for this request. If any solution is found,
