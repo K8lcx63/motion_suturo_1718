@@ -89,15 +89,19 @@ bool PlanningSceneController::addPerceivedObjectToEnvironment(
         infoOutput = "\x1B[32m: DATA SEEMS VALID, CONTINUING.";
         ROS_INFO (infoOutput.c_str());
 
-        //call function to add the object to the planning scene
-        if (addObjectToEnvironment(newPerceivedObject->object_label, newPerceivedObject->mesh_path,
-                                   newPerceivedObject->pose)) {
+        //call function to add the object to the planning scene / change it's pose if it already is in planning scene
+        if (isInCollisionWorld(newPerceivedObject->object_label)) {
+            if(addObjectToEnvironment(newPerceivedObject->object_label, newPerceivedObject->mesh_path,
+                                      newPerceivedObject->pose)){
+                return true;
+            }
+
+        } else if (addObjectToEnvironment(newPerceivedObject->object_label, newPerceivedObject->mesh_path,
+                                          newPerceivedObject->pose)){
 
             addObjectToCollisionMatrix(newPerceivedObject->object_label, false);
 
             return true;
-        } else {
-            return false;
         }
 
     }
@@ -116,34 +120,52 @@ geometry_msgs::PoseStamped pose) {
     string infoOutput;
     string errorOutput;
 
-    infoOutput = "\x1B[32m: STARTING TO ADD OBJECT " + objectName + " TO PLANNINGSCENE-ENVIRONMENT.";
-    ROS_INFO (infoOutput.c_str());
-
     // create new CollisionObject-message to fill it with the data about the newly perceived object
     moveit_msgs::CollisionObject perceivedObject;
 
-    // fill header
-    perceivedObject.header.stamp = ros::Time::now();
-    perceivedObject.header.frame_id = pose.header.frame_id;
-    perceivedObject.header.seq++;
+    if(!isInCollisionWorld(objectName)) {
+        infoOutput = "\x1B[32m: STARTING TO ADD OBJECT " + objectName + " TO PLANNINGSCENE-ENVIRONMENT.";
+        ROS_INFO (infoOutput.c_str());
 
-    // fill in name
-    perceivedObject.id = objectName;
+        // fill header
+        perceivedObject.header.stamp = ros::Time::now();
+        perceivedObject.header.frame_id = pose.header.frame_id;
+        perceivedObject.header.seq++;
 
-    // get mesh to add to planning scene
-    shape_msgs::Mesh mesh = getMeshFromResource(meshPath);
+        // fill in name
+        perceivedObject.id = objectName;
 
-    perceivedObject.meshes.push_back(mesh);
+        // get mesh to add to planning scene
+        shape_msgs::Mesh mesh = getMeshFromResource(meshPath);
 
-    // fill in pose of mesh
-    geometry_msgs::Pose poseOfMesh;
-    poseOfMesh.orientation = pose.pose.orientation;
-    poseOfMesh.position = pose.pose.position;
+        perceivedObject.meshes.push_back(mesh);
 
-    perceivedObject.mesh_poses.push_back(poseOfMesh);
+        // fill in pose of mesh
+        geometry_msgs::Pose poseOfMesh;
+        poseOfMesh.orientation = pose.pose.orientation;
+        poseOfMesh.position = pose.pose.position;
 
-    // define as operation to add a mesh to the environment
-    perceivedObject.operation = perceivedObject.ADD;
+        perceivedObject.mesh_poses.push_back(poseOfMesh);
+
+        // define as operation to add the object to the environment
+        perceivedObject.operation = perceivedObject.ADD;
+    } else{
+
+        infoOutput = "\x1B[32m: OBJECT " + objectName + " IS ALREADY IN PLANNING SCENE, CHANGING IT'S POSE TO GIVEN POSE.";
+        ROS_INFO (infoOutput.c_str());
+
+        perceivedObject.operation = perceivedObject.MOVE;
+        perceivedObject.id = objectName;
+
+        // fill in pose of mesh
+        geometry_msgs::Pose poseOfMesh;
+        poseOfMesh.orientation = pose.pose.orientation;
+        poseOfMesh.position = pose.pose.position;
+
+        perceivedObject.mesh_poses.push_back(poseOfMesh);
+        perceivedObject.header.stamp = ros::Time::now();
+        perceivedObject.header.frame_id = pose.header.frame_id;
+    }
 
     //publish to apply adding new object
     collisionObjectPublisher.publish(perceivedObject);
@@ -157,7 +179,7 @@ geometry_msgs::PoseStamped pose) {
         ROS_ERROR(errorOutput.c_str());
         return false;
     } else {
-        infoOutput = "\x1B[32m: SUCCESSFULLY ADDED OBJECT " + objectName + " TO THE PLANNINGSCENE.";
+        infoOutput = "\x1B[32m: SUCCESSFULLY ADDED/CHANGED OBJECT " + objectName + " TO/IN THE PLANNINGSCENE.";
         ROS_INFO(infoOutput.c_str());
 
         return true;

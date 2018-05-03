@@ -68,6 +68,16 @@ add_executable(
   src/test_client.cpp
 )
 
+add_executable(
+  test_client_perceive_twice
+  src/test_client_perceive_twice.cpp
+)
+
+add_executable(
+  test_client_perceive_twice_second
+  src/test_client_perceive_twice_second.cpp
+)
+
 target_link_libraries(
     motion
     ${catkin_LIBRARIES}
@@ -82,6 +92,17 @@ target_link_libraries(
     test_client
     ${catkin_LIBRARIES}
 )
+
+target_link_libraries(
+    test_client_perceive_twice
+    ${catkin_LIBRARIES}
+)
+
+target_link_libraries(
+    test_client_perceive_twice_second
+    ${catkin_LIBRARIES}
+)
+
 
 #############
 ## Testing ##
