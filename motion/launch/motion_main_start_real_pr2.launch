@@ -1,7 +1,6 @@
 <launch>
 	
 	<include file="$(find iai_pr2)/launch/move_group.launch"/>
-	<include file="$(find wrist_ft_sensor_cleaner)/launch/ft_cleaner_pr2.launch"/>
 
 	<node name="motion" pkg="motion" type="motion" output="screen"/>
 	
