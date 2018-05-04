@@ -117,8 +117,10 @@ target_link_libraries(
 set(TEST_SRCS
 		test/main_test.cpp
 		test/point_transformer_test.cpp
+		test/visualization_marker_test.cpp
 		include/point_transformer.h
 		src/transformer/point_transformer.cpp
+		src/visualization/visualization_marker.cpp
 )
 #add_rostest_gtest(${PROJECT_NAME}-test ${TEST_SRCS})
 #add_executable(${PROJECT_NAME}-test ${TEST_SRCS})
