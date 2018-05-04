@@ -598,12 +598,14 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
             // the gripper gets moved down in small steps until the object is in contact with the table it shall be placed on
             nodeHandle.getParam("/kitchen_model_service/sim", isSimulation);
 
-            if(group.getName() == "left_arm" && isSimulation){
+            if(group.getName() == "left_arm" && !isSimulation){
 
                 //temporarily allow collision for placed object with other objects
                 planning_scene_controller.addObjectToCollisionMatrix(objectLabel, true);
 
                 while(!(forceMagnitude > FORCE_THRESHOLD) && result.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+                    cout << "FORCE-MAGNITUDE:   " << forceMagnitude << endl;
+
                     // transform goal pose into map
                     geometry_msgs::PoseStamped newGoalForWristInMap = point_transformer.transformPoseStamped("map", goalForWrist);
 
