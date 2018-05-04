@@ -70,6 +70,8 @@ public:
 
     static visualization_msgs::Marker generatePoseMarker(const geometry_msgs::Pose &pose, const std::string &path, int id,
                                                   std::string frame);
+
+    static visualization_msgs::Marker generateDeleteMarker();
 };
 
 

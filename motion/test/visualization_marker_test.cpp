@@ -35,3 +35,11 @@ TEST(VisualizationMarkerTest, TestGeneratePoseMarker) {
     ASSERT_EQ(result.color.b, 0.5);
     ASSERT_EQ(result.mesh_resource, "somepath");
 }
+
+TEST(VisualizationMarkerTest, TestGenerateDeleteMarker) {
+    visualization_msgs::Marker result = VisualizationMarker::generateDeleteMarker();
+
+    ASSERT_EQ(result.ns, "gripper_meshes");
+    ASSERT_EQ(result.type, visualization_msgs::Marker::MESH_RESOURCE);
+    ASSERT_EQ(result.action, visualization_msgs::Marker::DELETE);
+}

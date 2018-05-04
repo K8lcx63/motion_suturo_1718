@@ -97,14 +97,16 @@ void VisualizationMarker::publishMeshesWithColor(const std::vector<geometry_msgs
 
 void VisualizationMarker::removeOldMeshes (){
     visualization_msgs::MarkerArray removePoses;
+    visualization_msgs::Marker marker = generateDeleteMarker();
 
+    removePoses.markers.push_back(marker);
+    visualizationMarkerPub.publish(removePoses);
+}
+
+visualization_msgs::Marker VisualizationMarker::generateDeleteMarker() {
     visualization_msgs::Marker marker;
-
     marker.ns = "gripper_meshes";
     marker.type = visualization_msgs::Marker::MESH_RESOURCE;
     marker.action = visualization_msgs::Marker::DELETE;
-
-    removePoses.markers.push_back(marker);
-
-    visualizationMarkerPub.publish(removePoses);
+    return marker;
 }
