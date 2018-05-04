@@ -538,6 +538,34 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
     //calculate goal for wrist frame from given goal for tool frame
     geometry_msgs::PoseStamped goalForWrist = point_transformer.transformPoseFromEndEffectorToWristFrame(object_drop_pose, group);
 
+    //visualize desired gripper position when placing the object
+    vector<geometry_msgs::Pose> poses;
+    vector<int> ids;
+    vector<std_msgs::ColorRGBA> colors;
+    vector<ros::Duration> lifetimes;
+
+    std_msgs::ColorRGBA color;
+    ros::Duration lifetime;
+
+    poses.push_back(object_drop_pose.pose);
+    ids.push_back(0);
+
+
+    color.a = 1.0;
+    color.r = 0.5;
+    color.g = 0.5;
+    color.b = 0.5;
+
+    colors.push_back(color);
+
+    lifetime = ros::Duration(30);
+
+    lifetimes.push_back(lifetime);
+
+    visualizationMarker.publishMeshesWithColor(poses, object_drop_pose.header.frame_id, ids, PATH_TO_GRIPPER_MESH, colors, lifetimes);
+
+
+    //execute place action
     moveit_msgs::MoveItErrorCodes result;
 
     //create ik request
@@ -590,7 +618,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
                 msg.gripper.gripper = dropGripper.gripper;
                 beliefstatePublisherDrop.publish(msg);
 
-                //move arm to home position
+                //move arm to carry position
                 result = moveGroupToCarryingObjectPose(group);
             }
         }
