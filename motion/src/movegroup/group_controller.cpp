@@ -18,6 +18,7 @@ GroupController::GroupController(const ros::NodeHandle &nh) :
     ikServiceClient = nodeHandle.serviceClient<moveit_msgs::GetPositionIK>("compute_ik");
     beliefstatePublisherGrasp = nodeHandle.advertise<knowledge_msgs::GraspObject>("/beliefstate/grasp_action", 10);
     beliefstatePublisherDrop = nodeHandle.advertise<knowledge_msgs::DropObject>("/beliefstate/drop_action", 10);
+    ftSensorSubscriber = nodeHandle.subscribe("/ft/l_gripper_motor_zeroed", 1000, &GroupController::ftSensorCallback, this);
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group) {
@@ -406,8 +407,8 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     //plan and execute the calculated ik solution
     group.setJointValueTarget(*robotStateInIkSolution);
 
-    group.setGoalOrientationTolerance(0.05);
-    group.setGoalPositionTolerance(0.03);
+    group.setGoalOrientationTolerance(0.03);
+    group.setGoalPositionTolerance(0.01);
 
     result.val = group.plan(execution_plan);
 
@@ -583,14 +584,42 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
         //plan and execute the calculated ik solution
         group.setJointValueTarget(*robotStateInIkSolution);
 
-        group.setGoalOrientationTolerance(0.05);
-        group.setGoalPositionTolerance(0.03);
+        group.setGoalOrientationTolerance(0.03);
+        group.setGoalPositionTolerance(0.01);
 
         result.val = group.plan(execution_plan);
 
         if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
             result = group.move();
+
+            // additionally (only on real robot) check force torque sensor data to adjust the height of the gripper, if the left arm is used
+            // if the object is still hovering over the table (indicated by the force-magnitude being under a certain threshold)
+            // the gripper gets moved down in small steps until the object is in contact with the table it shall be placed on
+            nodeHandle.getParam("/kitchen_model_service/sim", isSimulation);
+
+            if(group.getName() == "left_arm" && isSimulation){
+
+                //temporarily allow collision for placed object with other objects
+                planning_scene_controller.addObjectToCollisionMatrix(objectLabel, true);
+
+                while(!(forceMagnitude > FORCE_THRESHOLD) && result.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
+                    // transform goal pose into map
+                    geometry_msgs::PoseStamped newGoalForWristInMap = point_transformer.transformPoseStamped("map", goalForWrist);
+
+                    newGoalForWristInMap.pose.position.z -= 0.01;
+
+                    group.setPoseTarget(newGoalForWristInMap);
+
+                    result = group.plan(execution_plan);
+
+                    if(result.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                        result = group.execute(execution_plan);
+                }
+
+                //forbid collision for placed object with other objects
+                planning_scene_controller.addObjectToCollisionMatrix(objectLabel, false);
+            }
 
             if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
@@ -877,4 +906,10 @@ vector <string> GroupController::getGripperLinks(int gripper) {
     }
 
     return result;
+}
+
+void GroupController::ftSensorCallback (const geometry_msgs::WrenchStamped::ConstPtr &msg){
+    geometry_msgs::Vector3 force = msg -> wrench.force;
+
+    forceMagnitude = sqrt(pow(force.x, 2) + pow(force.y, 2) + pow(force.z, 2));
 }

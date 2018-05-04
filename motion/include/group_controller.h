@@ -2,6 +2,7 @@
 #define SUTURO_MOTION_MAIN_GROUP_CONTROLLER_H
 
 #include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/WrenchStamped.h>
 #include <moveit_msgs/DisplayRobotState.h>
 #include <moveit/robot_state/conversions.h>
 #include <tf_conversions/tf_eigen.h>
@@ -15,6 +16,7 @@
 #include <motion_msgs/GripperAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <map>
+#include <math.h>
 #include "planning_scene.h"
 
 using namespace std;
@@ -30,6 +32,7 @@ private:
     const float TABLE_HEIGHT = 0.84f;
     const float MAXIMUM_OBJECT_HEIGHT = 0.30f;
     const float LIFTING_AFTER_GRASPING = 0.08f;
+    const float FORCE_THRESHOLD = 15;
     const int MAX_ATTEMPTS_TO_GET_IK_SOLUTION = 2;
 
     const string PATH_TO_GRIPPER_MESH = "package://knowledge_common/meshes/Gripper/Gripper.stl";
@@ -39,12 +42,17 @@ private:
     ros::ServiceClient ikServiceClient;
     ros::Publisher beliefstatePublisherGrasp;
     ros::Publisher beliefstatePublisherDrop;
+    ros::Subscriber ftSensorSubscriber;
 
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     PointTransformer point_transformer;
     VisualizationMarker visualizationMarker;
     actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
     PlanningSceneController planning_scene_controller;
+    float forceMagnitude;
+
+    //indicates, whether actually a simulation is launched or the real robot is used.
+    bool isSimulation;
 
     vector<string> getGripperLinks(int gripper);
 
@@ -216,6 +224,14 @@ public:
      * @param gripperNum the number of the gripper to close. Constants for the grippers are defined in motion_msgs::GripperGoal.
      */
     void closeGripper(int gripperNum, double& effort);
+
+    /**
+     * Callback function for topic on which the force torque sensor data get published.
+     * Calculates the magnitude of the force-vector and saves it in a global variable.
+     *
+     * @param msg the message containing the data about the force and the torque values of the sensor.
+     */
+    void ftSensorCallback (const geometry_msgs::WrenchStamped::ConstPtr &msg);
 };
 
 
