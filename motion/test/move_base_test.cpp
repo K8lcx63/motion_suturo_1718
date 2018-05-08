@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <tf/transform_listener.h>
-#include "../src/movebase/move_base.h"
+#include "../src/movebase/move_base.cpp"
 
 TEST(MoveBaseTest, TestGenerateMessage) {
     Torso torso;
