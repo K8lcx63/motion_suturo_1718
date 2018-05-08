@@ -22,6 +22,7 @@ GroupController::GroupController(const ros::NodeHandle &nh) :
 }
 
 moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group) {
+    group.setStartStateToCurrentState();
     group.setNamedTarget("arms_drive_pose");
 
     moveit_msgs::MoveItErrorCodes error_code = group.plan(execution_plan);
@@ -35,6 +36,8 @@ moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::plann
 
 moveit_msgs::MoveItErrorCodes
 GroupController::moveGroupToCarryingObjectPose(moveit::planning_interface::MoveGroup &group) {
+
+    group.setStartStateToCurrentState();
 
     std::string groupName = group.getName();
 
@@ -129,6 +132,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
         group.setPoseTarget(secondGoalPoseWrist);
         group.setGoalOrientationTolerance(0.1);
         group.setGoalPositionTolerance(0.05);
+        group.setStartStateToCurrentState();
         error_code = group.plan(execution_plan);
 
         // if point can be reached, calculate trajectory to point
@@ -192,6 +196,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
             group.setPoseReferenceFrame("base_footprint");
             group.setGoalOrientationTolerance(0.1);
             group.setGoalPositionTolerance(0.05);
+            group.setStartStateToCurrentState();
 
             moveit_msgs::RobotTrajectory robotTrajectory;
             double fraction = group.computeCartesianPath(waypoints, 0.01, 0.0, robotTrajectory, false);
@@ -207,6 +212,8 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 
                 execution_plan.trajectory_ = robotTrajectory;
                 error_code = group.execute(execution_plan);
+            } else {
+                error_code.val = moveit_msgs::MoveItErrorCodes::FAILURE;
             }
         }
     }
@@ -271,6 +278,11 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
         moveit_msgs::GetPositionIK::Response ikResponse;
 
         ikRequest.ik_request.group_name = group.getName();
+
+        moveit_msgs::RobotState currentState;
+        robotStateToRobotStateMsg(*group.getCurrentState(),currentState);
+
+        ikRequest.ik_request.robot_state = currentState;
         ikRequest.ik_request.pose_stamped = goalForWrist;
         ikRequest.ik_request.avoid_collisions = true;
 
@@ -409,6 +421,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
     group.setGoalOrientationTolerance(0.03);
     group.setGoalPositionTolerance(0.01);
+    group.setStartStateToCurrentState();
 
     result.val = group.plan(execution_plan);
 
@@ -574,6 +587,12 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
     moveit_msgs::GetPositionIK::Response ikResponse;
 
     ikRequest.ik_request.group_name = group.getName();
+
+    moveit_msgs::RobotState currentState;
+    robotStateToRobotStateMsg(*group.getCurrentState(),currentState);
+
+    ikRequest.ik_request.robot_state = currentState;
+
     ikRequest.ik_request.pose_stamped = goalForWrist;
     ikRequest.ik_request.avoid_collisions = true;
 
@@ -586,6 +605,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
 
         group.setGoalOrientationTolerance(0.03);
         group.setGoalPositionTolerance(0.01);
+        group.setStartStateToCurrentState();
 
         result.val = group.plan(execution_plan);
 
@@ -612,6 +632,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
                     newGoalForWristInMap.pose.position.z -= 0.01;
 
                     group.setPoseTarget(newGoalForWristInMap);
+                    group.setStartStateToCurrentState();
 
                     result = group.plan(execution_plan);
 
