@@ -55,7 +55,7 @@ public:
     }
 };
 
-int main(int argc, char **argv) {
+/*int main(int argc, char **argv) {
     ros::init(argc, argv, "simple_trajectory");
 
     Torso torso;
@@ -63,4 +63,4 @@ int main(int argc, char **argv) {
     torso.up();
 
     return 0;
-}
+}*/

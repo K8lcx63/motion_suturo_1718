@@ -41,6 +41,7 @@ catkin_package(
     geometry_msgs
     tf
     motion_gripper
+		knowledge_msgs
 )
 
 include_directories(
