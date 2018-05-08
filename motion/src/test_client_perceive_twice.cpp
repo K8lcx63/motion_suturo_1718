@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   object_pose.pose.orientation.z = 0.0;
   object_pose.pose.orientation.w = 1.0;
 
-  perceive_msg.object_label = "KeloggsToppasMini";
+  perceive_msg.object_label = "KellogsToppasMini";
   perceive_msg.object_pose = object_pose;
 
   perceive_pub.publish(perceive_msg);
