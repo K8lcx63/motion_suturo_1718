@@ -221,6 +221,10 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                                                            const geometry_msgs::PoseArray &objectGraspPoses,
                                                            double effort, std::string objectLabel) {
 
+    //open gripper and wait some seconds until it is opened
+    if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
+    if(group.getName() == "left_arm") openGripper(motion_msgs::GripperGoal::LEFT);
+    sleep(3);
 
     //visualize possible grasp poses
     visualizationMarker.publishMeshes(objectGraspPoses, PATH_TO_GRIPPER_MESH);
@@ -385,10 +389,6 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
 
     /* EXECUTE BEST SOLUTION GRASP POSE*/
-
-    //open gripper
-    if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
-    if(group.getName() == "left_arm") openGripper(motion_msgs::GripperGoal::LEFT);
 
     //get all required information for executing
     int indexOfTakenSolution = previousIndicesOfGraspPoses[0];
