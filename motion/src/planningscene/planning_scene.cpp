@@ -245,6 +245,7 @@ bool PlanningSceneController::attachObject(const string objectName, const string
         moveit_msgs::AttachedCollisionObject attachedObject;
         attachedObject.link_name = link;
 
+	attachedObject.object.header.stamp = ros::Time(0);
         attachedObject.object.header.frame_id = objectName;
         // define name and define that this is an add-operation
         attachedObject.object.id = objectName;
