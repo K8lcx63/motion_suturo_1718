@@ -33,7 +33,7 @@ bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixe
 
                 // fill header
                 kitchenObject.header.stamp = ros::Time(0);
-                kitchenObject.header.frame_id = res.frames[i];
+                kitchenObject.header.frame_id = "map";
                 kitchenObject.header.seq++;
 
                 // fill in name
@@ -45,11 +45,13 @@ bool PlanningSceneController::addKitchenCollisionObjects(knowledge_msgs::GetFixe
                 kitchenObject.meshes.push_back(mesh);
 
                 // fill in pose of mesh
-                // is at zero position, because the position is given in the object's frame
-                geometry_msgs::Pose poseOfMesh;
-                poseOfMesh.orientation.w = 1.0;
+                geometry_msgs::PoseStamped pose;
+                pose.header.frame_id = res.frames[i];
+                pose.header.stamp = ros::Time(0);
+                pose.pose.orientation.w = 1.0;
+                geometry_msgs::PoseStamped poseInMap = transformer.transformPoseStamped("map", pose);
 
-                kitchenObject.mesh_poses.push_back(poseOfMesh);
+                kitchenObject.mesh_poses.push_back(poseInMap.pose);
 
                 // define as operation to add a mesh to the environment
                 kitchenObject.operation = kitchenObject.ADD;
