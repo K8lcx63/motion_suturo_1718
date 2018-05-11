@@ -69,12 +69,12 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
     group.setPoseTarget(goalPoseInPlanningFrame);
     group.setGoalOrientationTolerance(0.1);
     group.setGoalPositionTolerance(0.05);
-    planning_scene_controller.setGroupStartState(group);
+    group.setStartStateToCurrentState();
 
     moveit::planning_interface::MoveItErrorCode error_code = group.plan(execution_plan);
 
     if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-        error_code = group.execute(execution_plan);
+        error_code = group.move();
     }
     return error_code;
 }
@@ -129,7 +129,6 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
         group.setPoseTarget(secondGoalPoseWrist);
         group.setGoalOrientationTolerance(0.1);
         group.setGoalPositionTolerance(0.05);
-        planning_scene_controller.setGroupStartState(group);
         error_code = group.plan(execution_plan);
 
         // if point can be reached, calculate trajectory to point
@@ -193,7 +192,6 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
             group.setPoseReferenceFrame("base_footprint");
             group.setGoalOrientationTolerance(0.1);
             group.setGoalPositionTolerance(0.05);
-            planning_scene_controller.setGroupStartState(group);
 
             moveit_msgs::RobotTrajectory robotTrajectory;
             double fraction = group.computeCartesianPath(waypoints, 0.01, 0.0, robotTrajectory, false);
@@ -226,7 +224,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     //open gripper and wait some seconds until it is opened
     if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
     if(group.getName() == "left_arm") openGripper(motion_msgs::GripperGoal::LEFT);
-    sleep(2);
+    sleep(3);
 
     //visualize possible grasp poses
     visualizationMarker.publishMeshes(objectGraspPoses, PATH_TO_GRIPPER_MESH);
@@ -263,8 +261,6 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     //remove the grasp poses no ik solution is found for
     for (int i = 0; i < objectGraspPoses.poses.size(); i++) {
         //calculate goal for wrist frame from given goal for tool frame
-        planning_scene_controller.setGroupStartState(group);
-
         geometry_msgs::PoseStamped goalPose;
         goalPose.header.frame_id = objectGraspPoses.header.frame_id;
         goalPose.header.stamp = ros::Time(0);
@@ -409,8 +405,8 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     moveit::core::RobotStatePtr robotStateInIkSolution = visualizeIkSolution(ikSolutionTaken);
 
     //plan and execute the calculated ik solution
-    planning_scene_controller.setGroupStartState(group);
     group.setJointValueTarget(*robotStateInIkSolution);
+
     group.setGoalOrientationTolerance(0.03);
     group.setGoalPositionTolerance(0.01);
 
@@ -418,7 +414,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
     if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
-        result = group.execute(execution_plan);
+        result = group.move();
 
         if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
