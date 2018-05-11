@@ -603,11 +603,12 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
                 //temporarily allow collision for placed object with other objects
                 planning_scene_controller.addObjectToCollisionMatrix(objectLabel, true);
 
+                geometry_msgs::PoseStamped newGoalForWristInMap = point_transformer.transformPoseStamped("map", goalForWrist);
+
                 while(!(forceMagnitude > FORCE_THRESHOLD) && result.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
                     cout << "FORCE-MAGNITUDE:   " << forceMagnitude << endl;
 
                     // transform goal pose into map
-                    geometry_msgs::PoseStamped newGoalForWristInMap = point_transformer.transformPoseStamped("map", goalForWrist);
 
                     newGoalForWristInMap.pose.position.z -= 0.01;
 
@@ -619,8 +620,6 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
                         result = group.execute(execution_plan);
                 }
 
-                //forbid collision for placed object with other objects
-                planning_scene_controller.addObjectToCollisionMatrix(objectLabel, false);
             }
 
             if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
