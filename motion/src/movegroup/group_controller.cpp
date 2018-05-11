@@ -572,7 +572,6 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
 
     //execute place action
     moveit_msgs::MoveItErrorCodes result;
-    planning_scene_controller.setGroupStartState(group);
 
     //create ik request
     moveit_msgs::GetPositionIK::Request ikRequest;
@@ -587,7 +586,6 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
         moveit::core::RobotStatePtr robotStateInIkSolution = visualizeIkSolution(ikResponse);
 
         //plan and execute the calculated ik solution
-        planning_scene_controller.setGroupStartState(group);
         group.setJointValueTarget(*robotStateInIkSolution);
 
         group.setGoalOrientationTolerance(0.03);
@@ -597,7 +595,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
 
         if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
-            result = group.execute(execution_plan);
+            result = group.move();
 
             /*
             // additionally (only on real robot) check force torque sensor data to adjust the height of the gripper, if the left arm is used
