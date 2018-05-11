@@ -584,8 +584,8 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
         //plan and execute the calculated ik solution
         group.setJointValueTarget(*robotStateInIkSolution);
 
-        group.setGoalOrientationTolerance(0.03);
-        group.setGoalPositionTolerance(0.01);
+        group.setGoalOrientationTolerance(0.1);
+        group.setGoalPositionTolerance(0.05);
 
         result.val = group.plan(execution_plan);
 
