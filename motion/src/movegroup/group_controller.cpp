@@ -459,7 +459,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                 //temporarily allow collision for grasped object with actually colliding object (e.g. table)
                 //until moved object away from table
 
-                allowCollisionWithCollidingObjects(objectLabel, gripperGoal.gripper)
+                allowCollisionWithCollidingObjects(objectLabel, gripperGoal.gripper);
 
                     //move up for some cm's to get out of the collision of the grasped object
                     geometry_msgs::PoseStamped liftGoal = goalForWrist;
