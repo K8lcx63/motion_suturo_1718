@@ -675,6 +675,15 @@ bool PlanningSceneController::isAttached(const string objectName, const string l
     return false;
 }
 
+void PlanningSceneController::setGroupStartState (moveit::planning_interface::MoveGroup &group){
+    planningSceneMonitor->requestPlanningSceneState(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_SERVICE);
+    planning_scene_monitor::LockedPlanningSceneRW ps(planningSceneMonitor);
+    ps.operator->()->getCurrentStateNonConst().update();
+    robot_state::RobotState current_state = ps.operator->()->getCurrentState();
+    planning_scene::PlanningScenePtr scene = ps.operator->()->diff();
+    group.setStartState(current_state);
+}
+
 shape_msgs::Mesh PlanningSceneController::getMeshFromResource(const string meshPath) {
     //create the mesh from a local file to be added into the planning scene
     shapes::Mesh *mesh = shapes::createMeshFromResource(meshPath);

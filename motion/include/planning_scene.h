@@ -172,6 +172,13 @@ public:
      */
     double distanceToCollision(robot_state::RobotState &robotInitialState,
                                const moveit_msgs::RobotState &solutionState);
+
+    /**
+     * Sets the start state of the group to the current state of the robot in the planning scene.
+     *
+     * @param group the group to set the start state for.
+     */
+    void setGroupStartState (moveit::planning_interface::MoveGroup &group);
 };
 
 
