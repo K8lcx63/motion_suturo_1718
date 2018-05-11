@@ -593,6 +593,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
 
             result = group.move();
 
+            /*
             // additionally (only on real robot) check force torque sensor data to adjust the height of the gripper, if the left arm is used
             // if the object is still hovering over the table (indicated by the force-magnitude being under a certain threshold)
             // the gripper gets moved down in small steps until the object is in contact with the table it shall be placed on
@@ -620,7 +621,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
                         result = group.execute(execution_plan);
                 }
 
-            }
+            }*/
 
             if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
