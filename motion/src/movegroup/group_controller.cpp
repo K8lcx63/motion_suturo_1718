@@ -66,10 +66,11 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
 
     geometry_msgs::PoseStamped goalPoseInPlanningFrame = point_transformer.transformPoseStamped(
             group.getPlanningFrame(), goal_pose);
+
     group.setPoseTarget(goalPoseInPlanningFrame);
     group.setGoalOrientationTolerance(0.1);
     group.setGoalPositionTolerance(0.05);
-    group.setStartStateToCurrentState();
+    group.setPlannerId("RRTConnectkConfigDefault");
 
     moveit::planning_interface::MoveItErrorCode error_code = group.plan(execution_plan);
 
@@ -129,6 +130,8 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
         group.setPoseTarget(secondGoalPoseWrist);
         group.setGoalOrientationTolerance(0.1);
         group.setGoalPositionTolerance(0.05);
+        group.setPlannerId("RRTConnectkConfigDefault");
+
         error_code = group.plan(execution_plan);
 
         // if point can be reached, calculate trajectory to point
@@ -273,6 +276,8 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
         //create ik request
         moveit_msgs::GetPositionIK::Request ikRequest;
         moveit_msgs::GetPositionIK::Response ikResponse;
+
+        group.setPlannerId("RRTConnectkConfigDefault");
 
         ikRequest.ik_request.group_name = group.getName();
         ikRequest.ik_request.pose_stamped = goalForWrist;
@@ -569,6 +574,8 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
     //create ik request
     moveit_msgs::GetPositionIK::Request ikRequest;
     moveit_msgs::GetPositionIK::Response ikResponse;
+
+    group.setPlannerId("RRTConnectkConfigDefault");
 
     ikRequest.ik_request.group_name = group.getName();
     ikRequest.ik_request.pose_stamped = goalForWrist;
