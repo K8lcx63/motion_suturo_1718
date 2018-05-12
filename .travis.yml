@@ -77,7 +77,7 @@ before_install:
   - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
   - source ~/.bashrc
   - sudo apt-get install ros-indigo-pr2-simulator
-  - sudo apt-get install ros-indigo-moveit ros-indigo-moveit-commander ros-indigo-moveit-ros ros-indigo-moveit-setup-assistant
+  - sudo apt-get install ros-indigo-moveit ros-indigo-moveit-commander ros-indigo-moveit-ros ros-indigo-moveit-setup-assistant ros-indigo-moveit-ros-benchmarks ros-indigo-moveit-ros-benchmarks-gui ros-indigo-moveit-ros-planning-interface ros-indigo-moveit-ros-visualization ros-indigo-moveit-ros-warehouse
   - source /opt/ros/indigo/setup.bash
 
 # Create a catkin workspace with the package under integration.
