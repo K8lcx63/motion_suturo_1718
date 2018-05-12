@@ -67,7 +67,7 @@ before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin lcov
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin lcov ros-indigo-desktop-full ros-indigo-pr2-simulator python-catkin-tools ros-indigo-moveit
   - source /opt/ros/$ROS_DISTRO/setup.bash
   # Prepare rosdep to install dependencies.
   - sudo rosdep init
@@ -87,7 +87,7 @@ install:
   - git clone https://github.com/menanuni/common_suturo1718.git
   - git clone https://github.com/menanuni/msgs_suturo_1718.git
   - cd ~/catkin_ws 
-  - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
+  - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO -r
   # Add the package under integration to the workspace using a symlink.
   - cd ~/catkin_ws/src
   - ln -s $CI_SOURCE_PATH .
@@ -102,7 +102,6 @@ before_script:
   - wstool up
   # package depdencies: install using rosdep.
   - cd ~/catkin_ws
-  - mv ~/catkin_ws/src/motion_suturo_1718/iai_pr2 ~/catkin_ws/src
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
 
 # Compile and test (fail if any step fails). If the CATKIN_OPTIONS file exists,
