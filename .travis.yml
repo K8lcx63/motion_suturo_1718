@@ -80,6 +80,9 @@ install:
   - catkin_init_workspace
   # Create the devel/setup.bash (run catkin_make with an empty workspace) and
   # source it to set the path variables.
+  - cd ~/catkin_ws/src
+  - git clone https://github.com/menanuni/common_suturo1718.git
+  - git clone https://github.com/menanuni/msgs_suturo_1718.git
   - cd ~/catkin_ws
   - catkin_make
   - source devel/setup.bash
@@ -115,7 +118,7 @@ script:
   # Run the tests, ensuring the path is set correctly.
   - source devel/setup.bash
     #  - catkin_make run_tests && catkin_make test
-  - catkin build
+  - catkin_make
 
 after_success:
   - lcov --directory . --capture --output-file coverage.info
