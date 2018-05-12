@@ -102,6 +102,7 @@ before_script:
   - wstool up
   # package depdencies: install using rosdep.
   - cd ~/catkin_ws
+  - mv ~/catkin_ws/src/motion_suturo_1718/iai_pr2 ~/catkin_ws/src
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
 
 # Compile and test (fail if any step fails). If the CATKIN_OPTIONS file exists,
