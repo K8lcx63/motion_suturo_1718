@@ -68,7 +68,6 @@ before_install:
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
   - sudo apt-get update -qq
-  - sudo apt-get install --install-recommends linux-generic-lts-xenial xserver-xorg-core-lts-xenial xserver-xorg-lts-xenial xserver-xorg-video-all-lts-xenial xserver-xorg-input-all-lts-xenial libwayland-egl1-mesa-lts-xenial           xserver-xorg-dev-lts-xenial mesa-common-dev-lts-xenial libxatracker-dev-lts-xenial libgles2-mesa-dev-lts-xenial libgles1-mesa-dev-lts-xenial libgl1-mesa-dev-lts-xenial libgbm-dev-lts-xenial libegl1-mesa-dev-lts-xenial
   - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin lcov
   - sudo apt-get install ros-indigo-desktop-full
   - source /opt/ros/$ROS_DISTRO/setup.bash
@@ -78,7 +77,7 @@ before_install:
   - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
   - source ~/.bashrc
   - sudo apt-get install ros-indigo-pr2-simulator
-  - sudo apt-get install ros-indigo-moveit
+  - sudo apt-get install ros-indigo-moveit ros-indigo-moveit-commander ros-indigo-moveit-ros ros-indigo-moveit-setup-assistant
   - source /opt/ros/indigo/setup.bash
 
 # Create a catkin workspace with the package under integration.
