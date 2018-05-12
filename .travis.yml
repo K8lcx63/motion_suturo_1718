@@ -86,6 +86,7 @@ install:
   - cd ~/catkin_ws/src
   - git clone https://github.com/menanuni/common_suturo1718.git
   - git clone https://github.com/menanuni/msgs_suturo_1718.git 
+  - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
   # Add the package under integration to the workspace using a symlink.
   - cd ~/catkin_ws/src
   - ln -s $CI_SOURCE_PATH .
