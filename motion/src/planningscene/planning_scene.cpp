@@ -245,14 +245,16 @@ bool PlanningSceneController::attachObject(const string objectName, const string
         moveit_msgs::AttachedCollisionObject attachedObject;
         attachedObject.link_name = link;
 
-        attachedObject.object.header.frame_id = "base_footprint";
+	attachedObject.object.header.stamp = ros::Time(0);
+        attachedObject.object.header.frame_id = objectName;
         // define name and define that this is an add-operation
         attachedObject.object.id = objectName;
         attachedObject.object.operation = attachedObject.object.ADD;
 
         // set pose of object to zero position and identity orientation because the
         // header's frame id contains the frame of the object
-        geometry_msgs::Pose poseOfMesh = transformer.lookupTransformPose("base_footprint", objectName, ros::Time(0));
+        geometry_msgs::Pose poseOfMesh;
+        poseOfMesh.orientation.w = 1.0;
 
         // fill mesh-path in message to send
         string meshPath = meshPathPrefix + objectName + "/" + objectName + ".dae";

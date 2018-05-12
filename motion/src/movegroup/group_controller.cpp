@@ -221,6 +221,10 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                                                            const geometry_msgs::PoseArray &objectGraspPoses,
                                                            double effort, std::string objectLabel) {
 
+    //open gripper and wait some seconds until it is opened
+    if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
+    if(group.getName() == "left_arm") openGripper(motion_msgs::GripperGoal::LEFT);
+    sleep(3);
 
     //visualize possible grasp poses
     visualizationMarker.publishMeshes(objectGraspPoses, PATH_TO_GRIPPER_MESH);
@@ -386,10 +390,6 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
     /* EXECUTE BEST SOLUTION GRASP POSE*/
 
-    //open gripper
-    if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
-    if(group.getName() == "left_arm") openGripper(motion_msgs::GripperGoal::LEFT);
-
     //get all required information for executing
     int indexOfTakenSolution = previousIndicesOfGraspPoses[0];
     moveit_msgs::GetPositionIK::Response ikSolutionTaken = ikSolutions[0];
@@ -458,7 +458,8 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
 
                 //temporarily allow collision for grasped object with actually colliding object (e.g. table)
                 //until moved object away from table
-                if (allowCollisionWithCollidingObjects(objectLabel, gripperGoal.gripper)) {
+
+                allowCollisionWithCollidingObjects(objectLabel, gripperGoal.gripper);
 
                     //move up for some cm's to get out of the collision of the grasped object
                     geometry_msgs::PoseStamped liftGoal = goalForWrist;
@@ -475,11 +476,7 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
                     //in future, only allow the object to collide with gripper holding it
                     allowCollisionForGrasping(objectLabel, gripperGoal.gripper);
 
-                } else {
-                    ROS_ERROR("COULD NOT TEMPORARILY ALLOW COLLISION WITH COLLIDING OBJECTS, ABORTING.");
-                    result.val = moveit_msgs::MoveItErrorCodes::FAILURE;
-                    return result;
-                }
+
 
             }
         } else {
@@ -584,8 +581,8 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
         //plan and execute the calculated ik solution
         group.setJointValueTarget(*robotStateInIkSolution);
 
-        group.setGoalOrientationTolerance(0.03);
-        group.setGoalPositionTolerance(0.01);
+        group.setGoalOrientationTolerance(0.1);
+        group.setGoalPositionTolerance(0.05);
 
         result.val = group.plan(execution_plan);
 
@@ -593,6 +590,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
 
             result = group.move();
 
+            /*
             // additionally (only on real robot) check force torque sensor data to adjust the height of the gripper, if the left arm is used
             // if the object is still hovering over the table (indicated by the force-magnitude being under a certain threshold)
             // the gripper gets moved down in small steps until the object is in contact with the table it shall be placed on
@@ -603,11 +601,12 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
                 //temporarily allow collision for placed object with other objects
                 planning_scene_controller.addObjectToCollisionMatrix(objectLabel, true);
 
+                geometry_msgs::PoseStamped newGoalForWristInMap = point_transformer.transformPoseStamped("map", goalForWrist);
+
                 while(!(forceMagnitude > FORCE_THRESHOLD) && result.val == moveit_msgs::MoveItErrorCodes::SUCCESS){
                     cout << "FORCE-MAGNITUDE:   " << forceMagnitude << endl;
 
                     // transform goal pose into map
-                    geometry_msgs::PoseStamped newGoalForWristInMap = point_transformer.transformPoseStamped("map", goalForWrist);
 
                     newGoalForWristInMap.pose.position.z -= 0.01;
 
@@ -619,9 +618,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
                         result = group.execute(execution_plan);
                 }
 
-                //forbid collision for placed object with other objects
-                planning_scene_controller.addObjectToCollisionMatrix(objectLabel, false);
-            }
+            }*/
 
             if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
