@@ -69,7 +69,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin lcov
   - sudo apt-get install ros-indigo-desktop-full
-  - sudo apt-get install ros-indigo-moveit ros-indigo-pr2-simulator
+  - sudo apt-get install ros-indigo-pr2-simulator
   - sudo apt-get install ros-indigo-moveit ros-indigo-moveit-commander ros-indigo-moveit-ros ros-indigo-moveit-setup-assistant
   - source /opt/ros/$ROS_DISTRO/setup.bash
   # Prepare rosdep to install dependencies.
@@ -105,7 +105,7 @@ before_script:
   - wstool up
   # package depdencies: install using rosdep.
   - cd ~/catkin_ws
-  - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
+  - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO -r
 
 # Compile and test (fail if any step fails). If the CATKIN_OPTIONS file exists,
 # use it as an argument to catkin_make, for example to blacklist certain
