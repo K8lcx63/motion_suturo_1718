@@ -70,7 +70,7 @@ before_install:
   - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin lcov
   - sudo apt-get install ros-indigo-desktop-full
   - sudo apt-get install ros-indigo-pr2-simulator
-  - sudo apt-get install -f ros-indigo-moveit -y
+  - sudo apt-get install ros-indigo-moveit-full
   - source /opt/ros/$ROS_DISTRO/setup.bash
   # Prepare rosdep to install dependencies.
   - sudo rosdep init
