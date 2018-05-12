@@ -127,17 +127,9 @@ before_script:
 script:
   - source /opt/ros/$ROS_DISTRO/setup.bash
   - cd ~/catkin_ws
-  - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
   # Run the tests, ensuring the path is set correctly.
   - source devel/setup.bash
     #  - catkin_make run_tests && catkin_make test
   - catkin_make --pkg motion
 
 after_success:
-  - lcov --directory . --capture --output-file coverage.info
-#  - lcov --remove coverage.info '/usr/*' '/opt/*' '/src/expressiongraph/*' '/src/qpoases/*' '/src/giskard_core/test/*' --output-file coverage.info # filter out unrelated code
-  - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter out unrelated code
-  - ls
-  - lcov --list coverage.info # debug before upload
-  # Uploading report to CodeCov
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
