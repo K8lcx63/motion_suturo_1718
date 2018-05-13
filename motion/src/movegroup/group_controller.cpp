@@ -8,6 +8,7 @@
 #include <motion_msgs/MovingCommandAction.h>
 #include <group_controller.h>
 #include <visualization_marker.h>
+#include <ROSConnector.h>
 
 GroupController::GroupController(const ros::NodeHandle &nh) :
         nodeHandle(nh),
@@ -24,10 +25,10 @@ GroupController::GroupController(const ros::NodeHandle &nh) :
 moveit_msgs::MoveItErrorCodes GroupController::moveArmsToDrivePose(moveit::planning_interface::MoveGroup &group) {
     group.setNamedTarget("arms_drive_pose");
 
-    moveit_msgs::MoveItErrorCodes error_code = group.plan(execution_plan);
+    moveit_msgs::MoveItErrorCodes error_code = ROSConnector::planMoveGroup(group, execution_plan);
 
     if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-        error_code = group.move();
+        error_code = ROSConnector::moveMoveGroup(group);
     }
 
     return error_code;
@@ -46,10 +47,10 @@ GroupController::moveGroupToCarryingObjectPose(moveit::planning_interface::MoveG
         group.setNamedTarget("left_arm_carry_pose");
     }
 
-    moveit_msgs::MoveItErrorCodes error_code = group.plan(execution_plan);
+    moveit_msgs::MoveItErrorCodes error_code = ROSConnector::planMoveGroup(group, execution_plan);
 
     if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-        error_code = group.move();
+        error_code = ROSConnector::moveMoveGroup(group);
     }
 
     return error_code;
@@ -72,10 +73,10 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
     group.setGoalPositionTolerance(0.05);
     group.setPlannerId("RRTConnectkConfigDefault");
 
-    moveit::planning_interface::MoveItErrorCode error_code = group.plan(execution_plan);
+    moveit::planning_interface::MoveItErrorCode error_code = ROSConnector::planMoveGroup(group, execution_plan);
 
     if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
-        error_code = group.move();
+        error_code = ROSConnector::moveMoveGroup(group);
     }
     return error_code;
 }
@@ -132,7 +133,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
         group.setGoalPositionTolerance(0.05);
         group.setPlannerId("RRTConnectkConfigDefault");
 
-        error_code = group.plan(execution_plan);
+        error_code = ROSConnector::planMoveGroup(group, execution_plan);
 
         // if point can be reached, calculate trajectory to point
         // so it is guaranteed that the robot moves his arm straight through the object following the trajectory
@@ -209,7 +210,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
                 rt.getRobotTrajectoryMsg(robotTrajectory);
 
                 execution_plan.trajectory_ = robotTrajectory;
-                error_code = group.execute(execution_plan);
+                error_code = ROSConnector::executeMoveGroup(group, execution_plan);
             }
         }
     }
@@ -415,11 +416,11 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     group.setGoalOrientationTolerance(0.03);
     group.setGoalPositionTolerance(0.01);
 
-    result.val = group.plan(execution_plan);
+    result.val = ROSConnector::planMoveGroup(group, execution_plan);
 
     if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
-        result = group.move();
+        result = ROSConnector::moveMoveGroup(group);
 
         if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
@@ -591,11 +592,11 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
         group.setGoalOrientationTolerance(0.1);
         group.setGoalPositionTolerance(0.05);
 
-        result.val = group.plan(execution_plan);
+        result.val = ROSConnector::planMoveGroup(group, execution_plan);
 
         if (result.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
-            result = group.move();
+            result = ROSConnector::moveMoveGroup(group);
 
             /*
             // additionally (only on real robot) check force torque sensor data to adjust the height of the gripper, if the left arm is used

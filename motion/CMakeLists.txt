@@ -63,6 +63,7 @@ add_executable(
     src/node/motion_main_node.cpp
 		include/group_controller.h
     src/movegroup/group_controller.cpp
+		include/ROSConnector.h
 )
 
 add_executable(
