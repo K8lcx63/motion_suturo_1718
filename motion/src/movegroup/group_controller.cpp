@@ -120,6 +120,8 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
     /* If first movement was successful, calculate path to poke the object */
     if (error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
 
+        planning_scene_controller.removeObjectFromEnvironment(objectLabel);
+
         geometry_msgs::PoseStamped secondGoalPoseWrist = firstGoalPoseWrist;
 
         //poke with the half of the length of the gripper through the object
@@ -201,8 +203,6 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
 
             // if computation was successful, execute the movement following the trajectory
             if (fraction != -1) {
-                planning_scene_controller.removeObjectFromEnvironment(objectLabel);
-
                 robot_trajectory::RobotTrajectory rt(group.getCurrentState()->getRobotModel(), group.getName());
                 rt.setRobotTrajectoryMsg(*group.getCurrentState(), robotTrajectory);
 
