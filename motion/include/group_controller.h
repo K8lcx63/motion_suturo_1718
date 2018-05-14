@@ -18,6 +18,7 @@
 #include <map>
 #include <math.h>
 #include "planning_scene.h"
+#include "ROSConnector.h"
 
 using namespace std;
 
@@ -49,6 +50,8 @@ private:
     VisualizationMarker visualizationMarker;
     actionlib::SimpleActionClient<motion_msgs::GripperAction> gripperclient;
     PlanningSceneController planning_scene_controller;
+    ROSConnector rosConnector;
+
     float forceMagnitude;
 
     //indicates, whether actually a simulation is launched or the real robot is used.

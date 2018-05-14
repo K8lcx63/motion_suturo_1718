@@ -6,15 +6,15 @@
 
 class ROSConnector {
 public:
-    static moveit::planning_interface::MoveItErrorCode planMoveGroup(moveit::planning_interface::MoveGroup &group, moveit::planning_interface::MoveGroup::Plan &plan) {
+    moveit::planning_interface::MoveItErrorCode planMoveGroup(moveit::planning_interface::MoveGroup &group, moveit::planning_interface::MoveGroup::Plan &plan) {
         return group.plan(plan);
     }
 
-    static moveit::planning_interface::MoveItErrorCode moveMoveGroup(moveit::planning_interface::MoveGroup &group) {
+    moveit::planning_interface::MoveItErrorCode moveMoveGroup(moveit::planning_interface::MoveGroup &group) {
         return group.move();
     }
 
-    static moveit::planning_interface::MoveItErrorCode executeMoveGroup(moveit::planning_interface::MoveGroup &group, moveit::planning_interface::MoveGroup::Plan &plan) {
+    moveit::planning_interface::MoveItErrorCode executeMoveGroup(moveit::planning_interface::MoveGroup &group, moveit::planning_interface::MoveGroup::Plan &plan) {
         return group.execute(plan);
     }
 
