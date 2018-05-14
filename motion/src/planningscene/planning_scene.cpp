@@ -356,6 +356,39 @@ PlanningSceneController::attachObjectFromHuman(const string objectName, const ge
 
 }
 
+bool PlanningSceneController::removeAttachedObject(const string objectName){
+
+    // for info on console
+    string infoOutput;
+    string errorOutput;
+
+    if (!objectName.empty()) {
+        infoOutput = "\x1B[32m: DATA SEEMS VALID, START TO DETACH OBJECT " + objectName + ".";
+        ROS_INFO (infoOutput.c_str());
+
+        //detach the object from the given link
+        moveit_msgs::AttachedCollisionObject detachObject;
+        detachObject.object.id = objectName;
+        detachObject.object.operation = detachObject.object.REMOVE;
+
+        // apply detaching object
+        attachObjectPublisher.publish(detachObject);
+        // wait some miliseconds for changes to be applied
+        sleep_t.sleep();
+
+        infoOutput = "\x1B[32m: SUCCESSFULLY DETACHED OBJECT " + objectName + ".";
+
+        removeObjectFromEnvironment(objectName);
+
+        return true;
+    }
+
+    errorOutput = "COULDN'T DETACH OBJECT " + objectName + ", BECAUSE OF INVALID DATA.";
+    ROS_ERROR (errorOutput.c_str());
+
+    return false;
+}
+
 bool PlanningSceneController::detachObject(const string objectName, const string link) {
 
     // for info on console

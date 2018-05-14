@@ -36,6 +36,7 @@ action_server(node_handle, "moving", boost::bind(&MotionNode::executeCommand, th
 {
     perceivedObjectBoundingBoxSubscriber = node_handle.subscribe("perceived_object_bounding_box", 10, &MotionNode::perceivedObjectBoundingBoxCallback, this);
     attachedObjectSubscriber = node_handle.subscribe("/beliefstate/spawn_attached_object", 10, &MotionNode::attachedObjectCallback, this);
+    removedObjectSubscriber = node_handle.subscribe("/beliefstate/delete_object_human_interaction", 10, &MotionNode::removedObjectCallback, this);
     action_server.start();
 }
 
@@ -356,4 +357,8 @@ void MotionNode::attachedObjectCallback(const knowledge_msgs::SpawnAttachedObjec
     }
 
     planning_scene_controller.attachObjectFromHuman(msg->object_label, msg->pose, gripperLinks);
+}
+
+void MotionNode::removedObjectCallback(std_msgs::String msg){
+    planning_scene_controller.removeAttachedObject(msg.data);
 }

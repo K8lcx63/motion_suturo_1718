@@ -137,6 +137,14 @@ public:
     bool
     attachObjectFromHuman(const string objectName, const geometry_msgs::PoseStamped pose, vector<string> gripperLinks);
 
+    /*
+     * Removes the object, which currently is attached, from the robot and the planningscene.
+     *
+     * @param objectName the name of the object to detach and remove
+     * @return if the operation was successful or not.
+     */
+    bool removeAttachedObject(const string objectName);
+
     /**
      * Detach object from robot after releasing it.
      *

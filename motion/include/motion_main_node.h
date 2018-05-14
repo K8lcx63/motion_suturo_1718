@@ -9,6 +9,7 @@
 #include <knowledge_msgs/Gripper.h>
 #include <knowledge_msgs/PerceivedObjectBoundingBox.h>
 #include <knowledge_msgs/SpawnAttachedObject.h>
+#include <std_msgs/String.h>
 #include "group_controller.h"
 #include "planning_scene.h"
 
@@ -26,6 +27,7 @@ private:
     actionlib::SimpleActionServer<motion_msgs::MovingCommandAction> action_server;
     ros::Subscriber perceivedObjectBoundingBoxSubscriber;
     ros::Subscriber attachedObjectSubscriber;
+    ros::Subscriber removedObjectSubscriber;
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
@@ -71,6 +73,13 @@ public:
      * @param msg The message containing the name and the pose of the handed over object.
      */
     void attachedObjectCallback(const knowledge_msgs::SpawnAttachedObject::ConstPtr &msg);
+
+    /**
+     * Callback function getting called when the robot can't place an object and a human takes it out of his gripper.
+     *
+     * @param msg The message containing the name of the object to remove from planningscene.
+     */
+    void removedObjectCallback(std_msgs::String msg);
 };
 
 /**
