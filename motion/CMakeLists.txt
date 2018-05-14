@@ -122,7 +122,6 @@ set(TEST_SRCS
 		test/visualization_marker_test.cpp
 		test/move_base_test.cpp
 		test/planning_scene_test.cpp
-		test/group_controller_test.cpp
 		src/transformer/point_transformer.cpp
 		src/visualization/visualization_marker.cpp
 		src/movebase/move_base.cpp
