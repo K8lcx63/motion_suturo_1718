@@ -56,8 +56,10 @@ GroupController::moveGroupToCarryingObjectPose(moveit::planning_interface::MoveG
 }
 
 moveit_msgs::MoveItErrorCodes
-GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
+GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &usedGroup,
                                  const geometry_msgs::PoseStamped &goal_pose) {
+
+    moveit::planning_interface::MoveGroup group(usedGroup.getName());
 
     geometry_msgs::PointStamped toVisualize;
     toVisualize.header.frame_id = goal_pose.header.frame_id;
@@ -67,9 +69,10 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
     geometry_msgs::PoseStamped goalPoseInPlanningFrame = point_transformer.transformPoseStamped(
             group.getPlanningFrame(), goal_pose);
 
+    group.setStartState(*group.getCurrentState());
     group.setPoseTarget(goalPoseInPlanningFrame);
-    group.setGoalOrientationTolerance(0.1);
-    group.setGoalPositionTolerance(0.05);
+    group.setGoalOrientationTolerance(0.05);
+    group.setGoalPositionTolerance(0.03);
     group.setPlannerId("RRTConnectkConfigDefault");
 
     moveit::planning_interface::MoveItErrorCode error_code = group.plan(execution_plan);
@@ -80,9 +83,11 @@ GroupController::moveGroupToPose(moveit::planning_interface::MoveGroup &group,
     return error_code;
 }
 
-moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_interface::MoveGroup &group,
+moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_interface::MoveGroup &usedGroup,
                                                           const geometry_msgs::PoseStamped &goalPose, const string objectLabel) {
 
+
+    moveit::planning_interface::MoveGroup group(usedGroup.getName());
 
     /* First calculate pose to move group to front-direction of object to poke */
     // get the goal pose for the wrist from the goal pose for the end effector
@@ -129,6 +134,7 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
         if(group.getName() == "left_arm") secondGoalPoseWrist.pose.position.x += DISTANCE_BEFORE_POKING + GRIPPER_LENGTH_LEFT;
 
         // plan again to check if second goal pose can be reached by group
+        group.setStartState(*group.getCurrentState());
         group.setPoseTarget(secondGoalPoseWrist);
         group.setGoalOrientationTolerance(0.1);
         group.setGoalPositionTolerance(0.05);
@@ -194,9 +200,10 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
             visualizationMarker.publishMeshesWithColor(poses, "base_footprint", ids, PATH_TO_GRIPPER_MESH, colors, lifetimes);
 
             // set the calculated waypoints as goal-trajectory for group
+            group.setStartState(*group.getCurrentState());
             group.setPoseReferenceFrame("base_footprint");
-            group.setGoalOrientationTolerance(0.1);
-            group.setGoalPositionTolerance(0.05);
+            group.setGoalOrientationTolerance(0.05);
+            group.setGoalPositionTolerance(0.02);
 
             moveit_msgs::RobotTrajectory robotTrajectory;
             double fraction = group.computeCartesianPath(waypoints, 0.01, 0.0, robotTrajectory, false);
@@ -220,9 +227,11 @@ moveit_msgs::MoveItErrorCodes GroupController::pokeObject(moveit::planning_inter
     return error_code;
 }
 
-moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup &group,
+moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_interface::MoveGroup &usedGroup,
                                                            const geometry_msgs::PoseArray &objectGraspPoses,
                                                            double effort, std::string objectLabel) {
+
+    moveit::planning_interface::MoveGroup group(usedGroup.getName());
 
     //open gripper and wait some seconds until it is opened
     if(group.getName() == "right_arm") openGripper(motion_msgs::GripperGoal::RIGHT);
@@ -410,10 +419,11 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     moveit::core::RobotStatePtr robotStateInIkSolution = visualizeIkSolution(ikSolutionTaken);
 
     //plan and execute the calculated ik solution
+    group.setStartState(*group.getCurrentState());
     group.setJointValueTarget(*robotStateInIkSolution);
 
-    group.setGoalOrientationTolerance(0.03);
-    group.setGoalPositionTolerance(0.01);
+    group.setGoalOrientationTolerance(0.05);
+    group.setGoalPositionTolerance(0.02);
 
     result.val = group.plan(execution_plan);
 
@@ -535,8 +545,10 @@ moveit_msgs::MoveItErrorCodes GroupController::graspObject(moveit::planning_inte
     return result;
 }
 
-moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_interface::MoveGroup &group,
+moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_interface::MoveGroup &usedGroup,
                                                           const geometry_msgs::PoseStamped &object_drop_pose, std::string objectLabel) {
+
+    moveit::planning_interface::MoveGroup group(usedGroup.getName());
 
     //calculate goal for wrist frame from given goal for tool frame
     geometry_msgs::PoseStamped goalForWrist = point_transformer.transformPoseFromEndEffectorToWristFrame(object_drop_pose, group);
@@ -586,6 +598,7 @@ moveit_msgs::MoveItErrorCodes GroupController::placeObject(moveit::planning_inte
         moveit::core::RobotStatePtr robotStateInIkSolution = visualizeIkSolution(ikResponse);
 
         //plan and execute the calculated ik solution
+        group.setStartState(*group.getCurrentState());
         group.setJointValueTarget(*robotStateInIkSolution);
 
         group.setGoalOrientationTolerance(0.1);
