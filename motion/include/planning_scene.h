@@ -127,6 +127,17 @@ public:
     attachObject(const string objectName, const string link);
 
     /**
+     * Attach object to robot after a human placed the object in the robots gripper.
+     *
+     * @param objectName the name of the object to attach to the robots gripper.
+     * @param pose the pose of the object placed by a human.
+     * @param gripperLinks the names of the gripper components. Used for allowing the collision of the object with this components.
+     * @return true/false whether the object was successfully attached.
+     */
+    bool
+    attachObjectFromHuman(const string objectName, const geometry_msgs::PoseStamped pose, vector<string> gripperLinks);
+
+    /**
      * Detach object from robot after releasing it.
      *
      * @param objectName the name of the object to detach from the robot.

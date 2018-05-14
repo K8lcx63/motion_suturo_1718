@@ -8,6 +8,7 @@
 #include <knowledge_msgs/DropObject.h>
 #include <knowledge_msgs/Gripper.h>
 #include <knowledge_msgs/PerceivedObjectBoundingBox.h>
+#include <knowledge_msgs/SpawnAttachedObject.h>
 #include "group_controller.h"
 #include "planning_scene.h"
 
@@ -24,6 +25,7 @@ private:
     ros::NodeHandle node_handle;
     actionlib::SimpleActionServer<motion_msgs::MovingCommandAction> action_server;
     ros::Subscriber perceivedObjectBoundingBoxSubscriber;
+    ros::Subscriber attachedObjectSubscriber;
     moveit::planning_interface::MoveGroup::Plan execution_plan;
     moveit::planning_interface::MoveGroup right_arm_group;
     moveit::planning_interface::MoveGroup left_arm_group;
@@ -62,6 +64,13 @@ public:
      * @param msg The message containing the name, pose and bounding box of the perceived object.
      */
     void perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr &msg);
+
+    /**
+     * Callback function getting called when the robot can't grasp an object and a human puts the object in his hand.
+     *
+     * @param msg The message containing the name and the pose of the handed over object.
+     */
+    void attachedObjectCallback(const knowledge_msgs::SpawnAttachedObject::ConstPtr &msg);
 };
 
 /**

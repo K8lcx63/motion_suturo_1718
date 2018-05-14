@@ -290,6 +290,72 @@ bool PlanningSceneController::attachObject(const string objectName, const string
     return false;
 }
 
+bool
+PlanningSceneController::attachObjectFromHuman(const string objectName, const geometry_msgs::PoseStamped pose, vector<string> gripperLinks){
+
+    // for info on console
+    string infoOutput;
+    string errorOutput;
+
+    if (!objectName.empty()) {
+        infoOutput = "\x1B[32m: DATA SEEMS VALID, START TO ATTACH OBJECT " + objectName + " TO LINK " + pose.header.frame_id + ".";
+        ROS_INFO (infoOutput.c_str());
+
+        // first remove the object from the environment
+        if (!removeObjectFromEnvironment(objectName)) {
+            return false;
+        }
+
+        // then the object has to be attached to the robot
+
+        // define the link the object has to be attached to
+        moveit_msgs::AttachedCollisionObject attachedObject;
+        attachedObject.link_name = pose.header.frame_id;
+
+        attachedObject.object.header.stamp = ros::Time(0);
+        attachedObject.object.header.frame_id = pose.header.frame_id;
+        // define name and define that this is an add-operation
+        attachedObject.object.id = objectName;
+        attachedObject.object.operation = attachedObject.object.ADD;
+
+        // fill mesh-path in message to send
+        string meshPath = meshPathPrefix + objectName + "/" + objectName + ".dae";
+        shape_msgs::Mesh mesh = getMeshFromResource(meshPath);
+
+        attachedObject.object.meshes.push_back(mesh);
+        attachedObject.object.mesh_poses.push_back(pose.pose);
+
+        // apply attaching object
+        attachObjectPublisher.publish(attachedObject);
+        // wait some miliseconds for changes to be applied
+        sleep_t.sleep();
+
+        //check if the object was successfully attached to the link
+
+        if (isAttached(objectName, pose.header.frame_id)) {
+            infoOutput = "\x1B[32m: SUCCESSFULLY ATTACHED OBJECT " + objectName + " TO THE ROBOT AT LINK " + pose.header.frame_id + ".";
+            ROS_INFO (infoOutput.c_str());
+
+            allowCollisionForSetOfObjects(objectName, gripperLinks);
+
+
+            return true;
+        } else {
+            errorOutput = "COULDN'T ATTACH OBJECT " + objectName + " TO THE ROBOT!";
+            ROS_ERROR(errorOutput.c_str());
+
+            return false;
+        }
+
+    }
+
+    errorOutput = "CAN'T ATTACH OBJECT " + objectName + " TO THE ROBOT, BECAUSE DATA IS INVALID!";
+    ROS_ERROR(errorOutput.c_str());
+
+    return false;
+
+}
+
 bool PlanningSceneController::detachObject(const string objectName, const string link) {
 
     // for info on console

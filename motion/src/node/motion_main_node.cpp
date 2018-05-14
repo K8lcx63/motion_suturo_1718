@@ -35,6 +35,7 @@ both_arms("arms"),
 action_server(node_handle, "moving", boost::bind(&MotionNode::executeCommand, this, _1), false)
 {
     perceivedObjectBoundingBoxSubscriber = node_handle.subscribe("perceived_object_bounding_box", 10, &MotionNode::perceivedObjectBoundingBoxCallback, this);
+    attachedObjectSubscriber = node_handle.subscribe("/beliefstate/spawn_attached_object", 10, &MotionNode::attachedObjectCallback, this);
     action_server.start();
 }
 
@@ -342,4 +343,17 @@ bool MotionNode::addKitchenCollisionObjects(knowledge_msgs::GetFixedKitchenObjec
 
 void MotionNode::perceivedObjectBoundingBoxCallback(const knowledge_msgs::PerceivedObjectBoundingBox::ConstPtr &msg) {
     planning_scene_controller.addPerceivedObjectToEnvironment(msg);
+}
+
+void MotionNode::attachedObjectCallback(const knowledge_msgs::SpawnAttachedObject::ConstPtr &msg){
+
+    vector<string> gripperLinks;
+
+    if(msg->pose.header.frame_id == "r_gripper_tool_frame"){
+        gripperLinks = group_controller.getGripperLinks(motion_msgs::GripperGoal::RIGHT);
+    } else{
+        gripperLinks = group_controller.getGripperLinks(motion_msgs::GripperGoal::LEFT);
+    }
+
+    planning_scene_controller.attachObjectFromHuman(msg->object_label, msg->pose, gripperLinks);
 }

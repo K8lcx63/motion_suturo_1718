@@ -54,7 +54,6 @@ private:
     //indicates, whether actually a simulation is launched or the real robot is used.
     bool isSimulation;
 
-    vector<string> getGripperLinks(int gripper);
 
 public:
 
@@ -232,6 +231,14 @@ public:
      * @param msg the message containing the data about the force and the torque values of the sensor.
      */
     void ftSensorCallback (const geometry_msgs::WrenchStamped::ConstPtr &msg);
+
+    /*
+     * Returns the links of the components corresponding to the given gripper.
+     *
+     * @param gripper the gripper the component links shall be returned of.
+     * @return the links of the gripper components.
+     */
+    vector<string> getGripperLinks(int gripper);
 };
 
 
