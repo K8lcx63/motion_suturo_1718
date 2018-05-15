@@ -2,7 +2,7 @@
 
 PlanningSceneController::PlanningSceneController(const ros::NodeHandle &nh) :
         node_handle(nh),
-        sleep_t(0.005f),
+        sleep_t(0.05f),
         tf(new tf::TransformListener(ros::Duration(2.0))),
         planningSceneMonitor(new planning_scene_monitor::PlanningSceneMonitor("robot_description", tf)) {
     getPlanningSceneClient = node_handle.serviceClient<moveit_msgs::GetPlanningScene>("get_planning_scene");
