@@ -1,3 +1,4 @@
+
 ## Wiki zum Paket _motion_suturo_1718_
 
 ### Installation
@@ -49,9 +50,24 @@ Bestandteile der Nachricht:
     <td>Enthält eine Position und Orientierung, die abhängig vom Kommando, das in 'command' angegeben wird, interpretiert werden. Siehe weiter unten für genauere Erklärung.</td>
   </tr>
   <tr>
+    <td>goal_poses</td>
+    <td>geometry_msgs/PoseArray</td>
+    <td>Enthält eine Liste von Greifposen, die benutzt wird, wenn in 'command' der Befehl zum Greifen eines Objektes gegeben wird. Siehe weiter unten für genauere Erklärung.</td>
+  </tr>
+  <tr>
     <td>command</td>
     <td>uint8</td>
     <td>Variable, die die Art des Befehles definiert. Siehe weiter unten für definierte Konstanten für diese Variable.</td>
+  </tr>
+  <tr>
+    <td>force</td>
+    <td>float64</td>
+    <td>Variable, die die Kraft angibt, mit der gegriffen werden soll. Nur benötigt, falls ein Kommando zum Greifen abgesetzt wird. Wird dieser Wert bei einem Kommando zum Greifen nicht befüllt, wird ein default-Wert verwendet.</td>
+  </tr>
+  <tr>
+    <td>grasped_object_label</td>
+    <td>string</td>
+    <td>Variable, die den Namen des zu greifenden, abzustellenden oder zu verschiebenden Objektes enthält.</td>
   </tr>
 </table>
 
@@ -71,7 +87,7 @@ Folgende Konstanten kann die Variable _command_ annehmen:
   <tr>
     <td>MOVE_STANDARD_POSE</td>
     <td>1</td>
-    <td>Roboter Arme in die Initiale Pose bewegen, kein PoseStamped benötigt.</td>
+    <td>Arme in die Initiale Pose bewegen, kein PoseStamped benötigt.</td>
   </tr>
   <tr>
     <td>MOVE_RIGHT_ARM</td>
@@ -96,22 +112,37 @@ Folgende Konstanten kann die Variable _command_ annehmen:
   <tr>
     <td>GRASP_RIGHT_ARM</td>
     <td>6</td>
-    <td>Mit rechtem Arm Objekt an gegebener Position mit gegebener Orientierung des Armes greifen.</td>
+    <td>Mit rechtem Arm das Objekt mit einer der übergebenen Greifposen greifen. Die beste Greifpose wird automatisch selektiert.</td>
   </tr>
   <tr>
     <td>GRASP_LEFT_ARM</td>
     <td>7</td>
-    <td>Mit linkem Arm Objekt an gegebener Position mit gegebener Orientierung des Armes greifen.</td>
+    <td>Mit linkem Arm das Objekt mit einer der übergebenen Greifposen greifen. Die beste Greifpose wird automatisch selektiert.</td>
   </tr>
   <tr>
-    <td>RELEASE_RIGHT_ARM</td>
+    <td>PLACE_RIGHT_ARM</td>
     <td>8</td>
     <td>Mit rechtem Arm Objekt an gegebener Position mit gegebener Orientierung des Armes abstellen.</td>
   </tr>
   <tr>
-    <td>RELEASE_LEFT_ARM</td>
+    <td>PLACE_LEFT_ARM</td>
     <td>9</td>
     <td>Mit linkem Arm Objekt an gegebener Position mit gegebener Orientierung des Armes abstellen.</td>
+  </tr>
+  <tr>
+    <td>MOVE_CARRY_POSE</td>
+    <td>10</td>
+    <td>Bewegen der Arme in eine Position, die zum Fahren und gleichzeitig zum Tragen von Objekten geeignet ist.</td>
+  </tr>
+  <tr>
+    <td>MOVE_CARRY_POSE_RIGHT</td>
+    <td>10</td>
+    <td>Bewegen des rechten Armes in eine Position, die zum Fahren und gleichzeitig zum Tragen von Objekten geeignet ist.</td>
+  </tr>
+  <tr>
+    <td>MOVE_CARRY_POSE_LEFT</td>
+    <td>11</td>
+    <td>Bewegen des linken Armes in eine Position, die zum Fahren und gleichzeitig zum Tragen von Objekten geeignet ist.</td>
   </tr>
 </table>
 
